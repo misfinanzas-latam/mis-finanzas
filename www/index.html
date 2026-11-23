@@ -365,6 +365,13 @@ html.priv .big,html.priv .trio strong,html.priv .free3 b,html.priv .it .am,html.
 .pchips button[aria-pressed=true]{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-color:transparent}
 .pchip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--card);border-radius:14px;padding:10px 12px;margin:0 0 12px;box-shadow:0 4px 14px rgb(0 0 0/.06);font-size:14px}
 .pchip b{flex:1;min-width:0}
+.mxm{background:var(--card);border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 14px rgb(0 0 0/.06)}
+.mxm h3{margin:0 0 8px;font-size:16px}
+.mxr{display:grid;grid-template-columns:minmax(0,.9fr) repeat(3,minmax(0,1fr));gap:6px;padding:8px 0;border-top:1px solid var(--line);font-size:13px;align-items:start}
+.mxr>*{min-width:0;overflow-wrap:anywhere;text-align:right}.mxr>:first-child{text-align:left;font-weight:700}
+.mxr small{display:block;opacity:.6;font-size:11px}
+.mxr.hd{border-top:0;font-size:11px;opacity:.65;font-weight:700;padding-top:0}
+.mxr.tt{font-weight:800;border-top:2px solid var(--ink)}
 @media(prefers-reduced-motion:reduce){#pmenu{animation:none}}
 /* Selector de tema */
 .th{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 14px}
@@ -431,6 +438,7 @@ label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!impor
   <section id="tab-resumen" hidden>
     <div id="perNote"></div>
     <div class="kp" id="kpis"></div>
+    <div id="perPlan"></div>
     <h2 class="h2i" data-ic="chart">¿En qué se va el dinero?</h2>
     <div class="donut" id="catDonut"></div>
     <div id="cats"></div>
@@ -624,6 +632,7 @@ const nMes=r=>mdiff(r.a+"-01",r.b+"-01")+1;
 const isRange=()=>!!pRange&&pRange.a!==pRange.b;
 const RGlabel=r=>r.a===r.b?mLabel(r.a):r.a.slice(0,4)===r.b.slice(0,4)?`${MES3(r.a)} – ${MES3(r.b)} ${r.b.slice(0,4)}`:`${MES3(r.a)} ${r.a.slice(2,4)} – ${MES3(r.b)} ${r.b.slice(2,4)}`;
 const RGtext=r=>r.a===r.b?MES[+r.a.slice(5)-1]+" "+r.a.slice(0,4):`${MES[+r.a.slice(5)-1]} ${r.a.slice(0,4)} a ${MES[+r.b.slice(5)-1]} ${r.b.slice(0,4)}`;
+function planR(r){return Array.from({length:nMes(r)},(_,k)=>{const m=shift(r.a,k),a=agg(m),P=(S.cfg.presup||{})[m],iP=ingMes(m).reduce((t,o)=>t+num(o.f.monto),0),gP=fijosMes(m).reduce((t,o)=>t+num(o.f.monto),0);return{m,iR:a.ing,gR:a.gas,iP:P?P.ing:iP,gP:P?P.gas:gP,pres:!!P}})}
 const prevR=r=>{const n=nMes(r);return{a:shift(r.a,-n),b:shift(r.a,-1)}};
 const ahInc=()=>S.cuentas.filter(c=>c.incluir!==false).reduce((s,c)=>s+ctaSaldo(c),0);
 const ahTot=()=>S.cuentas.reduce((s,c)=>s+num(c.saldo),0);
@@ -810,7 +819,7 @@ $("fotoIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f
 function pmenuHTML(){const td=todayStr().slice(0,7),y=td.slice(0,4),cur=RG(),first=S.items.reduce((m,x)=>x.fecha&&x.fecha.slice(0,7)<m?x.fecha.slice(0,7):m,td);
   const P=[["Este mes",td,td],["Mes anterior",shift(td,-1),shift(td,-1)],["Últimos 3 meses",shift(td,-2),td],["Últimos 6 meses",shift(td,-5),td],["Este año",y+"-01",td],["Año pasado",(+y-1)+"-01",(+y-1)+"-12"],["Últimos 12 meses",shift(td,-11),td],["Todo",first,td]];
   return `<h4>Elegir periodo</h4><div class="pchips">${P.map(([l,a,b])=>`<button data-act="per-set" data-id="${a}|${b}" aria-pressed="${cur.a===a&&cur.b===b}">${l}</button>`).join("")}</div>
-  <h4>De un mes a otro</h4>${(()=>{const lo=first<shift(td,-36)?first:shift(td,-36),L=[];for(let m=shift(td,12);m>=lo;m=shift(m,-1))L.push([m,mLabel(m)]);return `<div class="g2"><label class="f">Desde<select id="pDe">${opts(L,cur.a)}</select></label><label class="f">Hasta<select id="pHa">${opts(L,cur.b)}</select></label></div>`})()}
+  <h4>De un mes a otro</h4>${(()=>{const lo=first<shift(td,-36)?first:shift(td,-36),L=[];for(let m=lo<shift(td,-24)?lo:shift(td,-24);m<=shift(td,12);m=shift(m,1))L.push([m,mLabel(m)]);return `<div class="g2"><label class="f">Desde<select id="pDe">${opts(L,cur.a)}</select></label><label class="f">Hasta<select id="pHa">${opts(L,cur.b)}</select></label></div>`})()}
   <button class="btn solid full" data-act="per-custom">${ic("cal")}Ver ese periodo</button>
   <p class="note" style="margin:10px 0 0">El periodo aplica a Historial y Resumen. Inicio y los pagos del mes muestran el último mes del periodo.</p>`}
 function openPmenu(){closeUmenu();$("pmenu").innerHTML=pmenuHTML();$("pmenu").hidden=false;$("pmenuBg").hidden=false}
@@ -871,15 +880,18 @@ function render(){
   xs.forEach(x=>{if(x.fecha!==last){h+=(last?"</ul>":"")+`<p class="day">${+x.fecha.slice(8)} de ${MES[+x.fecha.slice(5,7)-1]}</p><ul class="list">`;last=x.fecha}h+=row(x)});
   $("movList").innerHTML=xs.length?h+"</ul>":`<p class="empty">${q?"Nada coincide con la búsqueda.":"Sin movimientos en "+RGtext(RR)+"."}</p>`;
   // resumen
+  const PL=planR(RR),sP=k=>PL.reduce((t,o)=>t+o[k],0),iPt=sP("iP"),gPt=sP("gP");
   const a2=aR,pR=prevR(RR),p=agg(pR),dg=p.gas?(a2.gas-p.gas)/p.gas:null,cmp=isRange()?"periodo anterior":MES[+shift(month,-1).slice(5)-1];
   const days=(()=>{const td=todayStr();let d=0;for(let k=0;k<nMes(RR);k++){const m=shift(RR.a,k);if(m>td.slice(0,7))break;d+=m===td.slice(0,7)?+td.slice(8):dim(m)}return Math.max(d,1)})();
-  $("kpis").innerHTML=`<div><span>Gastado</span><strong>${fmt(a2.gas)}</strong><em class="${dg>0?"neg":"pos"}">${dg===null?"Sin datos del "+(isRange()?"periodo":"mes")+" anterior":(dg>0?"▲ ":"▼ ")+pct(Math.abs(dg))+" vs. "+cmp}</em></div><div><span>Ingresos</span><strong>${fmt(a2.ing)}</strong><em>${a2.inc.length} registro(s)${isRange()?" en "+nMes(RR)+" meses":""}</em></div>${isRange()?`<div><span>Ingresos − gastos</span><strong class="${a2.ing-a2.gas<0?"neg":"pos"}">${fmt(a2.ing-a2.gas)}</strong><em>${a2.ing?"Ahorro "+pct(Math.max(a2.ing-a2.gas,0)/a2.ing)+" del periodo":"Sin ingresos en el periodo"}</em></div>`:`<div><span>Disponible</span><strong class="${disp<0?"neg":"pos"}">${fmt(disp)}</strong><em>Saldo en cuentas ± movimientos fuera de ellas</em></div>`}<div><span>Promedio diario</span><strong>${fmt(a2.gas/days)}</strong><em>${a2.g.length} gastos</em></div>`;
+  $("kpis").innerHTML=`<div><span>Gastado</span><strong>${fmt(a2.gas)}</strong><em class="${dg>0?"neg":"pos"}">${dg===null?"Sin datos del "+(isRange()?"periodo":"mes")+" anterior":(dg>0?"▲ ":"▼ ")+pct(Math.abs(dg))+" vs. "+cmp}</em></div><div><span>Ingresos</span><strong>${fmt(a2.ing)}</strong><em>${a2.inc.length} registro(s) · plan ${fmt(iPt)}</em></div>${isRange()?`<div><span>Ingresos − gastos</span><strong class="${a2.ing-a2.gas<0?"neg":"pos"}">${fmt(a2.ing-a2.gas)}</strong><em>${a2.ing?"Ahorro "+pct(Math.max(a2.ing-a2.gas,0)/a2.ing)+" del periodo":"Según plan: "+fmt(iPt-gPt)}</em></div>`:`<div><span>Disponible</span><strong class="${disp<0?"neg":"pos"}">${fmt(disp)}</strong><em>Saldo en cuentas ± movimientos fuera de ellas</em></div>`}<div><span>Promedio diario</span><strong>${fmt(a2.gas/days)}</strong><em>${a2.g.length} gastos</em></div>`;
   const bars=(o,tot,empty)=>{const e=Object.entries(o).sort((x,y)=>y[1]-x[1]),mx=e.length?e[0][1]:1;return e.length?e.map(([c,v],k)=>`<div class="bar"><b style="display:flex;align-items:center;gap:8px">${bub(o===a2.bySrc?(S.fuentes.find(f=>f.nombre===c)||{}).tipo||"Otros ingresos":c,1)}${esc(c)}</b><i>${fmt(v)} · ${pct(v/tot)}</i><div class="trk"><div style="width:${v/mx*100}%;background:${catI(o===a2.bySrc?(S.fuentes.find(f=>f.nombre===c)||{}).tipo||"Otros ingresos":c)[1]}"></div></div></div>`).join(""):`<p class="empty">${empty}</p>`};
   drawDonut(a2.byCat,a2.gas);
   $("cats").innerHTML=bars(a2.byCat,a2.gas,"Sin gastos "+perTxt+".");
   $("incs").innerHTML=bars(a2.bySrc,a2.ing,"Sin ingresos registrados "+perTxt+".");
   const rec=a2.places.filter(x=>x.n>=2).sort((x,y)=>y.t-x.t).slice(0,8);
   $("rec").innerHTML=rec.length?rec.map(r=>`<li class="it" style="cursor:default">${bub(r.cat)}<span class="tx"><b>${esc(r.name)}</b><span>${r.n} veces · promedio ${fmt(r.t/r.n)}</span></span><span class="am">${fmt(r.t)}</span></li>`).join(""):`<li class="empty">Aparecen cuando visitas un lugar 2 veces o más en el periodo.</li>`;
+  const cell=(r,p)=>`<span>${fmt(r)}<small>plan ${fmt(p)}</small></span>`;
+  $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo</span></div>${PL.map(o=>`<div class="mxr"><span>${MES3(o.m)} ${o.m.slice(2,4)}</span>${cell(o.iR,o.iP)}${cell(o.gR,o.gP)}${cell(o.iR-o.gR,o.iP-o.gP)}</div>`).join("")}<div class="mxr tt"><span>Total</span>${cell(a2.ing,iPt)}${cell(a2.gas,gPt)}${cell(a2.ing-a2.gas,iPt-gPt)}</div><p class="note" style="margin:8px 0 0">Arriba lo real registrado; abajo el plan: el presupuesto aplicado a ese mes o, si no tiene, tus ingresos y gastos fijos programados.</p></div>`:"";
   const tips=insights(RR);
   $("tips").innerHTML=tips.length?tips.map(t=>`<div class="tip">${bubI("bulb","#ca8a04")}<div><b>${esc(t.t)}</b><p>${esc(t.d)}</p>${t.s>0?`<mark>Ahorro posible: ${fmt(t.s)}/mes</mark>`:""}</div></div>`).join(""):`<p class="empty">Registra gastos de ${RGtext(RR)} para ver sugerencias.</p>`;
   $("askAi").hidden=!sample||!a2.g.length;
