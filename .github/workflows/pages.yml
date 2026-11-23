@@ -28,6 +28,12 @@ jobs:
             printf 'window.MF_CONFIG={supabaseUrl:"%s",supabaseAnonKey:"%s",siteUrl:"%s"};\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$SITE_URL" > www/config.js
             echo "config.js generado desde variables"
           fi
+      - name: Marcar versión (día y hora de El Salvador)
+        run: |
+          V=$(TZ=America/El_Salvador date +"%Y-%m-%d %H:%M")
+          printf '{"v":"%s"}\n' "$V" > www/version.json
+          sed -i "s/__APP_VERSION__/$V/g" www/index.html
+          echo "Versión $V"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
