@@ -1,0 +1,18 @@
+{
+  "name": "mis-finanzas",
+  "version": "1.0.0",
+  "description": "Mis Finanzas: gastos con foto de ticket, ahorros, gastos fijos y escenarios.",
+  "scripts": {
+    "serve": "npx http-server www -p 8080 -c-1",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/cli": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/ios": "^7.6.10",
+    "@supabase/supabase-js": "^2.119.2"
+  },
+  "private": true
+}

@@ -1,0 +1,6 @@
+{
+  "appId": "sv.misfinanzas.app",
+  "appName": "Mis Finanzas",
+  "webDir": "www",
+  "ios": { "contentInset": "never", "backgroundColor": "#f4f4f0" }
+}

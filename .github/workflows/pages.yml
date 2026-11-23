@@ -1,0 +1,36 @@
+name: Publicar en GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Supabase desde las variables del repositorio (opcional)
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            printf 'window.MF_CONFIG={supabaseUrl:"%s",supabaseAnonKey:"%s",siteUrl:"%s"};\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" "$SITE_URL" > www/config.js
+            echo "config.js generado desde variables"
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deployment
+        uses: actions/deploy-pages@v4
