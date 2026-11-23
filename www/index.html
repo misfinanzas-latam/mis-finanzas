@@ -55,11 +55,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .trio strong{font-size:17px;white-space:nowrap}
 .pos{color:var(--grn)}.neg{color:var(--red)}
 .cap{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:68px;margin:16px 0 10px;border:0;border-radius:16px;background:var(--y);color:#141414;font:800 19px "Hanken Grotesk",sans-serif;cursor:pointer;box-shadow:0 3px 0 #c9b500}
-.cap:active{transform:translateY(2px);box-shadow:0 1px 0 #c9b500}
+.cap:active{transform:translateY(2px)}
 .cap svg{width:28px;height:28px}
 .btn{min-height:46px;padding:0 16px;border:1.5px solid var(--ink);border-radius:14px;background:var(--card);display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--ink);font:600 16px "Hanken Grotesk",sans-serif;cursor:pointer}
 .btn.full{width:100%}.btn.solid{background:var(--ink);color:var(--bg)}.btn.danger{border-color:var(--red);color:var(--red)}.btn.sm{min-height:40px;font-size:14px;padding:0 12px}
-.btn.yel{background:var(--y);border-color:var(--y);color:#141414}
+.btn.yel{background:linear-gradient(135deg,var(--g1),var(--g2));border:0;color:var(--gk);box-shadow:0 8px 18px color-mix(in srgb,var(--g2) 40%,transparent)}
 .btn:disabled{opacity:.5}
 .lnk{background:none;border:0;color:var(--ink);text-decoration:underline;font:600 15px "Hanken Grotesk",sans-serif;min-height:44px;cursor:pointer}
 h2{font-size:20px;margin:26px 0 10px;line-height:1.2}
@@ -80,18 +80,18 @@ h2 .note{font-weight:500}
 .bar b{font-weight:500;font-size:15px}.bar i{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .trk{grid-column:1/-1;height:12px;background:var(--pl);border-radius:6px;overflow:hidden}
 .trk div{height:100%;background:var(--ink);border-radius:6px}
-.bar:first-child .trk div{background:var(--y)}
+
 .trk div.over{background:var(--red)}
 .route{background:var(--card);box-shadow:var(--sh);border-radius:18px;padding:12px 14px;margin-top:14px}
 .route .bar{margin:6px 0 0}
 .fig{position:relative;min-height:190px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
 .tip{background:var(--card);box-shadow:var(--sh);border-radius:16px;padding:14px;margin:0 0 12px;display:flex;gap:12px;align-items:flex-start}
 .tip b{display:block;font-size:17px;line-height:1.3}.tip p{margin:4px 0 6px;color:var(--mut)}
-mark{background:var(--y);color:#141414;padding:2px 8px;border-radius:6px;font-weight:600;font-size:13px;white-space:nowrap}
+mark{background:color-mix(in srgb,var(--y) 28%,transparent);color:var(--ink);padding:2px 8px;border-radius:6px;font-weight:600;font-size:13px;white-space:nowrap}
 .ai{white-space:pre-wrap;background:var(--card);box-shadow:var(--sh);border-radius:14px;padding:16px;margin-top:12px}
 .search{width:100%;height:46px;font:16px "Hanken Grotesk",sans-serif;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
 .row2{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.demo{background:var(--y);color:#141414;border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.demo{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
 .demo button{background:none;border:1.5px solid #141414;border-radius:8px;min-height:36px;font:600 14px "Hanken Grotesk",sans-serif;color:#141414;padding:0 10px}
 .esc{background:var(--card);box-shadow:var(--sh);border:2px solid transparent;border-radius:18px;padding:14px;margin-bottom:12px}
 .esc.sel{border-color:var(--ink)}
@@ -111,7 +111,8 @@ mark{background:var(--y);color:#141414;padding:2px 8px;border-radius:6px;font-we
 nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--card);box-shadow:0 -4px 18px rgb(0 0 0/.08);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav.tabs button{min-height:60px;border:0;background:none;color:var(--mut);font:600 12px "Hanken Grotesk",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
 nav.tabs button[aria-current=true]{color:var(--ink)}
-nav.tabs button[aria-current=true] svg{background:var(--y);color:#141414;border-radius:8px}
+nav.tabs button[aria-current=true] svg{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-radius:9px;box-shadow:0 4px 10px color-mix(in srgb,var(--g2) 40%,transparent)}
+nav.tabs button[aria-current=true]{color:var(--ink)}
 nav.tabs svg{width:34px;height:24px;padding:2px 6px}
 .sh{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:9}
 .sh[hidden],.ovl[hidden]{display:none}
@@ -195,6 +196,71 @@ label.f input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
 .scan b{display:block}.scan .miss{color:var(--red)}
 .scan details{margin-top:6px}.scan summary{cursor:pointer;color:var(--mut);min-height:32px}
 .scan pre{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;margin:6px 0 0;font-family:ui-monospace,monospace}
+
+/* ===== Temas de color y acabado ===== */
+:root{--y:#ffe600;--yk:#141414;--g1:#ffe600;--g2:#ffb300;--gk:#141414;--tint:#f6f5ee}
+body{background:light-dark(var(--tint),#121211)}
+.ledger{background:linear-gradient(140deg,var(--g1),var(--g2))!important;color:var(--gk);box-shadow:0 14px 30px color-mix(in srgb,var(--g2) 35%,transparent),0 2px 6px rgb(0 0 0/.08);position:relative;overflow:hidden}
+.ledger::after{content:"";position:absolute;right:-60px;top:-70px;width:220px;height:220px;border-radius:50%;background:rgb(255 255 255/.16);pointer-events:none}
+.ledger::before{content:"";position:absolute;right:40px;bottom:-90px;width:160px;height:160px;border-radius:50%;background:rgb(255 255 255/.10);pointer-events:none}
+.ledger small,.ledger .eq,.ledger .trio span,.ledger .free3{color:color-mix(in srgb,var(--gk) 78%,transparent)}
+.ledger .big{color:var(--gk)}.ledger .big.neg{color:var(--gk);text-decoration:underline wavy color-mix(in srgb,var(--gk) 50%,transparent)}
+.ledger .trio>div{background:rgb(255 255 255/.22);border-radius:14px;padding:8px 10px;line-height:1.25;backdrop-filter:blur(2px)}
+.ledger .trio strong{color:var(--gk);display:block;margin-top:2px}
+.ledger .trio span .i{color:var(--gk)}
+.ledger .free3{border-top-color:rgb(255 255 255/.35)}.ledger .free3 b{color:var(--gk)}
+.ledger .neg,.ledger .pos{color:var(--gk)}
+.ledger>*{position:relative;z-index:1}
+.cap{background:linear-gradient(135deg,var(--g1),var(--g2))!important;color:var(--gk)!important;box-shadow:0 10px 24px color-mix(in srgb,var(--g2) 45%,transparent)!important}
+.btn.solid{box-shadow:0 6px 14px rgb(0 0 0/.18)}
+.pay{background:linear-gradient(135deg,var(--g1),var(--g2))!important;color:var(--gk)!important;box-shadow:0 4px 12px color-mix(in srgb,var(--g2) 40%,transparent)}
+.h2i>.i{color:var(--g2)}
+.steps i.on{background:linear-gradient(90deg,var(--g1),var(--g2))}
+.qa button{transition:transform .15s}
+.qa button:hover{transform:translateY(-2px)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(--g2)}
+.fx,.route,.hoja,.esc,.kp div,.tip,.ai,.qa button{box-shadow:0 1px 2px rgb(0 0 0/.05),0 10px 24px rgb(0 0 0/.07)}
+.toast{box-shadow:0 10px 30px rgb(0 0 0/.25)}.toast button{color:var(--g1)}
+/* Campos con etiqueta dentro del recuadro */
+label.f{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:7px 12px 2px;margin:0 0 10px;font-size:12px;font-weight:600;color:var(--mut);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .15s,box-shadow .15s;min-width:0}
+label.f:focus-within{border-color:var(--g2);box-shadow:0 0 0 4px color-mix(in srgb,var(--g2) 18%,transparent);color:var(--ink)}
+label.f input,label.f select{height:38px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;width:100%;min-width:0;max-width:100%;font-size:16px;font-weight:400;color:var(--ink)}
+label.f input:focus,label.f select:focus{outline:none}
+label.f input.amt{height:44px!important;font-size:24px;font-weight:800}
+label.f input[type=date]{line-height:38px;display:block}
+label.f .cxi{border-top:1px dashed var(--line)!important;margin-top:2px!important}
+label.f .cxf{margin:2px 0 4px;padding-top:4px;border-top:1px dashed var(--line);color:var(--mut)}
+label.f .cxf input,label.f .cxf select{height:34px!important;background:var(--pl)!important;border-radius:8px!important;padding:0 6px!important}
+.g2>label.f{margin-bottom:10px}
+.search{border-radius:14px;box-shadow:0 2px 8px rgb(0 0 0/.05)}
+/* Botón flotante de escanear */
+.fab{position:fixed;right:max(16px,calc(50vw - 264px));bottom:calc(76px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);box-shadow:0 12px 26px color-mix(in srgb,var(--g2) 50%,transparent),0 2px 6px rgb(0 0 0/.15);z-index:6;cursor:pointer;border:0}
+.fab svg{width:28px;height:28px}
+.fab:active{transform:scale(.94)}
+/* Selector de tema */
+.th{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 14px}
+.th button{border:2px solid transparent;border-radius:16px;padding:0;overflow:hidden;background:var(--card);box-shadow:0 4px 14px rgb(0 0 0/.08);cursor:pointer;text-align:left;font:600 14px "Hanken Grotesk",sans-serif;color:var(--ink)}
+.th button[aria-pressed=true]{border-color:var(--ink)}
+.th i{display:block;height:54px}
+.th span{display:flex;justify-content:space-between;align-items:center;padding:8px 10px}
+.th b{font-size:12px;color:var(--grn)}
+.thr{display:flex;gap:8px;justify-content:center;margin:0 0 18px}
+.thr button{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 2px var(--line);cursor:pointer}
+.thr button[aria-pressed=true]{box-shadow:0 0 0 2px var(--ink)}
+/* números que no se salen */
+.kp strong{font-size:clamp(16px,5.2vw,22px);overflow:hidden;text-overflow:ellipsis}
+.trio strong{font-size:clamp(13px,4.2vw,17px);overflow:hidden;text-overflow:ellipsis}
+.free3 b{font-size:clamp(13px,4vw,16px);overflow:hidden;text-overflow:ellipsis}
+.it .am{flex:none;max-width:46%}
+.it .tx{min-width:0;overflow:hidden}
+.it .tx>span{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}
+.fx .it{display:grid;grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:10px;row-gap:4px;align-items:center;padding:10px 0}
+.fx .it>.bub{grid-row:1/3}.fx .it>.tx{grid-column:2;grid-row:1/3}.fx .it>.am{grid-column:3;grid-row:1;max-width:none;font-size:15px;justify-self:end}
+.fx .it>.pay,.fx .it>.paid{grid-column:3;grid-row:2;justify-self:end;min-height:34px}
+.g2{align-items:start}
+label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!important;padding:0 2px!important}
+.it .am small{white-space:normal}
+.esc .kp strong{font-size:clamp(14px,4.6vw,18px)}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -267,6 +333,7 @@ label.f input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
     <button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button>
     <h2 class="h2i" data-ic="lock">Seguridad y ajustes</h2>
     <ul class="list">
+      <li><button class="it" data-act="set-theme"><span class="tx"><b>Colores de la app</b><span id="setTheme"></span></span><span class="am" id="setThemeSw"></span></button></li>
       <li><button class="it" data-act="set-name"><span class="tx"><b>Nombre</b><span id="setName"></span></span><span class="am">›</span></button></li>
       <li><button class="it" data-act="set-pin"><span class="tx"><b>PIN de acceso</b><span id="setPin"></span></span><span class="am">›</span></button></li>
       <li><button class="it" data-act="lock-now" id="lockNow"><span class="tx"><b>Bloquear ahora</b><span>Pide el PIN otra vez</span></span><span class="am">›</span></button></li>
@@ -281,6 +348,7 @@ label.f input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
   </section>
 </div>
 
+<label class="fab" id="fab" for="photo" aria-label="Escanear ticket" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg></label>
 <nav class="tabs" id="tabs">
   <button data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg>Inicio</button>
   <button data-tab="movimientos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6h14M5 12h14M5 18h10"/></svg>Historial</button>
@@ -348,6 +416,15 @@ const IC={edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',ca
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||IC.dots}</svg>`;
 const CMAP={"Vivienda":["home","#7c5cff"],"Supermercado":["cart","#16a34a"],"Restaurantes y comida":["food","#f97316"],"Combustible":["fuel","#e11d48"],"Transporte":["car","#0ea5e9"],"Servicios (luz, agua, tel.)":["bolt","#ca8a04"],"Salud y farmacia":["heart","#ef4444"],"Educación":["book","#6366f1"],"Hogar":["home","#a16207"],"Ropa y cuidado personal":["shirt","#db2777"],"Entretenimiento":["star","#8b5cf6"],"Tarjetas y préstamos":["card","#475569"],"Otros":["dots","#64748b"],"Salario":["money","#16a34a"],"Trabajo independiente":["brief","#0d9488"],"Remesa":["send","#2563eb"],"Negocio":["store","#ea580c"],"Alquiler":["key","#7c3aed"],"Pensión":["user","#0891b2"],"Otros ingresos":["plus","#16a34a"]};
 const catI=c=>CMAP[c]||["dots","#64748b"];
+const THEMES={sol:["Sol","#ffe600","#ffb300","#141414","#f7f5ea"],oceano:["Océano","#22d3ee","#2563eb","#ffffff","#eef5fb"],atardecer:["Atardecer","#fb7185","#f97316","#ffffff","#fdf1ec"],selva:["Selva","#34d399","#047857","#ffffff","#edf7f1"],uva:["Uva","#a78bfa","#db2777","#ffffff","#f5f0fb"],grafito:["Grafito","#64748b","#0f172a","#ffffff","#f1f3f6"]};
+let curTheme="";
+function applyTheme(k){if(!THEMES[k])k="sol";curTheme=k;const [n,g1,g2,gk,tint]=THEMES[k],r=document.documentElement.style;
+  r.setProperty("--g1",g1);r.setProperty("--g2",g2);r.setProperty("--gk",gk);r.setProperty("--y",g2);r.setProperty("--yk",gk);r.setProperty("--tint",tint);
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=g1;try{localStorage.setItem("mf.tema",k)}catch(e){}
+  if(typeof drawDaily==="function"){try{drawDaily()}catch(e){}}}
+const swatch=k=>`linear-gradient(135deg,${THEMES[k][1]},${THEMES[k][2]})`;
+function themePanel(){openPanel(`<h3>Colores de la app</h3><p class="note" style="margin-top:-6px">Elige una paleta. Se aplica al momento y se guarda en tu cuenta.</p><div class="th">${Object.keys(THEMES).map(k=>`<button data-act="theme" data-id="${k}" aria-pressed="${k===curTheme}"><i style="background:${swatch(k)}"></i><span>${THEMES[k][0]}${k===curTheme?"<b>✓ Activo</b>":""}</span></button>`).join("")}</div><button class="btn solid full" data-act="close">Listo</button>`)}
+try{applyTheme(localStorage.getItem("mf.tema")||"sol")}catch(e){applyTheme("sol")}
 const isCash=c=>!!c&&(c.tipo==="Efectivo"||/^efectivo$/i.test((c.banco||"").trim()));
 const ctaLabel=c=>c?(c.banco+(c.num?" ···"+c.num:"")+(c.nombre?" · "+c.nombre:"")):"";
 const ctaShort=(id,list)=>{const c=(list||S.cuentas).find(x=>x.id===id);return c?(c.banco+(c.num?" ···"+c.num:"")):(id||"sin cuenta")};
@@ -514,12 +591,13 @@ function insights(m){
 
 // ---------- gráficas
 const inkC=()=>getComputedStyle(document.body).color;
+const accC=()=>getComputedStyle(document.documentElement).getPropertyValue("--g2").trim()||"#ffb300";
 function drawDaily(){
   const s=$("daily"),W=s.clientWidth,H=s.clientHeight;if(!W)return;
   const days=new Date(+month.slice(0,4),+month.slice(5),0).getDate(),v=Array(days).fill(0);
   agg(month).g.forEach(x=>{const d=+x.fecha.slice(8)-1;if(d>=0&&d<days)v[d]+=num(x.monto)});
   const mx=Math.max(...v,1),bw=W/days,top=18,bot=22,h=H-top-bot,ink=inkC();
-  let o=v.map((y,i)=>{const bh=y/mx*h;return `<rect x="${i*bw+bw*.15}" y="${top+h-bh}" width="${bw*.7}" height="${Math.max(bh,y?2:0)}" rx="2" fill="${y===mx&&y>0?"#ffe600":ink}" opacity="${y===mx?1:.85}"/>`}).join("");
+  let o=v.map((y,i)=>{const bh=y/mx*h;return `<rect x="${i*bw+bw*.15}" y="${top+h-bh}" width="${bw*.7}" height="${Math.max(bh,y?2:0)}" rx="2" fill="${y===mx&&y>0?accC():ink}" opacity="${y===mx?1:.85}"/>`}).join("");
   for(let d=1;d<=days;d+=W<520?7:5)o+=`<text x="${(d-.5)*bw}" y="${H-4}" font-size="12" text-anchor="middle" fill="${ink}" opacity=".6">${d}</text>`;
   const im=v.indexOf(mx);if(mx>1)o+=`<text x="${Math.min(Math.max((im+.5)*bw,30),W-30)}" y="13" font-size="12" font-weight="600" text-anchor="middle" fill="${ink}">${fmt(mx)}</text>`;
   s.innerHTML=o;
@@ -595,6 +673,8 @@ function render(){
   const yr=month.slice(0,4);
   $("fTot").textContent=S.fuentes.length?"≈ "+fmt(S.fuentes.reduce((s,f)=>s+fMonthly(f),0))+"/mes":"";
   $("srcList").innerHTML=S.fuentes.length?S.fuentes.map(f=>{const got=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,7)===month)),yt=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,4)===yr));return `<li><button class="it" data-act="src-edit" data-id="${f.id}">${bub(f.tipo)}<span class="tx"><b>${esc(f.nombre)}</b><span>${esc(f.tipo)} · ${freqL(f)} · ${fmt(num(f.monto))} por pago</span></span><span class="am">${fmt(got)}<small>${mn} · ${fmt0(yt)} en ${yr}</small></span></button></li>`}).join(""):`<li class="empty">Agrega quién te da dinero: tu salario, remesas, trabajos o negocios.</li>`;
+  if(S.cfg.tema&&S.cfg.tema!==curTheme)applyTheme(S.cfg.tema);
+  $("setTheme").textContent=THEMES[curTheme][0];$("setThemeSw").innerHTML=`<span style="display:inline-block;width:46px;height:24px;border-radius:12px;background:${swatch(curTheme)};vertical-align:middle"></span>`;
   $("setName").textContent=S.cfg.nombre||"Sin nombre";
   $("rowCuenta").hidden=$("rowOut").hidden=$("rowDel").hidden=!userMail;$("setMail").textContent=userMail||"";
   $("privNote").textContent=sb?"Entras con tu correo y contraseña. Tus datos se guardan en tu cuenta privada: las reglas de la base de datos solo permiten que tu sesión los lea o los cambie. El PIN protege la pantalla si alguien toma tu teléfono.":"Modo local: tus datos se guardan solo en este teléfono. El PIN protege la pantalla si alguien toma tu teléfono.";
@@ -613,7 +693,7 @@ function render(){
 }
 
 function show(t){
-  tab=t;document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
+  tab=t;$("fab").hidden=t==="inicio";document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
   requestAnimationFrame(()=>{drawDaily();drawProy()});window.scrollTo(0,0);
@@ -856,6 +936,7 @@ function obRender(){
   let h="";
   if(st===0)h=`<div class="hero"><div class="tk"><div><span>Super Selectos</span><span>$42.10</span></div><div><span>Gasolina</span><span>$38.00</span></div><div><span>Farmacia</span><span>$12.75</span></div><b><span>Total</span><span>$92.85</span></b></div></div>
     <h2>Toma la foto del ticket. Nosotros sacamos las cuentas.</h2><p class="lead">Registra gastos con la cámara, suma tus ahorros a lo que ganas, compara rutas y elige la que te deja más dinero.</p>
+    <p class="stl" style="text-align:center;margin:0 0 8px">Elige tus colores</p><div class="thr">${Object.keys(THEMES).map(k=>`<button data-act="theme" data-id="${k}" aria-pressed="${k===curTheme}" aria-label="${THEMES[k][0]}" style="background:${swatch(k)}"></button>`).join("")}</div>
     <label class="f">¿Cómo te llamas?<input id="obName" value="${esc(ob.nombre)}" placeholder="Tu nombre" autocomplete="given-name"></label>
     <button class="btn yel full" data-act="ob-next">Empezar</button><p style="text-align:center"><button class="lnk" data-act="ob-demo">Primero quiero ver un ejemplo</button></p>`;
   const E=k=>ob.ed[k]>=0?ob[{c:"cuentas",f:"fuentes",x:"fijos"}[k]][ob.ed[k]]:null;
@@ -906,7 +987,7 @@ function obRender(){
 }
 function showOnboarding(){ob={step:0,nombre:R.cfg.nombre||"",cuentas:[],fuentes:[],fijos:[],pin:"",ed:{c:-1,f:-1,x:-1}};$("ob").hidden=false;obRender()}
 async function obFinish(){
-  R.cfg.nombre=ob.nombre;R.cfg.onboarded=true;R.cfg.horizon=R.cfg.horizon||6;R.cfg.creado=R.cfg.creado||todayStr();
+  R.cfg.nombre=ob.nombre;R.cfg.onboarded=true;R.cfg.tema=curTheme;R.cfg.horizon=R.cfg.horizon||6;R.cfg.creado=R.cfg.creado||todayStr();
   if(ob.pin)await setPin(ob.pin);
   ob.cuentas.forEach(c=>R.cuentas.push({id:c.id,banco:c.banco,tipo:c.tipo,nombre:c.nombre,saldo:c.saldo,fecha:todayStr(),ts:Date.now(),incluir:c.incluir,num:c.num||""}));
   ob.fuentes.forEach(f=>R.fuentes.push({id:nid("f"),nombre:f.nombre,tipo:f.tipo,freq:f.freq,cn:f.cn||null,cu:f.cu||null,monto:f.monto,inicio:f.inicio,cuenta:f.cuenta||"",nota:""}));
@@ -973,6 +1054,8 @@ const ACT={
   "esc-save":()=>{draft.nombre=v("eNombre")||"Escenario";draft.ahorros=$("eAh").checked;draft.lines=draft.lines.filter(l=>l.n||num(l.m));const isNew=draft._new;delete draft._new;
     const i=S.escs.findIndex(e=>e.id===draft.id);if(i>=0)S.escs[i]=draft;else S.escs.push(draft);closePanel();saveMeta("escs");toast(isNew?"Escenario creado":"Escenario guardado")},
   "esc-del":(_,b)=>{if(!confirmBtn(b,"Toca otra vez para eliminar"))return;const id=draft.id;S.escs=S.escs.filter(e=>e.id!==id);if(S===R)R.escs=S.escs;closePanel();saveMeta("escs")},
+  "set-theme":()=>themePanel(),
+  theme:k=>{if(ob&&ob.step===0&&$("obName"))ob.nombre=v("obName");applyTheme(k);S.cfg.tema=k;if(isDemo())render();else saveMeta("cfg");if(ob){obRender()}else themePanel()},
   "set-name":()=>openPanel(`<h3>Tu nombre</h3><label class="f">Nombre<input id="nm" value="${esc(S.cfg.nombre)}"></label><div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="name-save">Guardar</button></div>`),
   "name-save":()=>{S.cfg.nombre=v("nm");closePanel();saveMeta("cfg")},
   "set-pin":()=>{if(isDemo()){toast("Sal del ejemplo para configurar tu PIN");return}pinForm()},
