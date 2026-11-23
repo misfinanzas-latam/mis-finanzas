@@ -336,6 +336,17 @@ button.av[aria-expanded=true]{outline:3px solid color-mix(in srgb,var(--g2) 45%,
 @media(prefers-reduced-motion:reduce){#umenu{animation:none}}
 .top h1 small{white-space:nowrap}
 @media(max-width:400px){.mnav b{font-size:14px;min-width:6.4em}.mnav .ib{width:32px}.top h1{gap:8px}}
+/* Encabezado flotante sin barra */
+.top{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;border:0!important;pointer-events:none;padding-top:calc(8px + env(safe-area-inset-top))!important;padding-bottom:6px!important}
+.top>*{pointer-events:auto}
+.top h1{flex:0 1 auto!important;max-width:58%;overflow:visible!important;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:999px;padding:4px 16px 4px 4px;box-shadow:0 8px 22px rgb(0 0 0/.14),0 1px 3px rgb(0 0 0/.08);transition:padding .25s}
+.top h1 .nm{transition:opacity .2s,max-width .25s;max-width:200px}
+.top.sc h1{padding:4px;gap:0!important}
+.top.sc h1 .nm{opacity:0;max-width:0;overflow:hidden}
+.top button.av{border-radius:50%!important;width:42px;height:42px;overflow:visible}
+.top button.av .gear{right:-3px;bottom:-3px;border:2px solid var(--card)}
+.mnav{background:color-mix(in srgb,var(--card) 92%,transparent)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 22px rgb(0 0 0/.14),0 1px 3px rgb(0 0 0/.08)!important}
+#umenu{top:calc(70px + env(safe-area-inset-top))}
 /* Selector de tema */
 .th{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 14px}
 .th button{border:2px solid transparent;border-radius:16px;padding:0;overflow:hidden;background:var(--card);box-shadow:0 4px 14px rgb(0 0 0/.08);cursor:pointer;text-align:left;font:600 14px "Hanken Grotesk",sans-serif;color:var(--ink)}
