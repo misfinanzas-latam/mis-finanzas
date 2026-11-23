@@ -249,6 +249,65 @@ textarea.ta{width:100%;min-height:140px;font:15px/1.4 "Hanken Grotesk",sans-seri
 .upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));z-index:40;width:min(540px,calc(100% - 24px));display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;border-radius:16px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);box-shadow:0 14px 34px rgb(0 0 0/.25)}
 .upd>div{flex:1;min-width:0;line-height:1.25}.upd b{display:block;font-size:15px}.upd span{font-size:13px;opacity:.85}
 .upd .btn{background:var(--card);color:var(--ink);border:0;flex:none}.upd .ib{color:var(--gk);flex:none;width:36px;height:36px}
+/* ===== Capa creativa ===== */
+.blobs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.blobs i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.28}
+.blobs i:nth-child(1){width:360px;height:360px;background:var(--g1);top:-120px;right:-120px}
+.blobs i:nth-child(2){width:300px;height:300px;background:var(--g2);top:40%;left:-160px;opacity:.18}
+.blobs i:nth-child(3){width:260px;height:260px;background:var(--g1);bottom:-120px;right:-60px;opacity:.16}
+@media(prefers-color-scheme:dark){.blobs i{opacity:.16}.blobs i:nth-child(n+2){opacity:.1}}
+:root[data-theme=dark] .blobs i{opacity:.14}
+.top h1{display:flex;align-items:center;gap:10px;color:var(--ink);font-size:16px;line-height:1.15}
+.top h1 small{display:block;font-size:12px;font-weight:500;color:var(--mut)}
+.top h1 .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{width:40px;height:40px;border-radius:14px;flex:none;display:grid;place-items:center;font-weight:800;font-size:15px;color:var(--gk);background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 6px 14px color-mix(in srgb,var(--g2) 40%,transparent)}
+.mnav{background:var(--card);border-radius:999px;box-shadow:0 4px 14px rgb(0 0 0/.08);padding:0 2px}
+.mnav b{min-width:7.6em;font-size:15px}
+.mnav .ib{width:38px;height:40px;font-size:20px}
+.lgtop{display:flex;align-items:center;gap:12px}.lgl{flex:1;min-width:0}
+.ring{width:78px;height:78px;flex:none;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:16px;font-weight:800;line-height:1;color:var(--gk)}
+.ring b small{display:block;font-size:10px;font-weight:600;opacity:.8;margin-top:2px}
+.ring circle{transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.spark{display:block;width:100%;height:38px;margin:-4px 0 8px}
+.donut{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center;margin:0 0 14px;background:var(--card);border-radius:18px;padding:14px;box-shadow:0 1px 2px rgb(0 0 0/.05),0 10px 24px rgb(0 0 0/.07)}
+.donut svg{width:150px;height:150px;display:block}
+.donut ul{list-style:none;margin:0;padding:0;font-size:13px}
+.donut li{display:flex;align-items:center;gap:6px;padding:3px 0;min-width:0}
+.donut li i{width:10px;height:10px;border-radius:3px;flex:none}
+.donut li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.donut li b{font-variant-numeric:tabular-nums}
+@media(max-width:380px){.donut{grid-template-columns:120px minmax(0,1fr)}.donut svg{width:120px;height:120px}}
+nav.tabs{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;padding-bottom:0!important;border-radius:22px;max-width:536px;margin:0 auto;background:color-mix(in srgb,var(--card) 86%,transparent)!important;backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 12px 32px rgb(0 0 0/.16)!important;border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+nav.tabs button{min-height:62px;border-radius:18px}
+.app{padding-bottom:130px!important}
+.fab{bottom:calc(92px + env(safe-area-inset-bottom))!important}
+.toast{bottom:calc(92px + env(safe-area-inset-bottom))!important}
+section.anim>*{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+section.anim>*:nth-child(2){animation-delay:.04s}section.anim>*:nth-child(3){animation-delay:.08s}section.anim>*:nth-child(4){animation-delay:.12s}section.anim>*:nth-child(5){animation-delay:.16s}section.anim>*:nth-child(n+6){animation-delay:.2s}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+.toast:not([hidden]){animation:tin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes tin{from{opacity:0;transform:translate(-50%,10px)}}
+.upd:not([hidden]){animation:din .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes din{from{opacity:0;transform:translate(-50%,-14px)}}
+.empty{position:relative;padding-top:86px}
+.empty::before{content:"";position:absolute;left:50%;top:18px;width:56px;height:56px;margin-left:-28px;border-radius:18px;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 8px 18px color-mix(in srgb,var(--g2) 35%,transparent)}
+.empty::after{content:"";position:absolute;left:50%;top:30px;width:32px;height:32px;margin-left:-16px;background:var(--gk);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+#confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:3px;animation:fall 1.5s cubic-bezier(.3,.6,.4,1) forwards}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.2}}
+.hero .tk{animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px) rotate(-1deg)}}
+.hero{background:linear-gradient(140deg,color-mix(in srgb,var(--g1) 55%,var(--card)),color-mix(in srgb,var(--g2) 45%,var(--card)))!important;position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgb(255 255 255/.3)}
+.hero::before{width:54px;height:54px;left:14%;top:22%;animation:float 5s ease-in-out infinite}
+.hero::after{width:34px;height:34px;right:12%;bottom:18%;animation:float 3.6s ease-in-out infinite reverse}
+.hero .tk{position:relative;z-index:1}
+.qa button .bub{transition:transform .2s}.qa button:hover .bub{transform:rotate(-8deg) scale(1.08)}
+.it .bub{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 18%,transparent)}
+h2.h2i>.i{background:color-mix(in srgb,var(--g2) 16%,transparent);border-radius:10px;padding:4px;width:30px!important;height:30px!important;color:var(--g2)}
+@media(prefers-reduced-motion:reduce){section.anim>*,.toast,.upd,.hero .tk,.hero::before,.hero::after,#confetti i{animation:none!important}.ring circle{transition:none}}
 /* Selector de tema */
 .th{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 14px}
 .th button{border:2px solid transparent;border-radius:16px;padding:0;overflow:hidden;background:var(--card);box-shadow:0 4px 14px rgb(0 0 0/.08);cursor:pointer;text-align:left;font:600 14px "Hanken Grotesk",sans-serif;color:var(--ink)}
@@ -283,9 +342,10 @@ label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!impor
 
   <section id="tab-inicio">
     <div class="ledger">
-      <small id="lgLabel">Disponible este mes</small>
-      <div class="big" id="lgTotal">$0.00</div>
+      <div class="lgtop"><div class="lgl"><small id="lgLabel">Disponible este mes</small>
+      <div class="big" id="lgTotal">$0.00</div></div><div class="ring" id="lgRing"></div></div>
       <p class="eq" id="lgEq"></p>
+      <svg class="spark" id="lgSpark" aria-hidden="true"></svg>
       <div class="trio"><div style="--c:var(--grn)"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></svg>Recibido</span><strong id="lgIng">$0.00</strong></div><div style="--c:#2563eb"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20.5h18"/></svg>Ahorros</span><strong id="lgAh">$0.00</strong></div><div style="--c:var(--red)"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4M5 11l7-7 7 7"/></svg>Gastado</span><strong id="lgGas">$0.00</strong></div></div>
       <div class="free3" id="lgFree" hidden></div>
     </div>
@@ -312,6 +372,7 @@ label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!impor
   <section id="tab-resumen" hidden>
     <div class="kp" id="kpis"></div>
     <h2 class="h2i" data-ic="chart">¿En qué se va el dinero?</h2>
+    <div class="donut" id="catDonut"></div>
     <div id="cats"></div>
     <h2 class="h2i" data-ic="down">¿De dónde entra?</h2>
     <div id="incs"></div>
@@ -415,6 +476,8 @@ label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!impor
   <p style="text-align:center;margin:8px 0 0"><button class="lnk" data-act="au-forgot">¿Olvidaste tu contraseña?</button></p>
   <p style="text-align:center;margin:0"><button class="lnk" data-act="au-demo">Probar con datos de ejemplo</button></p>
 </div></div>
+<div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="confetti" aria-hidden="true"></div>
 <div class="ovl" id="boot"><div class="lin"><div class="spin" style="margin:0 auto 14px"></div>Cargando tus finanzas…</div></div>
 <div class="ovl" id="ob" hidden><div class="fin" id="obIn"></div></div>
 <div class="ovl" id="lock" hidden><div class="lin">
@@ -637,21 +700,44 @@ function drawProy(){
   if(lo<0)o+=`<line x1="${L}" x2="${W-Rr}" y1="${Y(0)}" y2="${Y(0)}" stroke="${ink}" opacity=".5" stroke-dasharray="3 3"/>`;
   const st=N<=6?1:3;for(let k=0;k<=N;k+=st)o+=`<text x="${X(k)}" y="${H-6}" font-size="11" text-anchor="${k===0?"start":k===N?"end":"middle"}" fill="${ink}" opacity=".6">${k===0?"Hoy":"Mes "+k}</text>`;
   series.forEach((sr,i)=>{const c=COLS[i%COLS.length],pp=(S.cfg.presup||{})[todayStr().slice(0,7)],sel=pp&&pp.escId===E[i].id;
-    o+=`<polyline fill="none" style="stroke:${c}" stroke-width="${sel?4:2.5}" stroke-linejoin="round" points="${sr.map((v,k)=>X(k)+","+Y(v)).join(" ")}"/><circle cx="${X(N)}" cy="${Y(sr[N])}" r="${sel?6:4}" style="fill:${c}"/>`});
+    let d=`M${X(0)},${Y(sr[0])}`;for(let k=1;k<=N;k++){const cx=(X(k-1)+X(k))/2;d+=` C${cx},${Y(sr[k-1])} ${cx},${Y(sr[k])} ${X(k)},${Y(sr[k])}`}
+    o+=`<path d="${d} L${X(N)},${T+h} L${X(0)},${T+h}Z" style="fill:${c}" opacity="${sel?.16:.07}"/><path d="${d}" fill="none" style="stroke:${c}" stroke-width="${sel?4:2.5}" stroke-linecap="round"/><circle cx="${X(N)}" cy="${Y(sr[N])}" r="${sel?6:4.5}" style="fill:${c}" stroke="var(--card)" stroke-width="2"/>`});
   s.innerHTML=o;
 }
 const ro1=new ResizeObserver(drawDaily);ro1.observe($("daily"));
 const ro2=new ResizeObserver(drawProy);ro2.observe($("pchart"));
 
+// ---------- capa creativa
+const saludo=()=>{const h=new Date().getHours();return h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches"};
+const iniciales=n=>(n||"").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"MF";
+let lastTotal=null,countRaf=0;
+function countUp(el,to){if(lastTotal===null||matchMedia("(prefers-reduced-motion: reduce)").matches||Math.abs(to-lastTotal)<0.01){el.textContent=fmt(to);lastTotal=to;return}
+  const from=lastTotal,t0=performance.now(),d=650;cancelAnimationFrame(countRaf);
+  const step=t=>{const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);el.textContent=fmt(from+(to-from)*e);if(k<1)countRaf=requestAnimationFrame(step)};countRaf=requestAnimationFrame(step);lastTotal=to}
+function drawRing(H){const used=H.gast,base=H.gast+Math.max(H.real,0),p=base>0?Math.min(1,used/base):0,R=33,C=2*Math.PI*R;
+  $("lgRing").innerHTML=`<svg viewBox="0 0 78 78"><circle cx="39" cy="39" r="${R}" fill="none" stroke="rgb(255 255 255/.35)" stroke-width="8"/><circle cx="39" cy="39" r="${R}" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p)}" style="color:var(--gk)"/></svg><b>${Math.round(p*100)}%<small>usado</small></b>`}
+function drawSpark(){const s=$("lgSpark");if(!s)return;const W=s.clientWidth,Hh=s.clientHeight;if(!W)return;
+  const td=todayStr(),days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()))}
+  const v=days.map(d=>S.items.filter(x=>x.tipo!=="ingreso"&&x.fecha===d).reduce((t,x)=>t+num(x.monto),0)),mx=Math.max(...v,1);
+  const X=i=>4+i*(W-8)/13,Y=y=>Hh-4-(y/mx)*(Hh-10);
+  let d=`M${X(0)},${Y(v[0])}`;for(let i=1;i<14;i++){const cx=(X(i-1)+X(i))/2;d+=` C${cx},${Y(v[i-1])} ${cx},${Y(v[i])} ${X(i)},${Y(v[i])}`}
+  s.innerHTML=`<path d="${d} L${X(13)},${Hh} L${X(0)},${Hh}Z" fill="currentColor" opacity=".16"/><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><circle cx="${X(13)}" cy="${Y(v[13])}" r="3.5" fill="currentColor"/><text x="${W-2}" y="10" text-anchor="end" font-size="10" fill="currentColor" opacity=".75">últimos 14 días</text>`;s.style.color="var(--gk)"}
+function drawDonut(byCat,tot){const el=$("catDonut");const e=Object.entries(byCat).sort((x,y)=>y[1]-x[1]);if(!e.length||!tot){el.hidden=true;return}el.hidden=false;
+  const R=52,C=2*Math.PI*R;let acc=0;const segs=e.map(([c,v])=>{const f=v/tot,len=Math.max(f*C-2,0.5),o=`<circle cx="75" cy="75" r="${R}" fill="none" stroke="${catI(c)[1]}" stroke-width="22" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc}" transform="rotate(-90 75 75)"/>`;acc+=f*C;return o}).join("");
+  el.innerHTML=`<svg viewBox="0 0 150 150" role="img" aria-label="Gasto por categoría">${segs}<text x="75" y="72" text-anchor="middle" font-size="11" fill="currentColor" opacity=".6">Total</text><text x="75" y="90" text-anchor="middle" font-size="16" font-weight="800" fill="currentColor">${fmt0(tot)}</text></svg><ul>${e.slice(0,6).map(([c,v])=>`<li><i style="background:${catI(c)[1]}"></i><span>${esc(c)}</span><b>${pct(v/tot)}</b></li>`).join("")}${e.length>6?`<li><i style="background:var(--line)"></i><span>Otras ${e.length-6}</span></li>`:""}</ul>`}
+function confetti(n){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;const box=$("confetti"),cs=[THEMES[curTheme][1],THEMES[curTheme][2],"#16a34a","#2563eb","#f97316","#db2777","#eab308"];
+  for(let i=0;i<(n||36);i++){const e=document.createElement("i");e.style.left=(10+Math.random()*80)+"%";e.style.background=cs[i%cs.length];e.style.setProperty("--dx",(Math.random()*160-80)+"px");e.style.setProperty("--r",(Math.random()*720-360)+"deg");e.style.animationDelay=(Math.random()*.25)+"s";box.appendChild(e);setTimeout(()=>e.remove(),2000)}}
+const ro3=new ResizeObserver(drawSpark);ro3.observe($("lgSpark"));
+
 // ---------- render
 function render(){
   $("mlabel").textContent=mLabel(month);
   $("demobar").hidden=!isDemo();
-  $("hello").textContent=S.cfg.nombre?"Hola, "+S.cfg.nombre:"Mis finanzas";
+  $("hello").innerHTML=`<span class="av">${esc(iniciales(S.cfg.nombre))}</span><span class="nm"><small>${saludo()}</small>${esc((S.cfg.nombre||"Mis finanzas").split(" ")[0])}</span>`;
   const a=agg(month),ah=ahInc(),H=hoja(month),disp=H.real,mn=MES[+month.slice(5)-1];
   // inicio
   $("lgLabel").textContent="Disponible en "+mn;
-  $("lgTotal").textContent=fmt(disp);$("lgTotal").className="big"+(disp<0?" neg":"");
+  countUp($("lgTotal"),disp);$("lgTotal").className="big"+(disp<0?" neg":"");drawRing(H);drawSpark();
   $("lgEq").textContent=`${fmt(H.tA)} en tus cuentas${H.extIn?" + "+fmt(H.extIn)+" recibido fuera de ellas":""}${H.extOut?" − "+fmt(H.extOut)+" gastado fuera de ellas":""}`;
   $("lgIng").textContent=fmt(H.rI);$("lgAh").textContent=fmt(H.tA);$("lgGas").textContent=fmt(H.gast);
   $("hojaT").textContent="Hoja de "+mn;$("hojaIc").innerHTML=ic("table");
@@ -674,6 +760,7 @@ function render(){
   const days=month===todayStr().slice(0,7)?+todayStr().slice(8):new Date(+month.slice(0,4),+month.slice(5),0).getDate();
   $("kpis").innerHTML=`<div><span>Gastado</span><strong>${fmt(a.gas)}</strong><em class="${dg>0?"neg":"pos"}">${dg===null?"Sin mes anterior":(dg>0?"▲ ":"▼ ")+pct(Math.abs(dg))+" vs. "+MES[+shift(month,-1).slice(5)-1]}</em></div><div><span>Ingresos</span><strong>${fmt(a.ing)}</strong><em>${a.inc.length} registro(s)</em></div><div><span>Disponible</span><strong class="${disp<0?"neg":"pos"}">${fmt(disp)}</strong><em>Saldo en cuentas ± movimientos fuera de ellas</em></div><div><span>Promedio diario</span><strong>${fmt(a.gas/Math.max(days,1))}</strong><em>${a.g.length} gastos</em></div>`;
   const bars=(o,tot,empty)=>{const e=Object.entries(o).sort((x,y)=>y[1]-x[1]),mx=e.length?e[0][1]:1;return e.length?e.map(([c,v],k)=>`<div class="bar"><b style="display:flex;align-items:center;gap:8px">${bub(o===a.bySrc?(S.fuentes.find(f=>f.nombre===c)||{}).tipo||"Otros ingresos":c,1)}${esc(c)}</b><i>${fmt(v)} · ${pct(v/tot)}</i><div class="trk"><div style="width:${v/mx*100}%;background:${catI(o===a.bySrc?(S.fuentes.find(f=>f.nombre===c)||{}).tipo||"Otros ingresos":c)[1]}"></div></div></div>`).join(""):`<p class="empty">${empty}</p>`};
+  drawDonut(a.byCat,a.gas);
   $("cats").innerHTML=bars(a.byCat,a.gas,"Sin gastos este mes.");
   $("incs").innerHTML=bars(a.bySrc,a.ing,"Sin ingresos registrados este mes.");
   const rec=a.places.filter(x=>x.n>=2).sort((x,y)=>y.t-x.t).slice(0,8);
@@ -720,7 +807,7 @@ function render(){
 }
 
 function show(t){
-  tab=t;$("fab").hidden=t==="inicio";document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
+  tab=t;$("fab").hidden=t==="inicio";{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
   requestAnimationFrame(()=>{drawDaily();drawProy()});window.scrollTo(0,0);
@@ -760,7 +847,7 @@ $("form").onsubmit=e=>{
   if(pendCtx){it.origen="alerta";finishPend(it)}
   const wasEdit=!!editing;closeSheet();putItem(it);
   if(it.fecha.slice(0,7)!==month){month=it.fecha.slice(0,7);render()}
-  toast(wasEdit?"Cambios guardados":"Guardado: "+fmt(it.monto));
+  toast(wasEdit?"Cambios guardados":"Guardado: "+fmt(it.monto));if(!wasEdit&&it.tipo==="ingreso")confetti(30);
 };
 
 // ---------- escaneo de ticket (lectura local en el teléfono)
@@ -1027,7 +1114,7 @@ async function obFinish(){
   ob.fijos.forEach(f=>R.fijos.push({id:nid("x"),nombre:f.nombre,monto:f.monto,freq:f.freq,cn:f.cn||null,cu:f.cu||null,inicio:f.inicio,cat:f.cat,cuenta:f.cuenta||"",activo:true,nota:""}));
   S=R;if(!R.escs.length){const e=escFromData("Perfil base");R.escs.push(e)}
   saveMeta("cuentas");saveMeta("fuentes");saveMeta("fijos");saveMeta("escs");saveMeta("cfg");
-  unlocked=true;$("ob").hidden=true;ob=null;render();toast("¡Bienvenido! Escanea tu primer ticket");
+  unlocked=true;$("ob").hidden=true;ob=null;render();confetti(60);toast("¡Bienvenido! Escanea tu primer ticket");
 }
 
 // ---------- acciones
