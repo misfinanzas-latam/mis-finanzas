@@ -397,6 +397,35 @@ html.priv .big,html.priv .trio strong,html.priv .free3 b,html.priv .it .am,html.
 label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!important;padding:0 2px!important}
 .it .am small{white-space:normal}
 .esc .kp strong{font-size:clamp(14px,4.6vw,18px)}
+/* ---- vivacidad elegante ---- */
+.kp div{position:relative;overflow:hidden;isolation:isolate;border:1px solid color-mix(in srgb,var(--ink) 6%,transparent)}
+.kp div::before{content:"";position:absolute;z-index:-1;width:120px;height:120px;border-radius:50%;top:-56px;right:-46px;background:radial-gradient(circle,var(--kc,var(--g2)) 0%,transparent 70%);opacity:.32}
+.kp div::after{content:"";position:absolute;left:14px;top:0;width:28px;height:4px;border-radius:0 0 4px 4px;background:var(--kc,var(--g2))}
+.kp div:nth-child(1){--kc:#f43f5e}.kp div:nth-child(2){--kc:#10b981}.kp div:nth-child(3){--kc:var(--g2)}.kp div:nth-child(4){--kc:#6366f1}
+.kp strong{letter-spacing:-.02em}
+.trk div{background:linear-gradient(90deg,color-mix(in srgb,var(--g1) 75%,var(--ink)),var(--g2))}
+.mlb.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-radius:999px;padding:0 12px}
+.pchip{background:linear-gradient(120deg,color-mix(in srgb,var(--g1) 18%,var(--card)),var(--card) 70%);border:1px solid color-mix(in srgb,var(--g2) 30%,transparent)}
+.pchip svg{color:var(--g2)}
+.pchips button{transition:transform .15s,box-shadow .2s}
+.pchips button:active{transform:scale(.96)}
+.pchips button[aria-pressed=true]{box-shadow:0 8px 18px color-mix(in srgb,var(--g2) 40%,transparent)}
+.mxm{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--ink) 6%,transparent)}
+.mxm::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#10b981,var(--g1),var(--g2),#f43f5e)}
+.mxr .mb{display:block;height:5px;border-radius:3px;background:var(--pl);margin:4px 0 2px auto;width:100%;overflow:hidden}
+.mxr .mb i{display:block;height:100%;border-radius:3px;margin-left:auto}
+.mxr .ci i{background:linear-gradient(90deg,#34d399,#059669)}.mxr .cg i{background:linear-gradient(90deg,#fb7185,#e11d48)}
+.mxr .mo{display:inline-block;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--g1) 22%,var(--card));font-size:12px}
+.mxr.tt .mo{background:var(--ink);color:var(--bg)}
+.h2i{letter-spacing:-.01em}
+@media(prefers-reduced-motion:no-preference){
+ .kp div,.mxm,.pchip,.fx,.tip,.route,.hoja{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+ .kp div:nth-child(2){animation-delay:.05s}.kp div:nth-child(3){animation-delay:.1s}.kp div:nth-child(4){animation-delay:.15s}
+ .trk div{animation:grow .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+ .mxr .mb i{animation:grow .9s .15s cubic-bezier(.2,.8,.2,1) both;transform-origin:right}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -851,7 +880,7 @@ const ro3=new ResizeObserver(drawSpark);ro3.observe($("lgSpark"));
 
 // ---------- render
 function render(){
-  $("mlabel").textContent=RGlabel(RG());
+  $("mlabel").textContent=RGlabel(RG());$("mlabel").classList.toggle("on",isRange());
   const RR=RG(),aR=isRange()?agg(RR):agg(month),perTxt=isRange()?"este periodo":"este mes";
   $("dailyT").textContent=isRange()?"Gasto por mes":"Gasto por día";
   $("perNote2").innerHTML=$("perNote").innerHTML=isRange()?`<div class="pchip">${ic("cal")}<b>Viendo ${esc(RGtext(RR))}</b><button class="btn sm" data-act="per-clear">Volver al mes actual</button></div>`:"";
@@ -890,8 +919,9 @@ function render(){
   $("incs").innerHTML=bars(a2.bySrc,a2.ing,"Sin ingresos registrados "+perTxt+".");
   const rec=a2.places.filter(x=>x.n>=2).sort((x,y)=>y.t-x.t).slice(0,8);
   $("rec").innerHTML=rec.length?rec.map(r=>`<li class="it" style="cursor:default">${bub(r.cat)}<span class="tx"><b>${esc(r.name)}</b><span>${r.n} veces · promedio ${fmt(r.t/r.n)}</span></span><span class="am">${fmt(r.t)}</span></li>`).join(""):`<li class="empty">Aparecen cuando visitas un lugar 2 veces o más en el periodo.</li>`;
-  const cell=(r,p)=>`<span>${fmt(r)}<small>plan ${fmt(p)}</small></span>`;
-  $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo</span></div>${PL.map(o=>`<div class="mxr"><span>${MES3(o.m)} ${o.m.slice(2,4)}</span>${cell(o.iR,o.iP)}${cell(o.gR,o.gP)}${cell(o.iR-o.gR,o.iP-o.gP)}</div>`).join("")}<div class="mxr tt"><span>Total</span>${cell(a2.ing,iPt)}${cell(a2.gas,gPt)}${cell(a2.ing-a2.gas,iPt-gPt)}</div><p class="note" style="margin:8px 0 0">Arriba lo real registrado; abajo el plan: el presupuesto aplicado a ese mes o, si no tiene, tus ingresos y gastos fijos programados.</p></div>`:"";
+  const mxI=Math.max(...PL.map(o=>Math.max(o.iR,o.iP)),1),mxG=Math.max(...PL.map(o=>Math.max(o.gR,o.gP)),1);
+  const cell=(r,p,c,mx)=>`<span class="${c||""}${c==="sd"?(r<0?" neg":r>0?" pos":""):""}">${fmt(r)}${c==="ci"||c==="cg"?`<b class="mb" title="real vs plan"><i style="width:${Math.min(r/(p||mx),1)*100}%"></i></b>`:""}<small>plan ${fmt(p)}</small></span>`;
+  $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo</span></div>${PL.map(o=>`<div class="mxr"><span><b class="mo">${MES3(o.m)} ${o.m.slice(2,4)}</b></span>${cell(o.iR,o.iP,"ci",mxI)}${cell(o.gR,o.gP,"cg",mxG)}${cell(o.iR-o.gR,o.iP-o.gP,"sd")}</div>`).join("")}<div class="mxr tt"><span><b class="mo">Total</b></span>${cell(a2.ing,iPt,"ci",mxI)}${cell(a2.gas,gPt,"cg",mxG)}${cell(a2.ing-a2.gas,iPt-gPt,"sd")}</div><p class="note" style="margin:8px 0 0">Arriba lo real registrado; abajo el plan: el presupuesto aplicado a ese mes o, si no tiene, tus ingresos y gastos fijos programados.</p></div>`:"";
   const tips=insights(RR);
   $("tips").innerHTML=tips.length?tips.map(t=>`<div class="tip">${bubI("bulb","#ca8a04")}<div><b>${esc(t.t)}</b><p>${esc(t.d)}</p>${t.s>0?`<mark>Ahorro posible: ${fmt(t.s)}/mes</mark>`:""}</div></div>`).join(""):`<p class="empty">Registra gastos de ${RGtext(RR)} para ver sugerencias.</p>`;
   $("askAi").hidden=!sample||!a2.g.length;
