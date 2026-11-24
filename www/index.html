@@ -458,6 +458,29 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .ledger::before{animation:shine 6s ease-in-out infinite}
 @keyframes shine{0%,100%{transform:translateX(-10%)}50%{transform:translateX(10%)}}
 @media(prefers-reduced-motion:reduce){.ledger::before{animation:none}}
+/* ---- asistente de alertas ---- */
+.alst{display:flex;flex-wrap:wrap;gap:6px}
+.alst span{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--pl);color:var(--mut)}
+.alst span.on{background:color-mix(in srgb,var(--grn) 16%,var(--card));color:var(--grn)}.alst .i{width:14px;height:14px}
+.alopts{display:grid;gap:10px}
+.alopt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid color-mix(in srgb,var(--c) 25%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--c) 9%,var(--card)),var(--card) 65%);border-radius:16px;padding:12px;cursor:pointer;color:var(--ink);font:inherit;min-height:64px}
+.alopt:active{transform:scale(.98)}.alopt span{min-width:0}.alopt b{display:block;font-size:15px}.alopt em{font-style:normal;font-size:13px;color:var(--mut)}
+.alopt::after{content:"›";margin-left:auto;font-size:22px;color:var(--mut)}
+.aladv{margin-top:14px}.aladv summary{cursor:pointer;font-weight:600;color:var(--mut);min-height:40px;display:flex;align-items:center}
+.alprog{display:flex;gap:6px;margin:0 0 6px}.alprog i{flex:1;height:5px;border-radius:3px;background:var(--pl)}.alprog i.on{background:linear-gradient(90deg,var(--g1),var(--g2))}
+.alsteps{counter-reset:s;list-style:none;padding:0;margin:8px 0 14px;display:grid;gap:10px}
+.alsteps li{counter-increment:s;position:relative;padding-left:40px;min-height:28px;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.alsteps li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk)}
+.alchips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.alchips label{cursor:pointer}.alchips input{position:absolute;opacity:0;pointer-events:none}
+.alchips span{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);font-size:14px;font-weight:600}
+.alchips input:checked+span{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-color:transparent}
+.alchips input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
+.alwait{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:var(--pl);font-size:14px;margin-top:6px}
+.alwait i{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--g2);animation:spin 1s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.alok{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;align-items:center;padding:12px;border-radius:14px;margin-top:6px;background:color-mix(in srgb,var(--grn) 14%,var(--card));color:var(--grn)}
+.alok .i{grid-row:1/3;width:26px;height:26px}.alok span{color:var(--ink);font-size:14px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1550,7 +1573,8 @@ let pulling=false;
 async function pullInbox(){
   if(!sb||!uid||pulling||isDemo())return;pulling=true;
   try{const {data,error}=await sb.from("inbox").select("id,source,text").eq("user_id",uid).order("id").limit(200);
-    if(!error&&data&&data.length){let add=0;data.forEach(r=>{if(!R.pend.some(x=>x.id==="p"+r.id)){R.pend.push(makePend(r.text,r.source,r.id));add++}});
+    if(!error&&data&&data.length){let add=0,ok=0;R.cfg.alertOk=R.cfg.alertOk||{};data.forEach(r=>{const src=["gmail","sms","correo"].includes(r.source)?r.source:null;if(src&&!R.cfg.alertOk[src]){R.cfg.alertOk[src]=todayStr();ok++}if(/^MF-CONEXION/.test(r.text||""))return;if(!R.pend.some(x=>x.id==="p"+r.id)){R.pend.push(makePend(r.text,r.source,r.id));add++}});
+      if(ok){saveMeta("cfg");if(!add)toast("¡Alertas conectadas!")}
       if(add){saveMeta("pend");toast(add===1?"Llegó 1 alerta de tu banco":"Llegaron "+add+" alertas de tu banco")}
       await sb.from("inbox").delete().eq("user_id",uid).in("id",data.map(r=>r.id));}
   }catch(e){}pulling=false;
@@ -1578,61 +1602,106 @@ function finishPend(it){
   S.pend=S.pend.filter(x=>x.id!==p.id);if(S===R)R.pend=S.pend;saveMeta("pend");saveMeta("cuentas");
 }
 async function sha256hex(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
-async function newAlertKey(){
+async function newAlertKey(silent){
   if(!sb||!uid){toast("Las alertas automáticas necesitan iniciar sesión");return}
   const k=[...crypto.getRandomValues(new Uint8Array(24))].map(x=>x.toString(16).padStart(2,"0")).join("");
   const {error}=await sb.from("alert_keys").upsert({user_id:uid,key_hash:await sha256hex(k)},{onConflict:"user_id"});
   if(error){toast("No se pudo crear la clave: "+error.message);return}
-  S.cfg.alertKey=k;saveMeta("cfg");alertPanel();toast("Clave creada");
+  S.cfg.alertKey=k;saveMeta("cfg");if(!silent){alertPanel();toast("Clave nueva creada. Vuelve a conectar tus alertas.")}return k;
 }
-const gasScript=k=>`// Mis Finanzas · reenvío automático de alertas del banco desde Gmail
+const ALB=[["Banco Agrícola","bancoagricola"],["BAC Credomatic","credomatic"],["Banco Cuscatlán","bancocuscatlan"],["Davivienda","davivienda"],["Promerica","promerica"],["Banco Hipotecario","bancohipotecario"],["Banco Atlántida","bancoatlantida"],["Banco Azul","bancoazul"],["Banco Industrial","bi.com.sv"],["Fedecrédito","fedecredito"]];
+const alLink=src=>ALERT_URL()+"?key="+S.cfg.alertKey+"&source="+src;
+const gasScript=k=>{const sel=(S.cfg.alBancos||[]).map(n=>(ALB.find(b=>b[0]===n)||[])[1]).filter(Boolean),ext=(S.cfg.alCorreo||"").trim(),rem=[...sel,...(ext?[ext]:[])];
+return `// Mis Finanzas · alertas del banco desde Gmail
+// Solo lee correos de tus bancos que hablan de compras o pagos y los manda a tu app.
 const CLAVE = "${k}";
 const URL_APP = "${ALERT_URL()}";
-const BUSQUEDA = "label:alertas-banco is:unread";
+const REMITENTES = ${JSON.stringify(rem.length?rem:ALB.map(b=>b[1]))};
+const PALABRAS = "{compra transaccion transacción consumo cargo retiro debito débito abono pago autorizada aprobada}";
 
-function revisarAlertas() {
-  GmailApp.search(BUSQUEDA, 0, 25).forEach(function (hilo) {
-    hilo.getMessages().forEach(function (m) {
-      if (!m.isUnread()) return;
-      var r = UrlFetchApp.fetch(URL_APP, {
-        method: "post", contentType: "application/json", muteHttpExceptions: true,
-        payload: JSON.stringify({ key: CLAVE, source: "correo", text: m.getSubject() + "\\n" + m.getPlainBody().slice(0, 3500) })
-      });
-      if (r.getResponseCode() === 200) m.markRead();
-    });
-  });
+function busqueda_() { return "from:(" + REMITENTES.join(" OR ") + ") " + PALABRAS + " newer_than:3d"; }
+function enviar_(texto, fuente) {
+  var r = UrlFetchApp.fetch(URL_APP + "?key=" + CLAVE + "&source=" + fuente, {
+    method: "post", contentType: "text/plain; charset=utf-8", payload: texto, muteHttpExceptions: true });
+  return r.getResponseCode() === 200;
 }
 
+function revisarAlertas() {
+  var p = PropertiesService.getScriptProperties(), vistos = JSON.parse(p.getProperty("vistos") || "[]");
+  GmailApp.search(busqueda_(), 0, 30).forEach(function (hilo) {
+    hilo.getMessages().forEach(function (m) {
+      var id = m.getId();
+      if (vistos.indexOf(id) >= 0) return;
+      if (Date.now() - m.getDate().getTime() > 3 * 864e5) { vistos.push(id); return; }
+      if (enviar_(m.getSubject() + "\\n" + m.getPlainBody().slice(0, 3500), "gmail")) vistos.push(id);
+    });
+  });
+  p.setProperty("vistos", JSON.stringify(vistos.slice(-400)));
+}
+
+// ▶ Ejecuta esta una sola vez
 function instalar() {
   ScriptApp.getProjectTriggers().forEach(function (t) { ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger("revisarAlertas").timeBased().everyMinutes(10).create();
-}`;
-function alertPanel(){
-  const k=S.cfg.alertKey,u=ALERT_URL();
-  if(!sb||!uid){openPanel(`<h3>Alertas automáticas</h3><p>Para recibir alertas automáticas necesitas entrar con tu cuenta. Mientras tanto puedes usar <b>Pegar una alerta</b>.</p><button class="btn solid full" data-act="close">Entendido</button>`);return}
-  if(!k){openPanel(`<h3>Alertas automáticas</h3><p>Crea tu clave personal. Con ella tu iPhone o tu Gmail pueden mandar las alertas del banco a tu cuenta, y nadie más puede usarla.</p><button class="btn yel full" data-act="alert-key">${ic("key")}Crear mi clave</button><p style="text-align:center"><button class="lnk" data-act="close">Ahora no</button></p>`);return}
-  openPanel(`<h3>Alertas automáticas</h3>
-  <div class="sec"><h4>${ic("key")}Tus datos de conexión</h4>
-    <span class="note">Dirección</span><div class="code">${esc(u)}</div><button class="btn sm" data-act="copy" data-id="url">${ic("copy")}Copiar dirección</button>
-    <span class="note" style="display:block;margin-top:10px">Tu clave (no la compartas)</span><div class="code">${esc(k)}</div><button class="btn sm" data-act="copy" data-id="key">${ic("copy")}Copiar clave</button></div>
-  <div class="sec"><h4>${ic("bell")}iPhone · SMS del banco</h4><ol class="steps2">
-    <li>Abre <b>Atajos › Automatización › +</b> y elige <b>Mensaje</b>.</li>
-    <li>En <b>El mensaje contiene</b> escribe una palabra que siempre traen tus alertas (ej. <b>compra</b> o <b>USD</b>). Si quieres, en <b>Remitente</b> pon el número del banco.</li>
-    <li>Marca <b>Ejecutar inmediatamente</b> › <b>Siguiente</b> › <b>Nueva automatización en blanco</b>.</li>
-    <li>Agrega la acción <b>Obtener contenido de URL</b> y pega la dirección.</li>
-    <li>Toca la flecha de la acción: <b>Método: POST</b>, <b>Cuerpo de la solicitud: JSON</b> y agrega tres campos de texto:<br><b>key</b> = tu clave · <b>source</b> = sms · <b>text</b> = variable <b>Entrada del atajo</b> (tócala y elige <b>Contenido</b>).</li></ol></div>
-  <div class="sec"><h4>${ic("inbox")}iPhone · correos en la app Mail</h4><ol class="steps2">
-    <li><b>Atajos › Automatización › +</b> › <b>Correo</b>. En <b>Remitente</b> pon el correo de alertas de tu banco.</li>
-    <li><b>Ejecutar inmediatamente</b> y la misma acción del SMS, pero con <b>source</b> = correo.</li></ol></div>
-  <div class="sec"><h4>${ic("inbox")}Gmail (cualquier teléfono)</h4><ol class="steps2">
-    <li>En Gmail crea un filtro con el correo de alertas de tu banco y que les ponga la etiqueta <b>alertas-banco</b>.</li>
-    <li>Entra a <b>script.google.com</b> › <b>Nuevo proyecto</b>, borra lo que hay y pega el script.</li>
-    <li>Arriba elige la función <b>instalar</b> y toca <b>Ejecutar</b>. Acepta los permisos.</li>
-    <li>Listo: cada 10 minutos revisa tus alertas nuevas y las manda a la app.</li></ol>
-    <button class="btn sm" data-act="copy" data-id="gas">${ic("copy")}Copiar script de Gmail</button></div>
-  <div class="row2"><button class="btn solid" data-act="alert-test">${ic("check")}Enviar alerta de prueba</button><button class="btn" data-act="alert-key">Cambiar clave</button></div>
-  <p class="note">Si cambias la clave, actualiza también tus atajos y el script.</p>
-  <button class="btn full" data-act="close">Cerrar</button>`)}
+  ScriptApp.newTrigger("revisarAlertas").timeBased().everyMinutes(5).create();
+  var vistos = [];
+  GmailApp.search(busqueda_(), 0, 50).forEach(function (h) { h.getMessages().forEach(function (m) { vistos.push(m.getId()); }); });
+  PropertiesService.getScriptProperties().setProperty("vistos", JSON.stringify(vistos.slice(-400)));
+  var ok = enviar_("MF-CONEXION gmail", "gmail");
+  Logger.log(ok ? "¡Listo! Ya puedes volver a la app." : "No se pudo conectar. Revisa la clave en la app.");
+}`};
+let alPoll=null;
+function alStatus(){const o=S.cfg.alertOk||{},C=[["gmail","Gmail"],["sms","SMS iPhone"],["correo","Mail iPhone"]];return `<div class="alst">${C.map(([k,l])=>`<span class="${o[k]?"on":""}">${o[k]?ic("check"):""}${l}${o[k]?"":" · sin conectar"}</span>`).join("")}</div>`}
+function alWait(k){clearInterval(alPoll);alPoll=setInterval(async()=>{let w=$("alWait");if(!w){clearInterval(alPoll);return}await pullInbox();w=$("alWait");if(w&&(S.cfg.alertOk||{})[k]){clearInterval(alPoll);w.outerHTML=`<div class="alok">${ic("check")}<b>¡Conectado!</b><span>Desde ahora tus alertas llegan solas a “Por revisar”.</span></div>`;confetti&&confetti()}},5000)}
+const alHead=(t,n,tot)=>`<button class="lnk" data-act="al-go" data-id="menu" style="margin:-4px 0 6px">‹ Volver</button><div class="alprog">${Array.from({length:tot},(_,i)=>`<i class="${i<n?"on":""}"></i>`).join("")}</div><span class="note">Paso ${n} de ${tot}</span><h3 style="margin-top:2px">${t}</h3>`;
+async function alertPanel(via,paso){
+  if(!sb||!uid){openPanel(`<h3>Alertas del banco</h3><p>Para recibirlas solas necesitas entrar con tu cuenta. Mientras tanto puedes <b>pegarlas a mano</b>.</p><button class="btn yel full" data-act="paste-open">${ic("inbox")}Pegar una alerta</button><button class="btn full" data-act="close" style="margin-top:8px">Cerrar</button>`);return}
+  if(!S.cfg.alertKey&&!(await newAlertKey(true)))return;
+  if(!via||via==="menu"){openPanel(`<h3>Alertas del banco</h3><p class="note" style="margin-top:-6px">Cada compra que te avise tu banco llega sola a <b>Por revisar</b>; tú solo confirmas el concepto.</p>${alStatus()}
+    <h4 style="margin:14px 0 8px">¿Dónde te llegan las alertas?</h4>
+    <div class="alopts">
+      <button class="alopt" data-act="al-go" data-id="gmail|1" style="--c:#ea4335">${bubI("inbox","#ea4335")}<span><b>Correo en Gmail</b><em>3 pasos · funciona en cualquier teléfono</em></span></button>
+      <button class="alopt" data-act="al-go" data-id="sms|1" style="--c:#16a34a">${bubI("bell","#16a34a")}<span><b>SMS en iPhone</b><em>2 pasos con la app Atajos</em></span></button>
+      <button class="alopt" data-act="al-go" data-id="correo|1" style="--c:#2563eb">${bubI("inbox","#2563eb")}<span><b>Correo en la app Mail de iPhone</b><em>2 pasos con la app Atajos</em></span></button>
+      <button class="alopt" data-act="paste-open" style="--c:#8b5cf6">${bubI("copy","#8b5cf6")}<span><b>Pegar a mano</b><em>Sin configurar nada</em></span></button>
+    </div>
+    <details class="aladv"><summary>Opciones avanzadas</summary><span class="note">Dirección</span><div class="code">${esc(ALERT_URL())}</div><span class="note">Tu clave (no la compartas)</span><div class="code">${esc(S.cfg.alertKey)}</div>
+      <div class="row2"><button class="btn sm" data-act="alert-test">${ic("check")}Enviar alerta de prueba</button><button class="btn sm" data-act="alert-key">Cambiar clave</button></div><p class="note">Si cambias la clave, vuelve a conectar tus alertas.</p></details>
+    <button class="btn full" data-act="close" style="margin-top:10px">Cerrar</button>`);return}
+  if(via==="gmail"&&paso===1){const pre=S.cfg.alBancos||ALB.filter(b=>S.cuentas.some(c=>(c.banco||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(b[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/^banco /,"").split(" ")[0]))).map(b=>b[0]);
+    openPanel(`${alHead("¿De qué bancos te llegan correos?",1,3)}<p class="note">Solo leeremos correos de estos bancos que hablen de compras o pagos.</p>
+    <div class="alchips">${ALB.map(([n])=>`<label><input type="checkbox" name="alB" value="${esc(n)}"${pre.includes(n)?" checked":""}><span>${esc(n)}</span></label>`).join("")}</div>
+    <label class="f">Otro correo de alertas (opcional)<input id="alExt" type="email" inputmode="email" placeholder="alertas@mibanco.com" value="${esc(S.cfg.alCorreo||"")}"></label>
+    <button class="btn yel full" data-act="al-bancos">Siguiente ›</button>`);return}
+  if(via==="gmail"&&paso===2){openPanel(`${alHead("Copia tu código y ábrelo en Google",2,3)}
+    <ol class="alsteps"><li><b>Toca el botón amarillo.</b> Se copia tu código y se abre Google Apps Script con tu cuenta de Gmail.</li>
+    <li><b>Borra todo</b> lo que aparece en la hoja y <b>pega</b> (mantén presionado › Pegar, o Ctrl+V).</li>
+    <li>Toca el ícono de <b>guardar</b> 💾.</li></ol>
+    <button class="btn yel full" data-act="al-gas">${ic("copy")}Copiar y abrir Google</button>
+    <p class="note">Es más cómodo en una computadora: entra a <b>script.new</b> con la misma cuenta de Gmail y pega el código. Para copiarlo otra vez usa el botón.</p>
+    <button class="btn full" data-act="al-go" data-id="gmail|3">Ya lo pegué ›</button>`);return}
+  if(via==="gmail"&&paso===3){openPanel(`${alHead("Dale permiso una sola vez",3,3)}
+    <ol class="alsteps"><li>Arriba, junto a <b>Depurar</b>, elige <b>instalar</b> y toca <b>▶ Ejecutar</b>.</li>
+    <li>Toca <b>Revisar permisos</b> y elige tu cuenta.</li>
+    <li>Si sale <b>“Google no verificó esta app”</b>: toca <b>Configuración avanzada</b> › <b>Ir a … (no seguro)</b> › <b>Permitir</b>.</li></ol>
+    <p class="note">Es normal: el código es tuyo y vive en tu cuenta. Solo lee los correos de tus bancos; nadie más lo ve.</p>
+    ${(S.cfg.alertOk||{}).gmail?`<div class="alok">${ic("check")}<b>¡Conectado!</b><span>Tus alertas de Gmail llegan solas cada 5 minutos.</span></div>`:`<div class="alwait" id="alWait"><i></i><span>Esperando la conexión… vuelve aquí después de tocar Permitir.</span></div>`}
+    <button class="btn solid full" data-act="close" style="margin-top:10px">Listo</button>`);alWait("gmail");return}
+  if((via==="sms"||via==="correo")&&paso===1){const sms=via==="sms";openPanel(`${alHead("Copia tu enlace personal",1,2)}
+    <p>Este enlace manda tus ${sms?"SMS":"correos"} del banco a tu app. Es solo tuyo: no lo compartas.</p>
+    <button class="btn yel full" data-act="al-link" data-id="${via}">${ic("copy")}Copiar mi enlace</button>
+    <button class="btn full" data-act="al-go" data-id="${via}|2" style="margin-top:8px">Siguiente ›</button>`);return}
+  if((via==="sms"||via==="correo")&&paso===2){const sms=via==="sms";openPanel(`${alHead("Crea la automatización en Atajos",2,2)}
+    <ol class="alsteps">
+      <li>Abre la app <b>Atajos</b> › pestaña <b>Automatización</b> › <b>+</b>.</li>
+      <li>Elige <b>${sms?"Mensaje":"Correo"}</b>. ${sms?`En <b>El mensaje contiene</b> escribe <b>compra</b> (o una palabra que siempre traen tus alertas).`:`En <b>Remitente</b> elige el correo de alertas de tu banco.`}</li>
+      <li>Marca <b>Ejecutar inmediatamente</b> › <b>Siguiente</b> › <b>Nueva automatización en blanco</b>.</li>
+      <li>Agrega la acción <b>Obtener contenido de URL</b> y en <b>URL</b> pega tu enlace.</li>
+      <li>Toca la flechita <b>›</b> de la acción: <b>Método: POST</b> · <b>Cuerpo de la solicitud: Archivo</b> · en <b>Archivo</b> elige <b>Entrada del atajo</b>.</li>
+      <li>Toca <b>Listo</b>.</li></ol>
+    <button class="btn sm" data-act="al-link" data-id="${via}">${ic("copy")}Copiar mi enlace otra vez</button>
+    ${(S.cfg.alertOk||{})[via]?`<div class="alok">${ic("check")}<b>¡Conectado!</b><span>Ya recibimos alertas por esta vía.</span></div>`:`<div class="alwait" id="alWait"><i></i><span>Se pondrá en verde con tu próxima alerta del banco.</span></div>`}
+    <button class="btn solid full" data-act="close" style="margin-top:10px">Listo</button>`);alWait(via);return}
+}
 function pastePanel(){openPanel(`<h3>Pegar alerta del banco</h3><p class="note" style="margin-top:-6px">Copia el SMS o el correo de tu banco y pégalo aquí. Leemos el monto, la tarjeta o cuenta, el comercio y la fecha.</p>
   <textarea class="ta" id="paTxt" placeholder="Ej. BAC: Compra aprobada en SUPER SELECTOS por USD 23.55 con tarjeta ****1234 el 23/11/2026"></textarea>
   <div class="g2" style="margin-top:10px"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="paste-read">${ic("check")}Leer alerta</button></div>`);setTimeout(()=>{const e=$("paTxt");if(e)e.focus()},80)}
@@ -1700,6 +1769,11 @@ Object.assign(ACT,{
   "paste-alert":()=>pastePanel(),
   "paste-read":()=>{const t=($("paTxt").value||"").trim();if(t.length<8){toast("Pega el texto de la alerta");return}const p=makePend(t,"pegada");S.pend.push(p);if(S===R)R.pend=S.pend;saveMeta("pend");closePanel();openPend(p.id)},
   "alert-setup":()=>alertPanel(),
+  "al-go":k=>{const [v,p]=k.split("|");alertPanel(v,+p||0)},
+  "paste-open":()=>pastePanel(),
+  "al-bancos":()=>{const b=[...document.querySelectorAll("input[name=alB]:checked")].map(x=>x.value),e=v("alExt").trim();if(!b.length&&!e){toast("Elige al menos un banco");return}S.cfg.alBancos=b;S.cfg.alCorreo=e;saveMeta("cfg");alertPanel("gmail",2)},
+  "al-gas":async()=>{try{await navigator.clipboard.writeText(gasScript(S.cfg.alertKey));toast("Código copiado")}catch(e){toast("No se pudo copiar")}window.open("https://script.new","_blank")},
+  "al-link":async k=>{try{await navigator.clipboard.writeText(alLink(k));toast("Enlace copiado")}catch(e){toast("No se pudo copiar")}},
   "alert-key":(_,b)=>{if(S.cfg.alertKey&&!confirmBtn(b,"Toca otra vez: la clave anterior deja de servir"))return;newAlertKey()},
   "alert-test":async()=>{try{const r=await fetch(ALERT_URL(),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:S.cfg.alertKey,source:"sms",text:"PRUEBA Mis Finanzas: Compra aprobada en CAFE DE PRUEBA por USD 1.00 con tarjeta ****0000 el "+todayStr().split("-").reverse().join("/")})});const j=await r.json();if(!j.ok){toast("No llegó: "+(j.error||r.status));return}closePanel();await pullInbox();show("inicio")}catch(e){toast("Sin conexión")}},
   "copy":async k=>{const t=k==="url"?ALERT_URL():k==="key"?S.cfg.alertKey:gasScript(S.cfg.alertKey);try{await navigator.clipboard.writeText(t);toast("Copiado")}catch(e){toast("No se pudo copiar")}},
