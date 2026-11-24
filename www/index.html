@@ -483,6 +483,11 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .alok .i{grid-row:1/3;width:26px;height:26px}.alok span{color:var(--ink);font-size:14px}
 .gbtn{gap:10px}.gG{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff;color:#4285f4;font:800 16px Arial,sans-serif;box-shadow:0 1px 3px rgb(0 0 0/.2)}
 .alsafe{margin:12px 0 0;padding-left:20px;font-size:14px;color:var(--mut);display:grid;gap:6px}
+.clipb{display:flex;align-items:center;gap:12px;width:100%;margin:10px 0 4px;padding:12px 14px;border-radius:18px;border:1.5px dashed color-mix(in srgb,var(--g2) 55%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--g1) 14%,var(--card)),var(--card) 70%);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:60px}
+.clipb:active{transform:scale(.98)}.clipb span:nth-child(2){flex:1;min-width:0}.clipb b{display:block;font-size:15px}.clipb em{font-style:normal;font-size:13px;color:var(--mut)}
+.clipb>i{font-style:normal;font-size:22px;color:var(--mut)}
+.clipi{width:38px;height:38px;border-radius:12px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,var(--g1),var(--g2))}
+.clipi .i{width:20px;height:20px;color:var(--gk)}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -505,6 +510,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
     <label class="cap" for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg>Escanear ticket</label>
     <input type="file" id="photo" accept="image/*" capture="environment" hidden>
     <div class="qa" id="qa"></div>
+    <button class="clipb" data-act="clip"><span class="clipi" data-ic="copy"></span><span><b>Pegar alerta del banco</b><em>Copia el SMS o correo y toca aquí</em></span><i>›</i></button>
     <button class="btn full sm" style="margin-top:10px" data-act="paste-alert" id="pasteBtn"></button>
     <div id="pendBox"></div>
     <div id="incBox"></div>
@@ -1490,6 +1496,7 @@ function makeDemo(){
 }
 
 document.querySelectorAll("h2.h2i[data-ic]").forEach(h=>h.insertAdjacentHTML("afterbegin",ic(h.dataset.ic)));
+document.querySelectorAll(".clipi[data-ic]").forEach(h=>h.innerHTML=ic(h.dataset.ic));
 // ---------- nube (Supabase)
 const CFG=window.MF_CONFIG||{};
 const sb=(CFG.supabaseUrl&&CFG.supabaseAnonKey&&window.supabase)?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
@@ -1779,6 +1786,10 @@ Object.assign(ACT,{
   "foto-x":()=>{delete S.cfg.foto;saveMeta("cfg");toast("Foto quitada")},
   "pend-rev":id=>openPend(id),
   "paste-alert":()=>pastePanel(),
+  clip:async()=>{let t="";try{t=(await navigator.clipboard.readText()||"").trim()}catch(e){}
+    if(t.length<8||!/\d/.test(t)){pastePanel();if(!t)toast("Primero copia el mensaje del banco");return}
+    const p=makePend(t,"pegada");if(!num(p.monto)){pastePanel();setTimeout(()=>{const e=$("paTxt");if(e)e.value=t},100);toast("No encontré el monto; revisa el texto");return}
+    S.pend.push(p);if(S===R)R.pend=S.pend;saveMeta("pend");openPend(p.id)},
   "paste-read":()=>{const t=($("paTxt").value||"").trim();if(t.length<8){toast("Pega el texto de la alerta");return}const p=makePend(t,"pegada");S.pend.push(p);if(S===R)R.pend=S.pend;saveMeta("pend");closePanel();openPend(p.id)},
   "alert-setup":()=>alertPanel(),
   "gm-go":async()=>{toast("Abriendo Google…");try{const {data,error}=await sb.functions.invoke("gmail-oauth",{method:"POST",body:{}});if(error||!data||!data.url){const m=(data&&data.error)||"";toast(/configurar/i.test(m)||(error&&/503/.test(String(error.context&&error.context.status)))?"La conexión con Google aún no está activada":"No se pudo abrir Google. Intenta de nuevo.");return}location.href=data.url}catch(e){toast("Sin conexión")}},
