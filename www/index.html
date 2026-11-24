@@ -488,6 +488,10 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .clipb>i{font-style:normal;font-size:22px;color:var(--mut)}
 .clipi{width:38px;height:38px;border-radius:12px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,var(--g1),var(--g2))}
 .clipi .i{width:20px;height:20px;color:var(--gk)}
+.durs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-2px 0 12px}
+.durs span{font-size:13px;color:var(--mut);margin-right:2px}
+.durs button{min-height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 13px "Hanken Grotesk",sans-serif;cursor:pointer}
+.durs button:active{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-color:transparent}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -729,28 +733,29 @@ function planR(r){return Array.from({length:nMes(r)},(_,k)=>{const m=shift(r.a,k
 const prevR=r=>{const n=nMes(r);return{a:shift(r.a,-n),b:shift(r.a,-1)}};
 const ahInc=()=>S.cuentas.filter(c=>c.incluir!==false).reduce((s,c)=>s+ctaSaldo(c),0);
 const ahTot=()=>S.cuentas.reduce((s,c)=>s+num(c.saldo),0);
-const fMonthly=f=>f.activo===false?0:num(f.monto)*freqF(f);
+const fMonthly=f=>f.activo===false||ended(f)?0:num(f.monto)*freqF(f);
 const FREQG={semanal:["Semanal",4.33],quincenal:["Quincenal",2],mensual:["Mensual",1],bimestral:["Cada 2 meses",1/2],trimestral:["Cada 3 meses",1/3],semestral:["Cada 6 meses",1/6],anual:["Anual",1/12]};
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
 const FREQI={unica:["Una sola vez",0],semanal:FREQG.semanal,quincenal:FREQG.quincenal,mensual:FREQG.mensual,bimestral:FREQG.bimestral,trimestral:FREQG.trimestral,semestral:FREQG.semestral,anual:FREQG.anual,variable:["Variable (sin fecha fija)",1]};
 const UNIT={dias:30.44,semanas:4.33,meses:1};
 function freqF(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return (UNIT[f.cu]||1)/n}return (FREQI[f.freq]||FREQG.mensual)[1]}
 function freqL(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return "Cada "+n+" "+({dias:n===1?"día":"días",semanas:n===1?"semana":"semanas",meses:n===1?"mes":"meses"}[f.cu]||"meses")}return (FREQI[f.freq]||FREQG.mensual)[0]}
-const gMonthly=f=>f.activo===false?0:num(f.monto)*freqF(f);
+const ended=f=>!!f.fin&&f.fin<todayStr();
+const gMonthly=f=>f.activo===false||ended(f)?0:num(f.monto)*freqF(f);
 const dim=m=>new Date(+m.slice(0,4),+m.slice(5),0).getDate();
 const mdiff=(a,b)=>(+b.slice(0,4)-+a.slice(0,4))*12+(+b.slice(5,7)-+a.slice(5,7));
 const dShort=d=>(+d.slice(8))+" "+MES[+d.slice(5,7)-1].slice(0,3);
 function occ(f,m){
-  if(f.activo===false||!f.inicio||m<f.inicio.slice(0,7))return[];
+  if(f.activo===false||!f.inicio||m<f.inicio.slice(0,7)||(f.fin&&m>f.fin.slice(0,7)))return[];
   const ini=f.inicio,d0=+ini.slice(8),n=dim(m),cl=d=>m+"-"+pad(Math.min(d,n)),out=[];
   const cm=f.freq==="custom"&&f.cu==="meses",k=cm?Math.max(1,+f.cn||1):{mensual:1,bimestral:2,trimestral:3,semestral:6,anual:12}[f.freq],sd=f.freq==="semanal"?7:f.freq==="custom"&&!cm?(f.cu==="semanas"?7:1)*Math.max(1,+f.cn||1):0;
   if(k){if(mdiff(ini,m)%k===0)out.push(cl(d0))}
   else if(f.freq==="quincenal"){const a=d0>15?d0-15:d0;out.push(cl(a),cl(a+15))}
   else if(sd){const t0=new Date(ini+"T12:00");for(let d=1;d<=n;d++){const df=Math.round((new Date(m+"-"+pad(d)+"T12:00")-t0)/864e5);if(df>=0&&df%sd===0)out.push(m+"-"+pad(d))}}
-  return out.filter(x=>x>=ini);
+  return out.filter(x=>x>=ini&&(!f.fin||x<=f.fin));
 }
 function fijosMes(m){const r=[];S.fijos.forEach(f=>{if(f.activo===false)return;occI(f,m).forEach(v=>r.push({f,venc:v,pago:S.items.find(x=>x.fijo===f.id&&x.venc===v)}))});return r.sort((a,b)=>a.venc.localeCompare(b.venc))}
-function occI(f,m){if(!f.inicio||f.freq==="variable"||m<f.inicio.slice(0,7))return[];if(f.freq==="unica")return f.inicio.slice(0,7)===m?[f.inicio]:[];return occ({freq:f.freq,inicio:f.inicio,cn:f.cn,cu:f.cu},m)}
+function occI(f,m){if(!f.inicio||f.freq==="variable"||m<f.inicio.slice(0,7))return[];if(f.freq==="unica")return f.inicio.slice(0,7)===m?[f.inicio]:[];return occ({freq:f.freq,inicio:f.inicio,fin:f.fin,cn:f.cn,cu:f.cu},m)}
 function ingMes(m){const r=[];S.fuentes.filter(f=>f.activo!==false).forEach(f=>occI(f,m).forEach(v=>r.push({f,venc:v,rec:S.items.find(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.venc===v)})));return r.sort((a,b)=>a.venc.localeCompare(b.venc))}
 function hoja(m){
   const io=ingMes(m),fo=fijosMes(m),a=agg(m),td=todayStr();
@@ -790,7 +795,8 @@ function hojaText(m,H){
   L.push("SALDO HOY: "+fmtR(H.real),"SALDO A FIN DE MES: "+fmtR(H.proy));if(H.plan)L.push("Presupuesto "+H.plan.nombre+": ingresos "+fmtR(H.plan.ing)+" · gastos "+fmtR(H.plan.gas));
   return L.join("\n");
 }
-function fDesc(f){const d0=f.inicio?+f.inicio.slice(8):1;
+function fDesc(f){const t=fDesc0(f);return f.fin&&f.freq!=="unica"?t+(ended(f)?" · terminó ":" · hasta ")+dShort(f.fin)+" "+f.fin.slice(0,4):t}
+function fDesc0(f){const d0=f.inicio?+f.inicio.slice(8):1;
   if(f.freq==="unica")return "una sola vez · "+(f.inicio?dShort(f.inicio)+" "+f.inicio.slice(0,4):"sin fecha");
   if(f.freq==="variable")return "sin fecha fija";
   if(f.freq==="quincenal"){const a=d0>15?d0-15:d0;return "días "+a+" y "+(a+15)}
@@ -1184,7 +1190,8 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
 function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"Editar ingreso fijo":"Nuevo ingreso fijo"}</h3>
   <label class="f">¿Quién te da el dinero?<input id="sNombre" value="${esc(f.nombre)}" placeholder="Ej. Empresa, cliente, familiar"></label>
   <div class="g2"><label class="f">Tipo<select id="sTipo" data-cx="tipoF" data-v="${esc(f.tipo||"")}">${opts(listOf("tipoF"),f.tipo)}</select></label><label class="f">Frecuencia<select id="sFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
-  <div class="g2"><label class="f">Monto por pago (USD)<input id="sMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Próximo pago (o el primero)<input id="sIni" type="date" value="${esc(f.inicio||todayStr())}"></label></div>
+  <div class="g2"><label class="f">Monto por pago (USD)<input id="sMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Desde (primer pago)<input id="sIni" type="date" value="${esc(f.inicio||todayStr())}"></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="sFin" type="date" value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="sIni|sFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se deposita en<select id="sCta" data-cx="cta">${ctaOpts(S.cuentas,f.cuenta!=null?f.cuenta:((S.cuentas.find(c=>!isCash(c))||S.cuentas[0]||{}).id||""),"Sin cuenta / en efectivo")}</select></label>
   <p class="note">Quincenal usa ese día y 15 días después. “Variable” no se agenda: registras cada ingreso cuando llegue.</p>
   <label class="ck"><input type="checkbox" id="sAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
@@ -1195,7 +1202,8 @@ function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"
 function fijoForm(f){f=f||{freq:"mensual",inicio:todayStr(),cat:"Vivienda",activo:true};openPanel(`<h3>${f.id?"Editar gasto fijo":"Nuevo gasto fijo"}</h3>
   <label class="f">¿Qué pagas?<input id="xNombre" value="${esc(f.nombre)}" placeholder="Ej. Alquiler, colegiatura, préstamo carro"></label>
   <div class="g2"><label class="f">Monto por pago (USD)<input id="xMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Cada cuánto<select id="xFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
-  <div class="g2"><label class="f">Próximo pago (o el primero)<input id="xIni" type="date" value="${esc(f.inicio)}"></label><label class="f">Categoría<select id="xCat" data-cx="cat" data-v="${esc(f.cat||"")}">${opts(listOf("cat"),f.cat)}</select></label></div>
+  <div class="g2"><label class="f">Desde (primer pago)<input id="xIni" type="date" value="${esc(f.inicio)}"></label><label class="f">Categoría<select id="xCat" data-cx="cat" data-v="${esc(f.cat||"")}">${opts(listOf("cat"),f.cat)}</select></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="xFin" type="date" value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="xIni|xFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se paga desde<select id="xCta" data-cx="cta" data-v="${esc(f.cuenta||"")}">${ctaOpts(S.cuentas,f.cuenta,"Sin especificar")}</select></label>
   <label class="f">Nota<input id="xNota" value="${esc(f.nota)}" placeholder="Ej. débito automático, NPE, contrato"></label>
   <label class="ck"><input type="checkbox" id="xAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
@@ -1295,6 +1303,7 @@ function obRender(){
     <label class="f">Nombre<input id="obFn" placeholder="Ej. Sueldo, remesa de mi hermano" value="${esc(e.nombre||"")}"></label>
     <div class="g2"><label class="f">Tipo<select id="obFt" data-cx="tipoF" data-v="${esc(e.tipo||"")}">${opts(listOf("tipoF"),e.tipo)}</select></label><label class="f">Frecuencia<select id="obFf" data-cx="freq" data-v="${esc(e.freq||"quincenal")}" data-cn="${e.cn||""}" data-cu="${e.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),e.freq)}</select></label></div>
     <div class="g2"><label class="f">Monto por pago (USD)<input id="obFm" inputmode="decimal" placeholder="0.00" value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Próximo pago<input id="obFi" type="date" value="${esc(e.inicio||todayStr())}"></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obFh" type="date" value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obFi|obFh|${n}">${l}</button>`).join("")}</div>
     <label class="f">Se deposita en<select id="obFc" data-cx="cta" data-v="${esc(e.cuenta||"")}">${ctaOpts(ob.cuentas,e.cuenta,"Sin cuenta / lo recibo en efectivo")}</select></label>
     ${saveBtn("f","Agregar este ingreso")}</div>
     <div class="g2" style="margin-top:22px"><button class="btn full" data-act="ob-back">Atrás</button><button class="btn solid full" data-act="ob-next">${ob.fuentes.length?"Siguiente":"Después"}</button></div>`}
@@ -1304,6 +1313,7 @@ function obRender(){
     <label class="f">¿Qué pagas?<input id="obXn" placeholder="Ej. Alquiler" value="${esc(e.nombre||"")}"></label>
     <div class="g2"><label class="f">Monto (USD)<input id="obXm" inputmode="decimal" placeholder="0.00" value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Cada cuánto<select id="obXf" data-cx="freq" data-v="${esc(e.freq||"mensual")}" data-cn="${e.cn||""}" data-cu="${e.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),e.freq)}</select></label></div>
     <div class="g2"><label class="f">Próximo pago<input id="obXi" type="date" value="${esc(e.inicio||todayStr())}"></label><label class="f">Categoría<select id="obXc" data-cx="cat" data-v="${esc(e.cat||"")}">${opts(listOf("cat"),e.cat)}</select></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obXh" type="date" value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obXi|obXh|${n}">${l}</button>`).join("")}</div>
     <label class="f">Se paga desde<select id="obXa" data-cx="cta" data-v="${esc(e.cuenta||"")}">${ctaOpts(ob.cuentas,e.cuenta,"Sin cuenta / lo pago en efectivo")}</select></label>
     ${saveBtn("x","Agregar este gasto")}</div>
     <div class="g2" style="margin-top:22px"><button class="btn full" data-act="ob-back">Atrás</button><button class="btn solid full" data-act="ob-next">${ob.fijos.length?"Siguiente":"Después"}</button></div>`}
@@ -1355,12 +1365,12 @@ const ACT={
   "src-new":()=>srcForm(),
   "src-edit":id=>srcForm(S.fuentes.find(f=>f.id===id)),
   "src-save":id=>{const n=v("sNombre");if(!n){toast("Escribe quién te da el dinero");return}
-    const f={id:id||nid("f"),nombre:n,tipo:v("sTipo"),...fq("sFreq"),monto:Math.round(num(v("sMonto"))*100)/100,inicio:v("sIni")||todayStr(),cuenta:v("sCta"),activo:$("sAct").checked,nota:v("sNota")};
+    const f={id:id||nid("f"),nombre:n,tipo:v("sTipo"),...fq("sFreq"),monto:Math.round(num(v("sMonto"))*100)/100,inicio:v("sIni")||todayStr(),fin:v("sFin")||"",cuenta:v("sCta"),activo:$("sAct").checked,nota:v("sNota")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
     const i=S.fuentes.findIndex(x=>x.id===f.id);if(i>=0)S.fuentes[i]=f;else S.fuentes.push(f);closePanel();saveMeta("fuentes");toast("Fuente guardada")},
   "fijo-new":()=>fijoForm(),
   "fijo-edit":id=>fijoForm(S.fijos.find(f=>f.id===id)),
   "fijo-save":id=>{const n=v("xNombre"),m=num(v("xMonto"));if(!n){toast("Escribe el nombre del gasto");return}if(!(m>0)){toast("Escribe el monto");return}
-    const f={id:id||nid("x"),nombre:n,monto:Math.round(m*100)/100,...fq("xFreq"),inicio:v("xIni")||todayStr(),cat:v("xCat"),cuenta:v("xCta"),activo:$("xAct").checked,nota:v("xNota")};
+    const f={id:id||nid("x"),nombre:n,monto:Math.round(m*100)/100,...fq("xFreq"),inicio:v("xIni")||todayStr(),fin:v("xFin")||"",cat:v("xCat"),cuenta:v("xCta"),activo:$("xAct").checked,nota:v("xNota")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
     const i=S.fijos.findIndex(x=>x.id===f.id);if(i>=0)S.fijos[i]=f;else S.fijos.push(f);closePanel();saveMeta("fijos");toast("Gasto fijo guardado")},
   "fijo-del":(id,b)=>{if(!confirmBtn(b,"Toca otra vez: los pagos hechos se conservan"))return;S.fijos=S.fijos.filter(f=>f.id!==id);if(S===R)R.fijos=S.fijos;closePanel();saveMeta("fijos")},
   "fijo-pay":k=>{const [id,venc]=k.split("|"),f=S.fijos.find(x=>x.id===id);if(!f)return;
@@ -1419,10 +1429,10 @@ const ACT={
     if(!isCash(c)&&c.num.length!==4){toast("Escribe los últimos 4 dígitos de la cuenta");$("obNum").focus();return false}
     const k=ob.ed.c;if(k>=0){c.id=ob.cuentas[k].id;ob.cuentas[k]=c}else{c.id=nid("c");ob.cuentas.push(c)}ob.ed.c=-1;obRender();toast(k>=0?"Cuenta corregida":"Cuenta agregada");return true},
   "ob-addf":()=>{const n=v("obFn");if(!n){toast("Escribe el nombre del ingreso");return false}const m=num(v("obFm"));if(!(m>0)){toast("Escribe el monto");$("obFm").focus();return false}
-    const f={nombre:n,tipo:v("obFt"),...fq("obFf"),monto:Math.round(m*100)/100,inicio:v("obFi")||todayStr(),cuenta:v("obFc")};
+    const f={nombre:n,tipo:v("obFt"),...fq("obFf"),monto:Math.round(m*100)/100,inicio:v("obFi")||todayStr(),fin:v("obFh")||"",cuenta:v("obFc")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
     const k=ob.ed.f;if(k>=0)ob.fuentes[k]=f;else ob.fuentes.push(f);ob.ed.f=-1;obRender();toast(k>=0?"Ingreso corregido":"Ingreso agregado");return true},
   "ob-addx":()=>{const n=v("obXn"),m=num(v("obXm"));if(!n||!(m>0)){toast("Escribe qué pagas y el monto");return false}
-    const f={nombre:n,monto:Math.round(m*100)/100,...fq("obXf"),inicio:v("obXi")||todayStr(),cat:v("obXc"),cuenta:v("obXa")};
+    const f={nombre:n,monto:Math.round(m*100)/100,...fq("obXf"),inicio:v("obXi")||todayStr(),fin:v("obXh")||"",cat:v("obXc"),cuenta:v("obXa")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
     const k=ob.ed.x;if(k>=0)ob.fijos[k]=f;else ob.fijos.push(f);ob.ed.x=-1;obRender();toast(k>=0?"Gasto corregido":"Gasto agregado");return true},
   "ob-pin":()=>{const a=v("obP1"),b=v("obP2");if(!/^\d{4,6}$/.test(a)){$("obErr").textContent="Usa de 4 a 6 números";return}if(a!==b){$("obErr").textContent="Los PIN no coinciden";return}ob.pin=a;ob.step=5;obRender()},
   "ob-nopin":()=>{ob.pin="";ob.step=5;obRender()},
@@ -1795,6 +1805,7 @@ Object.assign(ACT,{
   "gm-go":async()=>{toast("Abriendo Google…");try{const {data,error}=await sb.functions.invoke("gmail-oauth",{method:"POST",body:{}});if(error||!data||!data.url){const m=(data&&data.error)||"";toast(/configurar/i.test(m)||(error&&/503/.test(String(error.context&&error.context.status)))?"La conexión con Google aún no está activada":"No se pudo abrir Google. Intenta de nuevo.");return}location.href=data.url}catch(e){toast("Sin conexión")}},
   "gm-now":async()=>{toast("Revisando Gmail…");try{await sb.functions.invoke("gmail-poll",{method:"POST",body:{}});await pullInbox();alertPanel("gmail",2)}catch(e){toast("No se pudo revisar")}},
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
+  dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "al-go":k=>{const [v,p]=k.split("|");alertPanel(v,+p||0)},
   "paste-open":()=>pastePanel(),
   "al-bancos":()=>{const b=[...document.querySelectorAll("input[name=alB]:checked")].map(x=>x.value),e=v("alExt").trim();if(!b.length&&!e){toast("Elige al menos un banco");return}S.cfg.alBancos=b;S.cfg.alCorreo=e;saveMeta("cfg");alertPanel("gmail",2)},
