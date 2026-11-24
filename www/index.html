@@ -426,6 +426,38 @@ label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!impor
 }
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* ---- más vivacidad ---- */
+#accList{display:grid;gap:12px;padding:2px 0 6px}
+#accList li{list-style:none}
+.bk{position:relative;overflow:hidden;isolation:isolate;width:100%;border:0;cursor:pointer;text-align:left;color:#fff;font:inherit;border-radius:20px;padding:16px 16px 14px;display:grid;gap:10px;background:linear-gradient(135deg,var(--b1),var(--b2));box-shadow:0 14px 28px color-mix(in srgb,var(--b2) 38%,transparent),0 2px 6px rgb(0 0 0/.12)}
+.bk::before{content:"";position:absolute;z-index:-1;width:220px;height:220px;border-radius:50%;right:-70px;top:-110px;background:radial-gradient(circle,rgb(255 255 255/.28),transparent 65%)}
+.bk::after{content:"";position:absolute;z-index:-1;width:180px;height:180px;border-radius:50%;left:-60px;bottom:-120px;border:22px solid rgb(255 255 255/.07)}
+.bk:active{transform:scale(.98)}
+.bk1{display:flex;align-items:center;gap:10px;min-width:0}
+.bkic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgb(255 255 255/.2);backdrop-filter:blur(4px);flex:none}.bkic .i{width:19px;height:19px}
+.bk1 b{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk1 em{font-style:normal;font-size:13px;letter-spacing:.12em;opacity:.85;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bk2{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;min-width:0}
+.bk2 span{font-size:13px;opacity:.85;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk2 strong{font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bk3{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bk3 i{font-style:normal;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgb(255 255 255/.16);display:inline-flex;align-items:center;gap:4px}.bk3 i .i{width:13px;height:13px}
+.bk3 i.on{background:rgb(255 255 255/.92);color:var(--b2)}
+.bk3 small{font-size:11px;opacity:.75}
+.day{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 4px!important}
+.day span{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-weight:600;text-transform:capitalize}
+.day span b{display:grid;place-items:center;min-width:30px;height:30px;padding:0 4px;border-radius:10px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);font-size:14px;box-shadow:0 4px 10px color-mix(in srgb,var(--g2) 35%,transparent)}
+.day em{font-style:normal;font-size:13px;font-weight:700;color:var(--mut);font-variant-numeric:tabular-nums}
+.bub{background:linear-gradient(145deg,color-mix(in srgb,var(--c) 24%,var(--card)),color-mix(in srgb,var(--c) 8%,var(--card)))}
+h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:11px;color:var(--gk)!important;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 6px 14px color-mix(in srgb,var(--g2) 35%,transparent);box-sizing:border-box;flex:none}
+.qa button{position:relative;overflow:hidden;isolation:isolate}
+.qa button::before{content:"";position:absolute;z-index:-1;inset:auto -20px -40px auto;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--qc,var(--g2)) 30%,transparent),transparent 70%)}
+.qa button:nth-child(1){--qc:#f43f5e}.qa button:nth-child(2){--qc:#10b981}.qa button:nth-child(3){--qc:#8b5cf6}
+.fx{position:relative;overflow:hidden}
+.fx::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--g1),var(--g2))}
+.ledger::before{animation:shine 6s ease-in-out infinite}
+@keyframes shine{0%,100%{transform:translateX(-10%)}50%{transform:translateX(10%)}}
+@media(prefers-reduced-motion:reduce){.ledger::before{animation:none}}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -655,6 +687,7 @@ function setStatus(t){$("status").textContent=t}
 // ---------- cálculos
 const inMonth=m=>S.items.filter(x=>x.fecha&&x.fecha.slice(0,7)===m);
 let pRange=null;
+const BKG=[["#6366f1","#312e81"],["#0ea5e9","#1e3a8a"],["#f43f5e","#7f1d1d"],["#f59e0b","#9a3412"],["#14b8a6","#134e4a"],["#a855f7","#581c87"],["#64748b","#0f172a"],["#ec4899","#831843"]];
 const MES3=m=>MES[+m.slice(5)-1].slice(0,3);
 const RG=()=>pRange||{a:month,b:month};
 const nMes=r=>mdiff(r.a+"-01",r.b+"-01")+1;
@@ -906,7 +939,8 @@ function render(){
   const q=norm($("q").value);
   const xs=aR.xs.filter(x=>!q||norm(x.lugar+" "+x.cat+" "+x.nota+" "+srcName(x)).includes(q)).sort((x,y)=>y.fecha.localeCompare(x.fecha)||(y.ts||0)-(x.ts||0));
   let h="",last="";
-  xs.forEach(x=>{if(x.fecha!==last){h+=(last?"</ul>":"")+`<p class="day">${+x.fecha.slice(8)} de ${MES[+x.fecha.slice(5,7)-1]}</p><ul class="list">`;last=x.fecha}h+=row(x)});
+  const DT={};xs.forEach(x=>{if(x.tipo!=="ingreso")DT[x.fecha]=(DT[x.fecha]||0)+num(x.monto)});
+  xs.forEach(x=>{if(x.fecha!==last){h+=(last?"</ul>":"")+`<p class="day"><span><b>${+x.fecha.slice(8)}</b>${MES[+x.fecha.slice(5,7)-1]}${x.fecha.slice(0,4)!==todayStr().slice(0,4)?" "+x.fecha.slice(0,4):""}</span>${DT[x.fecha]?`<em>−${fmt(DT[x.fecha])}</em>`:""}</p><ul class="list">`;last=x.fecha}h+=row(x)});
   $("movList").innerHTML=xs.length?h+"</ul>":`<p class="empty">${q?"Nada coincide con la búsqueda.":"Sin movimientos en "+RGtext(RR)+"."}</p>`;
   // resumen
   const PL=planR(RR),sP=k=>PL.reduce((t,o)=>t+o[k],0),iPt=sP("iP"),gPt=sP("gP");
@@ -936,7 +970,7 @@ function render(){
   drawProy();
   // cuentas
   $("ahTot").textContent="hoy "+fmt(S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0));
-  $("accList").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),dif=Math.abs(sa-num(c.saldo))>.004;return `<li><button class="it" data-act="acc-edit" data-id="${c.id}">${bubI(isCash(c)?"wallet":"bank",isCash(c)?"#16a34a":"#2563eb")}<span class="tx"><b>${esc(c.banco)}${c.num?" ···"+esc(c.num):""}</b><span>${esc(c.nombre||c.tipo)} · ${c.incluir!==false?"suma al disponible":"no suma"}${(c.tarjetas||[]).length?" · tarjetas "+c.tarjetas.map(t=>"···"+esc(t.d)).join(", "):""}</span></span><span class="am">${fmt(sa)}${dif?`<small>base ${fmt(num(c.saldo))} al ${c.fecha?dShort(c.fecha):"inicio"}</small>`:""}</span></button></li>`}).join(""):`<li class="empty">Agrega tus cuentas de ahorro, depósitos o efectivo guardado.</li>`;
+  $("accList").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),dif=Math.abs(sa-num(c.saldo))>.004,G=isCash(c)?["#34d399","#047857"]:BKG[[...(c.banco||"").toLowerCase()].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%BKG.length];return `<li><button class="bk" data-act="acc-edit" data-id="${c.id}" style="--b1:${G[0]};--b2:${G[1]}"><span class="bk1"><span class="bkic">${ic(isCash(c)?"wallet":"bank")}</span><b>${esc(c.banco)}</b><em>${c.num?"•••• "+esc(c.num):esc(c.tipo||"")}</em></span><span class="bk2"><span>${esc(c.nombre||c.tipo)}</span><strong>${fmt(sa)}</strong></span><span class="bk3"><i class="${c.incluir!==false?"on":""}">${c.incluir!==false?"Suma al disponible":"No suma"}</i>${(c.tarjetas||[]).length?`<i>${ic("card")} ${c.tarjetas.map(t=>"··"+esc(t.d)).join(" ")}</i>`:""}${dif?`<small>base ${fmt(num(c.saldo))} al ${c.fecha?dShort(c.fecha):"inicio"}</small>`:""}</span></button></li>`}).join(""):`<li class="empty">Agrega tus cuentas de ahorro, depósitos o efectivo guardado.</li>`;
   const yr=month.slice(0,4);
   $("fTot").textContent=S.fuentes.length?"≈ "+fmt(S.fuentes.reduce((s,f)=>s+fMonthly(f),0))+"/mes":"";
   $("srcList").innerHTML=S.fuentes.length?S.fuentes.map(f=>{const got=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,7)===month)),yt=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,4)===yr));return `<li><button class="it" data-act="src-edit" data-id="${f.id}">${bub(f.tipo)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${esc(f.tipo)} · ${freqL(f)} · ${esc(fDesc(f))} · ${fmt(num(f.monto))} por pago</span></span><span class="am">${fmt(got)}<small>${mn} · ${fmt0(yt)} en ${yr}</small></span></button></li>`}).join(""):`<li class="empty">Agrega quién te da dinero: tu salario, remesas, trabajos o negocios.</li>`;
