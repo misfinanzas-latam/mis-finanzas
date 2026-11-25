@@ -108,8 +108,8 @@ mark{background:color-mix(in srgb,var(--y) 28%,transparent);color:var(--ink);pad
 .tot strong{display:block;font-size:17px;color:var(--ink)}
 .acc{display:flex;align-items:center;gap:12px}
 .acc .bk{width:42px;height:42px;border-radius:13px;color:#2563eb;background:color-mix(in srgb,#2563eb 15%,transparent);display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--card);box-shadow:0 -4px 18px rgb(0 0 0/.08);padding-bottom:env(safe-area-inset-bottom);z-index:5}
-nav.tabs button{min-height:60px;border:0;background:none;color:var(--mut);font:600 12px "Hanken Grotesk",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--card);box-shadow:0 -4px 18px rgb(0 0 0/.08);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.tabs button{min-height:60px;border:0;background:none;color:var(--mut);font:600 11px "Hanken Grotesk",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
 nav.tabs button[aria-current=true]{color:var(--ink)}
 nav.tabs button[aria-current=true] svg{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-radius:9px;box-shadow:0 4px 10px color-mix(in srgb,var(--g2) 40%,transparent)}
 nav.tabs button[aria-current=true]{color:var(--ink)}
@@ -500,17 +500,20 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .jopt{display:grid;gap:2px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:56px}
 .jopt b{font-size:15px}.jopt span{font-size:13px;color:var(--mut)}.jopt:active{border-color:var(--g2)}
 /* ---- áreas en Cuentas ---- */
-.zsw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 14px}
-.zsw button{position:relative;overflow:hidden;display:grid;gap:2px;justify-items:start;text-align:left;padding:10px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:96px;min-width:0}
-.zsw button .i{width:20px;height:20px;color:var(--zc)}
-.zsw button span{font-size:12px;font-weight:700;color:var(--mut)}
-.zsw button b{font-size:15px;letter-spacing:-.01em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.zsw button em{font-style:normal;font-size:11px;color:var(--mut);line-height:1.25}
-.zsw button em u{color:#e11d48;text-decoration:none;font-weight:700}
-.zsw button[aria-selected=true]{border-color:var(--zc);background:linear-gradient(160deg,color-mix(in srgb,var(--zc) 16%,var(--card)),var(--card) 75%);box-shadow:0 8px 20px color-mix(in srgb,var(--zc) 22%,transparent)}
-.zsw button[aria-selected=true]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:4px;border-radius:4px 4px 0 0;background:var(--zc)}
-.zone{scroll-margin-top:calc(84px + env(safe-area-inset-top));margin-bottom:18px;border-radius:22px;padding:4px 14px 14px;background:linear-gradient(180deg,color-mix(in srgb,var(--zc) 8%,transparent),transparent 140px);border-top:4px solid var(--zc)}
-.zone h2.h2i>.i{background:var(--zc)!important;color:#fff!important;box-shadow:0 6px 14px color-mix(in srgb,var(--zc) 35%,transparent)}
+.zone{scroll-margin-top:calc(84px + env(safe-area-inset-top));margin:0 0 14px;border-radius:22px;background:var(--card);box-shadow:0 1px 2px rgb(0 0 0/.05),0 10px 24px rgb(0 0 0/.07);overflow:hidden;border:1.5px solid color-mix(in srgb,var(--zc) 22%,transparent)}
+.zone>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer;min-height:72px;background:linear-gradient(120deg,color-mix(in srgb,var(--zc) 16%,var(--card)),var(--card) 75%);position:relative}
+.zone>summary::-webkit-details-marker{display:none}
+.zone>summary::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--zc)}
+.zic{width:44px;height:44px;border-radius:14px;flex:none;display:grid;place-items:center;background:var(--zc);color:#fff;box-shadow:0 8px 18px color-mix(in srgb,var(--zc) 38%,transparent)}.zic .i{width:22px;height:22px}
+.zt{flex:1;min-width:0;display:grid}.zt b{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.zt em{font-style:normal;font-size:13px;color:var(--mut)}.zt em u{text-decoration:none;color:#e11d48;font-weight:700}
+.ztot{font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;color:color-mix(in srgb,var(--zc) 70%,var(--ink))}
+.zchev{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--zc) 14%,var(--card));transition:transform .25s}
+.zchev::before{content:"";width:8px;height:8px;border-right:2.5px solid var(--zc);border-bottom:2.5px solid var(--zc);transform:translateY(-2px) rotate(45deg)}
+.zone[open]>summary .zchev{transform:rotate(180deg)}
+.zb{padding:4px 14px 14px;border-top:1px solid color-mix(in srgb,var(--zc) 18%,transparent)}
+.zone .btn.full{border-color:var(--zc);color:color-mix(in srgb,var(--zc) 75%,var(--ink))}
+@media(prefers-reduced-motion:no-preference){.zone[open] .zb{animation:rise .3s ease both}}
+@media(max-width:380px){.zt b{font-size:16px}.ztot{font-size:15px}.zic{width:38px;height:38px}}
 .zone .fx::before,.zone .list .it{--x:0}
 .subh{list-style:none;margin:14px 0 2px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 </style></head><body>
@@ -582,23 +585,25 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
   </section>
 
   <section id="tab-cuentas" hidden>
-    <div class="zsw" id="zsw" role="tablist" aria-label="Áreas"></div>
-    <div class="zone" data-z="ah" style="--zc:#6366f1">
-    <h2 class="h2i" data-ic="piggy" style="margin-top:4px">Mis ahorros <span class="note" id="ahTot"></span></h2>
-    <ul class="list" id="accList"></ul>
-    <button class="btn full" style="margin-top:10px" data-act="acc-new">+ Agregar cuenta o banco</button>
-    </div>
-    <div class="zone" data-z="in" style="--zc:#10b981">
-    <h2 class="h2i" data-ic="money">Mis ingresos fijos <span class="note" id="fTot"></span></h2>
-    <ul class="list" id="srcList"></ul>
-    <button class="btn full" style="margin-top:10px" data-act="src-new">+ Agregar ingreso fijo</button>
-    </div>
-    <div class="zone" data-z="ga" style="--zc:#f43f5e">
-    <h2 class="h2i" data-ic="cal">Mis gastos fijos <span class="note" id="gTot"></span></h2>
-    <ul class="list" id="fixList"></ul>
-    <button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button>
-    </div>
+    <details class="zone" data-z="ah" style="--zc:#0ea5e9">
+    <summary><span class="zic" data-ic="piggy"></span><span class="zt"><b>Mis ahorros</b><em><span id="ahCnt"></span></em></span><strong class="ztot" id="ahTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
+    <div class="zb"><ul class="list" id="accList"></ul>
+    <button class="btn full" style="margin-top:10px" data-act="acc-new">+ Agregar cuenta o banco</button></div>
+    </details>
     <p class="note" style="margin-top:18px;display:flex;gap:8px;align-items:center"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex:none"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>Colores, foto, alertas del banco, PIN y tu cuenta están en el menú de tu inicial, arriba a la izquierda.</p>
+  </section>
+  <section id="tab-fijos" hidden>
+    <details class="zone" data-z="in" style="--zc:#16a34a">
+    <summary><span class="zic" data-ic="money"></span><span class="zt"><b>Mis ingresos fijos</b><em><span id="fCnt"></span></em></span><strong class="ztot" id="fTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
+    <div class="zb"><ul class="list" id="srcList"></ul>
+    <button class="btn full" style="margin-top:10px" data-act="src-new">+ Agregar ingreso fijo</button></div>
+    </details>
+    <details class="zone" data-z="ga" style="--zc:#7c5cff">
+    <summary><span class="zic" data-ic="cal"></span><span class="zt"><b>Mis gastos fijos</b><em><span id="gCnt"></span></em></span><strong class="ztot" id="gTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
+    <div class="zb"><ul class="list" id="fixList"></ul>
+    <button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button></div>
+    </details>
+    <p class="note" style="margin:4px 4px 0">Lo que entra y sale siempre. Cada vez que toque, en Inicio lo marcas con “Recibir” o “Pagar”.</p>
   </section>
 </div>
 
@@ -608,6 +613,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
   <button data-tab="movimientos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6h14M5 12h14M5 18h10"/></svg>Historial</button>
   <button data-tab="resumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Resumen</button>
   <button data-tab="proyeccion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19l6-7 4 4 8-10M15 6h6v6"/></svg>Proyección</button>
+  <button data-tab="fijos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>Fijos</button>
   <button data-tab="cuentas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg>Cuentas</button>
 </nav>
 
@@ -924,7 +930,7 @@ function umenuHTML(){
   <div class="ms"></div><div class="mv">Banco</div>
   ${mi("alert-setup","bell",S.cfg.alertKey?"Alertas automáticas · activas":"Configurar alertas automáticas")}
   ${mi("paste-alert","inbox","Pegar alerta del banco")}
-  ${mi("m-tab","bank","Mis cuentas, ingresos y fijos","","cuentas")}
+  ${mi("m-tab","bank","Mis cuentas","","cuentas")}${mi("m-tab","cal","Ingresos y gastos fijos","","fijos")}
   <div class="ms"></div><div class="mv">Seguridad</div>
   ${mi("priv",priv?"eyeoff":"eye",priv?"Modo privacidad · activado (mostrar montos)":"Modo privacidad · ocultar montos")}
   ${mi("set-pin","lock",S.cfg.pinHash?"PIN activado · cambiar o quitar":"Crear PIN de acceso")}
@@ -971,7 +977,7 @@ function pmenuHTML(){const td=todayStr().slice(0,7),y=td.slice(0,4),cur=RG(),fir
   <p class="note" style="margin:10px 0 0">El periodo aplica a Historial y Resumen. Inicio y los pagos del mes muestran el último mes del periodo.</p>`}
 function openPmenu(){closeUmenu();$("pmenu").innerHTML=pmenuHTML();$("pmenu").hidden=false;$("pmenuBg").hidden=false}
 function closePmenu(){$("pmenu").hidden=true;$("pmenuBg").hidden=true}
-function setPeriod(a,b){if(b<a)[a,b]=[b,a];closePmenu();if(a===b){pRange=null;month=a}else{pRange={a,b};month=b;if(tab==="inicio"||tab==="proyeccion"||tab==="cuentas")show("resumen")}render();if(a!==b)toast("Viendo "+RGtext({a,b}))}
+function setPeriod(a,b){if(b<a)[a,b]=[b,a];closePmenu();if(a===b){pRange=null;month=a}else{pRange={a,b};month=b;if(tab==="inicio"||tab==="proyeccion"||tab==="cuentas"||tab==="fijos")show("resumen")}render();if(a!==b)toast("Viendo "+RGtext({a,b}))}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePmenu()});
 
 // ---------- capa creativa
@@ -1054,11 +1060,11 @@ function render(){
     <div class="row2" style="margin:0"><button class="btn sm" data-act="esc-edit" data-id="${e.id}">Editar</button><button class="btn sm" data-act="esc-dup" data-id="${e.id}">Duplicar</button><button class="btn sm solid" data-act="esc-apply" data-id="${e.id}">${ic("cal")}Aplicar a un mes</button></div></div>`}).join(""):`<p class="empty">Aún no tienes escenarios. Toca “Crear desde mis datos” para armar el primero con tus fuentes de ingreso y tus gastos.</p>`;
   drawProy();
   // cuentas
-  $("ahTot").textContent="hoy "+fmt(S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0));
+  $("ahTot").textContent=fmt(S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0));
   $("accList").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),dif=Math.abs(sa-num(c.saldo))>.004,G=isCash(c)?["#34d399","#047857"]:BKG[[...(c.banco||"").toLowerCase()].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%BKG.length];return `<li><button class="bk" data-act="acc-edit" data-id="${c.id}" style="--b1:${G[0]};--b2:${G[1]}"><span class="bk1"><span class="bkic">${ic(isCash(c)?"wallet":"bank")}</span><b>${esc(c.banco)}</b><em>${c.num?"•••• "+esc(c.num):esc(c.tipo||"")}</em></span><span class="bk2"><span>${esc(c.nombre||c.tipo)}</span><strong>${fmt(sa)}</strong></span><span class="bk3"><i class="${c.incluir!==false?"on":""}">${c.incluir!==false?"Suma al disponible":"No suma"}</i>${(c.tarjetas||[]).length?`<i>${ic("card")} ${c.tarjetas.map(t=>"··"+esc(t.d)).join(" ")}</i>`:""}${sa<-.004?`<i class="jneg" data-act="just" data-id="${c.id}">Justificar −${fmt(-sa)}</i>`:""}${dif?`<small>base ${fmt(num(c.saldo))} al ${c.fecha?dShort(c.fecha):"inicio"}</small>`:""}</span></button></li>`}).join(""):`<li class="empty">Agrega tus cuentas de ahorro, depósitos o efectivo guardado.</li>`;
   const yr=month.slice(0,4);
-  $("fTot").textContent=S.fuentes.length?"≈ "+fmt(S.fuentes.reduce((s,f)=>s+fMonthly(f),0))+"/mes":"";
-  $("srcList").innerHTML=S.fuentes.length?grp(S.fuentes,f=>{const got=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,7)===month)),yt=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,4)===yr));return `<li><button class="it" data-act="src-edit" data-id="${f.id}">${bub(f.tipo)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${esc(f.tipo)} · ${freqL(f)} · ${esc(fDesc(f))} · ${fmt(num(f.monto))} por pago</span></span><span class="am">${fmt(got)}<small>${mn} · ${fmt0(yt)} en ${yr}</small></span></button></li>`}):`<li class="empty">Agrega quién te da dinero: tu salario, remesas, trabajos o negocios.</li>`;
+  $("fTot").textContent=fmt(S.fuentes.reduce((s,f)=>s+fMonthly(f),0));
+  $("srcList").innerHTML=S.fuentes.length?grp(S.fuentes,f=>{const got=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,7)===month)),yt=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,4)===yr));return `<li><button class="it" data-act="src-edit" data-id="${f.id}">${bub(f.tipo)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${esc(f.tipo)} · ${f.freq==="variable"?"sin fecha fija":freqL(f)+" · "+esc(fDesc(f))}</span></span><span class="am">${fmt(num(f.monto))}<small>${got?"recibido "+fmt0(got):"por pago"}</small></span></button></li>`}):`<li class="empty">Agrega quién te da dinero: tu salario, remesas, trabajos o negocios.</li>`;
   if(S.cfg.tema&&S.cfg.tema!==curTheme)applyTheme(S.cfg.tema);
   // gastos fijos
   const fm=fijosMes(month),pend=fm.filter(o=>!o.pago),pendT=pend.reduce((s,o)=>s+num(o.f.monto),0),fmT=fm.reduce((s,o)=>s+(o.pago?num(o.pago.monto):num(o.f.monto)),0),paidT=fmT-pendT,td=todayStr();
@@ -1071,10 +1077,12 @@ function render(){
   $("lgFree").innerHTML=`<div>Por recibir<b>${fmt(H.tI-H.rI)}</b></div><div>Fijos por pagar<b>${fmt(H.tF-H.pF)}</b></div><div>Fin de mes<b class="${H.proy<0?"neg":""}">${fmt(H.proy)}</b></div>`;
   $("fixBox").innerHTML=S.fijos.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos de ${mn}</h2><span class="note">Pagado ${fmt(paidT)} de ${fmt(fmT)}</span></div><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div>`
     :`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos</h2></div><p class="note" style="margin:6px 0 10px">Agrega lo que pagas siempre (alquiler, colegio, préstamos, seguros) para saber cuánto de tu dinero ya está comprometido.</p><button class="btn sm" style="margin-bottom:8px" data-act="fijo-new">${ic("plus")}Agregar gasto fijo</button></div>`;
-  {const ahT=S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0),inT=S.fuentes.reduce((s,f)=>s+fMonthly(f),0),gaT=S.fijos.reduce((s,f)=>s+gMonthly(f),0),ng=negCtas().length;
-   $("zsw").innerHTML=[["ah","Ahorros",fmt(ahT),S.cuentas.length+" cuenta(s)","#6366f1","piggy"],["in","Ingresos fijos",fmt(inT),"al mes · "+S.fuentes.length,"#10b981","down"],["ga","Gastos fijos",fmt(gaT),"al mes · "+S.fijos.length,"#f43f5e","cal"]].map(([k,l,v,d,c,i])=>`<button role="tab" aria-selected="${zone===k}" data-act="zone" data-id="${k}" style="--zc:${c}">${ic(i)}<span>${l}</span><b>${v}</b><em>${d}${k==="ah"&&ng?` · <u>${ng} por justificar</u>`:""}</em></button>`).join("");
-   document.querySelectorAll(".zone").forEach(e=>e.hidden=false)}
-  $("gTot").textContent=S.fijos.length?"≈ "+fmt(S.fijos.reduce((s,f)=>s+gMonthly(f),0))+"/mes":"";
+  {const ng=negCtas().length;
+   $("ahCnt").innerHTML=S.cuentas.length+" cuenta(s)"+(ng?` · <u>${ng} por justificar</u>`:"");
+   $("fCnt").textContent=S.fuentes.length?S.fuentes.length+" ingreso(s) · al mes":"Ninguno todavía";
+   $("gCnt").textContent=S.fijos.length?S.fijos.length+" gasto(s) · al mes":"Ninguno todavía";
+   document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":d.dataset.z==="ah"}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
+  $("gTot").textContent=fmt(S.fijos.reduce((s,f)=>s+gMonthly(f),0));
   $("fixList").innerHTML=S.fijos.length?grp(S.fijos,f=>`<li><button class="it" data-act="fijo-edit" data-id="${f.id}">${bub(f.cat)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${freqL(f)} · ${esc(fDesc(f))}${f.cuenta&&S.cuentas.find(c=>c.id===f.cuenta)?" · desde "+esc(S.cuentas.find(c=>c.id===f.cuenta).banco):""}</span></span><span class="am">${fmt(num(f.monto))}${f.freq!=="mensual"?`<small>≈ ${fmt(gMonthly(f))}/mes</small>`:""}</span></button></li>`):`<li class="empty">Alquiler, colegiatura, préstamos, plan de celular, seguros: con la frecuencia que tengan.</li>`;
 }
 
@@ -1503,7 +1511,7 @@ $("horizon").onchange=()=>{if($("horizon").value==="__c")return;S.cfg.horizon=+$
 document.addEventListener("change",e=>{if(e.target.id==="horizon_x"){const n=Math.min(120,Math.max(1,parseInt(e.target.value)||0));if(!n)return;S.cfg.horizon=n;if(isDemo())render();else saveMeta("cfg")}});
 $("prev").onclick=()=>{if(isRange()){const n=nMes(pRange);pRange={a:shift(pRange.a,-n),b:shift(pRange.b,-n)};month=pRange.b}else month=shift(month,-1);render()};
 $("next").onclick=()=>{if(isRange()){const n=nMes(pRange);pRange={a:shift(pRange.a,n),b:shift(pRange.b,n)};month=pRange.b}else month=shift(month,1);render()};
-window.addEventListener("hashchange",()=>{const t=location.hash.slice(1);if(["inicio","movimientos","resumen","proyeccion","cuentas"].includes(t)&&t!==tab)show(t)});
+window.addEventListener("hashchange",()=>{const t=location.hash.slice(1);if(["inicio","movimientos","resumen","proyeccion","fijos","cuentas"].includes(t)&&t!==tab)show(t)});
 let tt;
 function toast(msg,act,fn){$("toastTx").textContent=msg;const b=$("toastBtn");b.hidden=!act;if(act){b.textContent=act;b.onclick=()=>{$("toast").hidden=true;fn()}}$("toast").hidden=false;clearTimeout(tt);tt=setTimeout(()=>$("toast").hidden=true,act?6000:2800)}
 
@@ -1558,7 +1566,7 @@ function makeDemo(){
 }
 
 document.querySelectorAll("h2.h2i[data-ic]").forEach(h=>h.insertAdjacentHTML("afterbegin",ic(h.dataset.ic)));
-document.querySelectorAll(".clipi[data-ic]").forEach(h=>h.innerHTML=ic(h.dataset.ic));
+document.querySelectorAll(".clipi[data-ic],.zic[data-ic]").forEach(h=>h.innerHTML=ic(h.dataset.ic));
 // ---------- nube (Supabase)
 const CFG=window.MF_CONFIG||{};
 const sb=(CFG.supabaseUrl&&CFG.supabaseAnonKey&&window.supabase)?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
@@ -1859,7 +1867,7 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
-  zone:k=>{zone=k;document.querySelectorAll("#zsw button").forEach(b=>b.setAttribute("aria-selected",b.dataset.id===k));const z=document.querySelector(`.zone[data-z="${k}"]`);if(z)z.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})},
+  zone:k=>{if(k!=="ah"&&tab!=="fijos")show("fijos");const z=document.querySelector(`.zone[data-z="${k}"]`);if(z){z.open=true}if(z)z.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})},
   "just-mv":k=>{const [a,b]=k.split("|"),m=num(v("jMonto"));if(!(m>0)){toast("Escribe el monto");return}const A=S.cuentas.find(x=>x.id===a),B=S.cuentas.find(x=>x.id===b);
     addAj(b,m,-1,"Traslado a "+(A.nombre||A.banco),"Para completar un pago");addAj(a,m,1,"Traslado desde "+(B.nombre||B.banco),"Para completar un pago");closePanel();toast("Listo: "+fmt(m)+" salió de "+(B.nombre||B.banco))},
   "just-aj":k=>{const i=k.indexOf("|"),a=k.slice(0,i);let mot=k.slice(i+1)||v("jMot").trim();const m=num(v("jMonto"));if(!(m>0)){toast("Escribe el monto");return}if(!mot){toast("Escribe el motivo");$("jMot").focus();return}
@@ -1909,7 +1917,7 @@ function start(){
   if(isDemo())return;
   if(!R.cfg.onboarded)showOnboarding();else showLock();
 }
-show(["inicio","movimientos","resumen","proyeccion","cuentas"].includes(location.hash.slice(1))?location.hash.slice(1):"inicio");
+show(["inicio","movimientos","resumen","proyeccion","fijos","cuentas"].includes(location.hash.slice(1))?location.hash.slice(1):"inicio");
 (async()=>{
   if(!sb){loadLocal();render();setStatus("Modo local: guardado solo en este teléfono");start();return}
   render();
