@@ -579,6 +579,8 @@ section{padding-left:0}
 .consr span{flex:1;min-width:0;display:grid}.consr b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.consr em{font-style:normal;font-size:12px;color:var(--mut)}
 .consr input{width:110px;min-height:44px;border-radius:12px;border:1.5px solid var(--line);padding:0 10px;font:700 16px "Hanken Grotesk",sans-serif;text-align:right;background:var(--card);color:var(--ink)}
 .inp{min-height:48px;border-radius:14px;border:1.5px solid var(--line);padding:0 12px;font:16px "Hanken Grotesk",sans-serif;background:var(--card);color:var(--ink);min-width:0}
+nav.tabs,.fab{transform:translateZ(0);will-change:transform}
+.biob{margin-top:14px;gap:8px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -739,6 +741,7 @@ section{padding-left:0}
   <h2 id="lkHi" style="margin:10px 0 2px">Hola</h2><p class="note" style="margin:0">Ingresa tu PIN</p>
   <div class="dots" id="dots"></div><p id="lkMsg" class="neg" style="min-height:24px;margin:0;font-size:14px"></p>
   <div class="pad" id="pad"></div>
+  <button class="btn full biob" id="bioBtn" data-act="bio-go" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 9v1M15 9v1M12 9v4h-1M9 16c1.5 1 4.5 1 6 0"/></svg>Usar Face ID o huella</button>
 </div></div>
 <div class="upd" id="upd" hidden><div><b>Hay una versión nueva</b><span id="updV"></span></div><button class="btn sm" data-act="upd-go">Actualizar</button><button class="ib" data-act="upd-x" aria-label="Después">×</button></div>
 <div class="toast" id="toast" hidden><span id="toastTx"></span><button id="toastBtn" hidden></button></div>
@@ -874,6 +877,8 @@ function zWrap(){document.querySelectorAll(".zlist").forEach(l=>{[...l.children]
   document.addEventListener("click",e=>{if(eat&&e.target.closest&&e.target.closest(".zlist")){e.preventDefault();e.stopPropagation()}eat=false},true);
   document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".zlist summary,.grip"))e.preventDefault()});
 })();
+function fixFixed(){requestAnimationFrame(()=>{const mx=Math.max(0,document.documentElement.scrollHeight-innerHeight);if(scrollY>mx)scrollTo(scrollX,mx);else{scrollBy(0,1);scrollBy(0,-1)}})}
+document.addEventListener("toggle",e=>{if(e.target.tagName==="DETAILS")fixFixed()},true);
 function zInit(){zWrap();zOrder();document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
 const zsum=(i,t,sub,tot)=>`<summary><span class="zic">${ic(i)}</span><span class="zt"><b>${t}</b><em>${sub||""}</em></span>${tot?`<strong class="ztot">${tot}</strong>`:""}<span class="zchev" aria-hidden="true"></span></summary>`;
 const ended=f=>!!f.fin&&f.fin<todayStr();
@@ -1035,6 +1040,7 @@ function umenuHTML(){
   <div class="ms"></div><div class="mv">Seguridad</div>
   ${mi("priv",priv?"eyeoff":"eye",priv?"Modo privacidad · activado (mostrar montos)":"Modo privacidad · ocultar montos")}
   ${mi("set-pin","lock",S.cfg.pinHash?"PIN activado · cambiar o quitar":"Crear PIN de acceso")}
+  ${S.cfg.pinHash&&!isDemo()&&bioOK()?mi("bio","lock",bioId()?"Face ID / huella · activado":"Entrar con Face ID o huella"):""}
   ${S.cfg.pinHash&&!isDemo()?mi("lock-now","lock","Bloquear ahora"):""}
   ${isDemo()?mi("demo-off","dots","Salir del ejemplo"):mi("demo-on","dots","Ver con datos de ejemplo")}
   <a class="mi" role="menuitem" href="privacy.html" target="_blank" rel="noopener">${ic("info")}<span>Política de privacidad</span></a>
@@ -1475,7 +1481,16 @@ $("panelBody").addEventListener("change",e=>{if(e.target.id==="eAh"||e.target.da
 // ---------- PIN y bloqueo
 async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 const pinKey=pin=>(S.cfg.salt||"")+":"+(uid||"local")+":"+pin;
-function showLock(){if(!R.cfg.pinHash||isDemo()){unlocked=true;$("lock").hidden=true;return}unlocked=false;pinBuf="";$("lkHi").textContent=R.cfg.nombre?"Hola, "+R.cfg.nombre:"Hola";$("lkMsg").textContent="";drawDots();$("lock").hidden=false;closeSheet();closePanel()}
+function showLock(){if(!R.cfg.pinHash||isDemo()){unlocked=true;$("lock").hidden=true;return}unlocked=false;pinBuf="";$("lkHi").textContent=R.cfg.nombre?"Hola, "+R.cfg.nombre:"Hola";$("lkMsg").textContent="";drawDots();$("lock").hidden=false;closeSheet();closePanel();$("bioBtn").hidden=!bioId();if(bioId())setTimeout(()=>bioUnlock(true),350)}
+const BIOK=()=>"mf.bio."+(uid||"local"),bioId=()=>{try{return localStorage.getItem(BIOK())}catch(e){return null}},bioOK=()=>!!(window.PublicKeyCredential&&navigator.credentials&&window.isSecureContext);
+const rnd=n=>crypto.getRandomValues(new Uint8Array(n)),b64e=u=>btoa(String.fromCharCode(...new Uint8Array(u))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),b64d=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)),c=>c.charCodeAt(0));
+async function bioOn(){if(!bioOK()){toast("Este teléfono o navegador no lo permite");return}
+  try{const c=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:"Mis Finanzas",id:location.hostname},user:{id:rnd(16),name:userMail||"Mis Finanzas",displayName:R.cfg.nombre||"Mis Finanzas"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},timeout:60000}});
+    localStorage.setItem(BIOK(),b64e(c.rawId));toast("Listo: ya puedes entrar con Face ID o huella")}catch(e){toast(e&&e.name==="NotAllowedError"?"Cancelado":"No se pudo activar")}}
+let bioBusy=false;
+async function bioUnlock(auto){const id=bioId();if(!id||bioBusy||unlocked)return;bioBusy=true;
+  try{await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:b64d(id)}],userVerification:"required",timeout:60000}});pinFails=0;unlocked=true;$("lock").hidden=true;pinBuf=""}
+  catch(e){if(!auto)$("lkMsg").textContent="No se reconoció. Usa tu PIN."}finally{bioBusy=false}}
 function drawDots(){$("dots").innerHTML=Array.from({length:R.cfg.pinLen||4},(_,i)=>`<i class="${i<pinBuf.length?"on":""}"></i>`).join("")}
 $("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button data-act="pin" data-id="${n}">${n}</button>`).join("")+`<button class="k2" data-act="pin-help">¿Olvidaste?</button><button data-act="pin" data-id="0">0</button><button class="k2" data-act="pin" data-id="del" aria-label="Borrar">⌫</button>`;
 async function pinKeyPress(k){
@@ -2035,6 +2050,8 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
+  bio:()=>{closeUmenu();if(bioId()){if(confirm("¿Desactivar Face ID / huella en este teléfono? Seguirás entrando con tu PIN.")){localStorage.removeItem(BIOK());toast("Desactivado")}}else bioOn()},
+  "bio-go":()=>bioUnlock(false),
   cons:()=>consPanel(),
   "cons-save":()=>{let n=0;document.querySelectorAll(".cons input[data-cid]").forEach(i=>{if(i.value.trim()==="")return;const c=S.cuentas.find(x=>x.id===i.dataset.cid),real=num(i.value),sa=ctaSaldo(c),d=Math.round((real-sa)*100)/100;if(Math.abs(d)<.01)return;
       const it=addAj(c.id,Math.abs(d),d<0?-1:1,"Diferencia en consolidación",`App ${fmt(sa)} · contado ${fmt(real)}`);it.cons=true;it.just=false;putItem(it);n++});
