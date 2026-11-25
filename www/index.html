@@ -532,6 +532,11 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .pzoff .i{width:18px;height:18px}.pzoff span{flex:1;text-align:left}.pzoff b{color:var(--ink)}
 .zone.hoja{padding:0;margin:14px 0}.zone.hoja>summary{font-size:inherit;font-weight:inherit;justify-content:flex-start}.zone.hoja>summary::after{content:none!important}
 #tab-inicio .zone{margin-top:0}
+.zlist{display:grid;gap:12px;margin-bottom:12px}.zlist>*{margin:0!important}.zlist>div:empty{display:none}
+.zlist summary{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.zdrag{position:relative;z-index:6;box-shadow:0 24px 48px rgb(0 0 0/.25)!important;transition:box-shadow .2s;border-radius:22px}
+.zsort>*:not(.zdrag){transition:transform .15s}
+.zsort>:not(.zdrag){opacity:.85}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -551,17 +556,20 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
       <div class="lgacc" id="lgAcc"></div>
     </div>
     <div id="routeBox"></div>
-    <details class="zone hoja" id="hoja" data-z="hoja" style="--zc:#0d9488"><summary><span class="zic" id="hojaIc"></span><span class="zt"><b id="hojaT">Hoja del mes</b><em>Resumen del mes</em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb" id="hojaB"></div></details>
     <label class="cap" for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg>Escanear ticket</label>
     <input type="file" id="photo" accept="image/*" capture="environment" hidden>
     <div class="qa" id="qa"></div>
     <button class="clipb" data-act="clip"><span class="clipi" data-ic="copy"></span><span><b>Pegar alerta del banco</b><em>Copia el SMS o correo y toca aquí</em></span><i>›</i></button>
     <div id="negBox"></div>
     <div id="pendBox"></div>
-    <div id="incBox"></div>
-    <div id="fixBox"></div>
+    <div class="zlist" id="zlIni">
+    <div id="incBox" data-k="inc"></div>
+    <div id="fixBox" data-k="pag"></div>
+    <details class="zone hoja" id="hoja" data-k="hoja" data-z="hoja" style="--zc:#0d9488"><summary><span class="zic" id="hojaIc"></span><span class="zt"><b id="hojaT">Hoja del mes</b><em>Resumen del mes</em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb" id="hojaB"></div></details>
+    <details class="zone" data-z="mov" data-k="mov" data-def="1" style="--zc:#2563eb"><summary><span class="zic" data-ic="clock"></span><span class="zt"><b>Últimos movimientos</b><em id="recSub"></em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb"><ul class="list" id="recent"></ul><button class="btn full" style="margin-top:10px" data-act="m-tab" data-id="movimientos">Ver historial</button></div></details>
+    </div>
     <p class="note" id="aiNote"></p>
-    <details class="zone" data-z="mov" data-def="1" style="--zc:#2563eb"><summary><span class="zic" data-ic="clock"></span><span class="zt"><b>Últimos movimientos</b><em id="recSub"></em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb"><ul class="list" id="recent"></ul><button class="btn full" style="margin-top:10px" data-act="m-tab" data-id="movimientos">Ver historial</button></div></details>
+
   </section>
 
   <section id="tab-movimientos" hidden>
@@ -608,17 +616,19 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
     <p class="note" style="margin-top:18px;display:flex;gap:8px;align-items:center"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex:none"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>Colores, foto, alertas del banco, PIN y tu cuenta están en el menú de tu inicial, arriba a la izquierda.</p>
   </section>
   <section id="tab-fijos" hidden>
-    <details class="zone" data-z="in" style="--zc:#16a34a">
+    <div class="zlist" id="zlFij">
+    <details class="zone" data-z="in" data-k="in" style="--zc:#16a34a">
     <summary><span class="zic" data-ic="money"></span><span class="zt"><b>Mis ingresos fijos</b><em><span id="fCnt"></span></em></span><strong class="ztot" id="fTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
     <div class="zb"><ul class="list" id="srcList"></ul>
     <button class="btn full" style="margin-top:10px" data-act="src-new">+ Agregar ingreso fijo</button></div>
     </details>
-    <details class="zone" data-z="ga" style="--zc:#7c5cff">
+    <details class="zone" data-z="ga" data-k="ga" style="--zc:#7c5cff">
     <summary><span class="zic" data-ic="cal"></span><span class="zt"><b>Mis gastos fijos</b><em><span id="gCnt"></span></em></span><strong class="ztot" id="gTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
     <div class="zb"><ul class="list" id="fixList"></ul>
     <button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button></div>
     </details>
     
+    </div>
   </section>
 </div>
 
@@ -790,7 +800,24 @@ const FREQI={unica:["Una sola vez",0],semanal:FREQG.semanal,quincenal:FREQG.quin
 const UNIT={dias:30.44,semanas:4.33,meses:1};
 function freqF(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return (UNIT[f.cu]||1)/n}return (FREQI[f.freq]||FREQG.mensual)[1]}
 function freqL(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return "Cada "+n+" "+({dias:n===1?"día":"días",semanas:n===1?"semana":"semanas",meses:n===1?"mes":"meses"}[f.cu]||"meses")}return (FREQI[f.freq]||FREQG.mensual)[0]}
-function zInit(){document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
+function zOrder(){const O=(S.cfg&&S.cfg.orden)||{};document.querySelectorAll(".zlist").forEach(l=>{const o=O[l.id];if(!o)return;o.forEach(k=>{const e=l.querySelector(`:scope>[data-k="${k}"]`);if(e)l.appendChild(e)})})}
+(()=>{let t=null,drag=null,sy=0,ox=0,eat=false;
+  const item=e=>{const sm=e.target.closest&&e.target.closest(".zlist summary");if(!sm)return null;const l=sm.closest(".zlist");let it=sm;while(it&&it.parentElement!==l)it=it.parentElement;return it};
+  document.addEventListener("pointerdown",e=>{const it=item(e);if(!it)return;sy=e.clientY;ox=e.clientX;clearTimeout(t);
+    t=setTimeout(()=>{drag={it,l:it.parentElement,y0:sy,off:0};it.classList.add("zdrag");it.parentElement.classList.add("zsort");navigator.vibrate&&navigator.vibrate(15);eat=true},450)});
+  document.addEventListener("pointermove",e=>{if(!drag){if(t&&(Math.abs(e.clientY-sy)>8||Math.abs(e.clientX-ox)>8)){clearTimeout(t);t=null}return}
+    const d=drag,dy=e.clientY-d.y0-d.off;d.it.style.transform=`translateY(${dy}px) scale(1.02)`;
+    const nx=d.it.nextElementSibling,pv=d.it.previousElementSibling;
+    if(nx&&dy>nx.offsetHeight/2){d.l.insertBefore(nx,d.it);d.off+=nx.offsetHeight+10;d.it.style.transform=`translateY(${e.clientY-d.y0-d.off}px) scale(1.02)`}
+    else if(pv&&dy<-pv.offsetHeight/2){d.l.insertBefore(d.it,pv);d.off-=pv.offsetHeight+10;d.it.style.transform=`translateY(${e.clientY-d.y0-d.off}px) scale(1.02)`}});
+  const end=()=>{clearTimeout(t);t=null;if(!drag)return;const d=drag;drag=null;d.it.style.transform="";d.it.classList.remove("zdrag");d.l.classList.remove("zsort");
+    setTimeout(()=>{eat=false},250);S.cfg.orden=Object.assign({},S.cfg.orden,{[d.l.id]:[...d.l.children].map(c=>c.dataset.k).filter(Boolean)});if(S===R)R.cfg=S.cfg;saveMeta("cfg");toast("Orden guardado")};
+  document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
+  document.addEventListener("touchmove",e=>{if(drag)e.preventDefault()},{passive:false});
+  document.addEventListener("click",e=>{if(eat&&e.target.closest&&e.target.closest(".zlist summary")){e.preventDefault();e.stopPropagation()}eat=false},true);
+  document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".zlist summary"))e.preventDefault()});
+})();
+function zInit(){zOrder();document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
 const zsum=(i,t,sub,tot)=>`<summary><span class="zic">${ic(i)}</span><span class="zt"><b>${t}</b><em>${sub||""}</em></span>${tot?`<strong class="ztot">${tot}</strong>`:""}<span class="zchev" aria-hidden="true"></span></summary>`;
 const ended=f=>!!f.fin&&f.fin<todayStr();
 function nextD(f){const td=todayStr();let m=td.slice(0,7);for(let k=0;k<25;k++){const o=occI(f,m).find(d=>d>=td);if(o)return o;m=shift(m,1)}return ""}
