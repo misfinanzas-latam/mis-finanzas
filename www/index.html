@@ -646,10 +646,11 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
 .fab{bottom:calc(72px + max(6px,calc(env(safe-area-inset-bottom) - 16px)))!important}
 /* cámara siempre visible: anillo blanco + borde oscuro */
 .fab{color:#fff!important;background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 70%,#000),color-mix(in srgb,var(--g2) 85%,#000))!important;box-shadow:0 0 0 3px #fff,0 0 0 4.5px rgb(0 0 0/.35),0 10px 24px rgb(0 0 0/.35)!important}
+.perbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 12px}.perbar>span{font-weight:700;font-size:15px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
-    <div class="tright"><button class="eyeb" id="eyeb" data-act="priv" aria-pressed="false" aria-label="Modo privacidad: ocultar montos"></button><div class="mnav"><button class="ib" id="prev" aria-label="Mes anterior">‹</button><button class="mlb" id="mlabel" data-act="pmenu" aria-haspopup="dialog" aria-label="Elegir periodo"></button><button class="ib" id="next" aria-label="Mes siguiente">›</button></div></div>
+    <div class="tright"><button class="eyeb" id="eyeb" data-act="priv" aria-pressed="false" aria-label="Modo privacidad: ocultar montos"></button></div>
   </div>
   <div class="status" id="status">Cargando…</div>
   <div class="demo" id="demobar" hidden><span>Datos de ejemplo: no se guardan.</span><button data-act="demo-off">Salir del ejemplo</button></div>
@@ -680,6 +681,7 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
 
 
   <section id="tab-resumen" hidden>
+    <div class="perbar"><span>Periodo</span><div class="mnav"><button class="ib" id="prev" aria-label="Mes anterior">‹</button><button class="mlb" id="mlabel" data-act="pmenu" aria-haspopup="dialog" aria-label="Elegir periodo"></button><button class="ib" id="next" aria-label="Mes siguiente">›</button></div></div>
     <div id="perNote"></div>
     <div class="zlist" id="zlRes">
     <div class="kp" id="kpis" data-k="kpis"></div>
@@ -1349,7 +1351,8 @@ function render0(){ensureCash();
   $("fixList").innerHTML=S.fijos.length?grp(S.fijos,f=>`<li><button class="it" data-act="fijo-edit" data-id="${f.id}">${bub(f.cat)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${freqL(f)} · ${esc(fDesc(f))}${f.cuenta&&S.cuentas.find(c=>c.id===f.cuenta)?" · desde "+esc(S.cuentas.find(c=>c.id===f.cuenta).banco):""}</span></span><span class="am">${fmt(num(f.monto))}${f.freq!=="mensual"?`<small>≈ ${fmt(gMonthly(f))}/mes</small>`:""}</span></button></li>`):`<li class="empty">Alquiler, colegiatura, préstamos, plan de celular, seguros: con la frecuencia que tengan.</li>`;
 }
 
-function show(t){if(t==="movimientos"){t="cuentas";const z=$("histZ");if(z)z.open=true}if(document.body&&document.body.classList.contains("zedit"))zEdit(false);
+function show(t){if(t==="movimientos"){t="cuentas";const z=$("histZ");if(z)z.open=true}
+  if(t!=="resumen"){const m0=todayStr().slice(0,7);if(month!==m0||pRange){month=m0;pRange=null;render()}}if(document.body&&document.body.classList.contains("zedit"))zEdit(false);
   tab=t;$("fab").hidden=false;{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
