@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffe600">
+<meta name="theme-color" content="#f6f5ee">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="Registra tus gastos con la foto del ticket, suma tus ahorros y elige la mejor ruta para tu dinero.">
@@ -565,6 +565,9 @@ section{padding-left:0}
 :root[data-theme=dark] .top{background:linear-gradient(to bottom,#121211 0%,#121211 62%,rgb(18 18 17/0) 100%)!important}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .top{background:linear-gradient(to bottom,#121211 0%,#121211 62%,rgb(18 18 17/0) 100%)!important}}
 .top h1,.mnav,.eyeb{background:var(--card)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* encabezado más abajo, fuera del difuminado del iPhone */
+.top{padding-top:calc(22px + env(safe-area-inset-top))!important}
+#umenu{top:calc(84px + env(safe-area-inset-top))!important}#pmenu{top:calc(80px + env(safe-area-inset-top))!important}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -744,7 +747,7 @@ const THEMES={sol:["Sol","#ffe600","#ffb300","#141414","#f7f5ea"],oceano:["Océa
 let curTheme="";
 function applyTheme(k){if(!THEMES[k])k="sol";curTheme=k;const [n,g1,g2,gk,tint]=THEMES[k],r=document.documentElement.style;
   r.setProperty("--g1",g1);r.setProperty("--g2",g2);r.setProperty("--gk",gk);r.setProperty("--y",g2);r.setProperty("--yk",gk);r.setProperty("--tint",tint);
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=g1;try{localStorage.setItem("mf.tema",k)}catch(e){}
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light'?'#121211':tint;try{localStorage.setItem("mf.tema",k)}catch(e){}
   if(typeof drawDaily==="function"){try{drawDaily()}catch(e){}}}
 const swatch=k=>`linear-gradient(135deg,${THEMES[k][1]},${THEMES[k][2]})`;
 function themePanel(){openPanel(`<h3>Colores de la app</h3><div class="th">${Object.keys(THEMES).map(k=>`<button data-act="theme" data-id="${k}" aria-pressed="${k===curTheme}"><i style="background:${swatch(k)}"></i><span>${THEMES[k][0]}${k===curTheme?"<b>✓ Activo</b>":""}</span></button>`).join("")}</div><button class="btn solid full" data-act="close">Listo</button>`)}
