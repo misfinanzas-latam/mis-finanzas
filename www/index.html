@@ -559,6 +559,7 @@ ul.zlist{gap:12px}ul.zlist>li.zi{list-style:none}
 .lga strong{font-size:14px!important}
 .lga{padding-right:14px!important}
 @media(max-width:380px){.lga strong{font-size:13px!important}}
+.lga strong.sm{font-size:12px!important}
 section{padding-left:0}
 /* ---- encabezado nítido ---- */
 .top{background:linear-gradient(to bottom,var(--tint) 0%,var(--tint) 62%,color-mix(in srgb,var(--tint) 0%,transparent) 100%)!important;padding-bottom:18px!important}
@@ -967,7 +968,7 @@ function hoja(m){
   const H={I,A,F,V,tI:t(I),rI:k(I),tA:t(A),tF:t(F),pF:k(F),tV:t(V),plan:(S.cfg.presup||{})[m]};
   const incl=new Set(S.cuentas.filter(c=>c.incluir!==false).map(c=>c.id)),out=x=>!x.cuenta||!incl.has(x.cuenta);
   H.extIn=a.inc.filter(out).reduce((t,x)=>t+num(x.monto),0);H.extOut=a.g.filter(out).reduce((t,x)=>t+num(x.monto),0);
-  H.real=H.tA+H.extIn-H.extOut;H.proy=H.real+(H.tI-H.rI)-(H.tF-H.pF);H.gast=H.pF+H.tV;return H;
+  H.real=H.tA;H.proy=H.real+(H.tI-H.rI)-(H.tF-H.pF);H.gast=H.pF+H.tV;return H;
 }
 function hojaHTML(m,H){
   const st=x=>x.ok?`<td class="st ok">✓</td>`:x.late?`<td class="st late">vencido</td>`:`<td class="st">pendiente</td>`;
@@ -1324,7 +1325,7 @@ function render0(){ensureCash();
   $("lgFree").hidden=!fm.length&&!im.length;
   $("incBox").innerHTML=S.fuentes.length?`<details class="zone" data-z="inc" data-def="1" style="--zc:#16a34a">${zsum("down","Ingresos","Recibido "+fmt0(H.rI),fmt(H.tI))}<div class="zb"><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div></details>`:"";
   $("lgAcc").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),neg=sa<-.004,L=S.items.filter(x=>x.cuenta===c.id).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.ts||0)-(a.ts||0))[0];
-    return `<button class="lga${neg?" neg":""}${c.incluir===false?" off":""}" data-k="${c.id}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgan">${ic(isCash(c)?"wallet":"bank")}<b>${esc(c.nombre||c.banco)}</b></span><strong>${fmt0(sa)}</strong></button>`}).join(""):"";
+    return `<button class="lga${neg?" neg":""}${c.incluir===false?" off":""}" data-k="${c.id}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgan">${ic(isCash(c)?"wallet":"bank")}<b>${esc(c.nombre||c.banco)}</b></span><strong${Math.abs(sa)>=10000?' class="sm"':""}>${fmt(sa)}</strong></button>`}).join(""):"";
   $("lgFree").innerHTML=`<div>Por recibir<b>${fmt(H.tI-H.rI)}</b></div><div>Fijos por pagar<b>${fmt(H.tF-H.pF)}</b></div><div>Fin de mes<b class="${H.proy<0?"neg":""}">${fmt(H.proy)}</b></div>`;
   $("fixBox").innerHTML=S.fijos.length?`<details class="zone" data-z="pag" data-def="1" style="--zc:#7c5cff">${zsum("cal","Pagos fijos","Pagado "+fmt0(paidT),fmt(fmT))}<div class="zb"><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div></details>`
     :`<details class="zone" data-z="pag" data-def="1" style="--zc:#7c5cff">${zsum("cal","Pagos fijos","Alquiler, colegio, préstamos…","")}<div class="zb"><button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button></div></details>`;
