@@ -1414,15 +1414,18 @@ function amts(line,loose){const r=[],re=loose?/(\d{1,3}(?:[ ,.]\d{3})*[.,:;]\s?\
 function parseTicket(text){
   const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean),low=lines.map(l=>lowN(l).replace(/([a-z])0/g,"$1o").replace(/0([a-z])/g,"o$1"));
   const out={total:null,fecha:null,lugar:"",cat:"",key:""},bad=/sub ?total|subtot|gravad|exent|no suj|\biva\b|propina|descuento|cambio|efectivo|recibido|pago con|vuelto|ahorr|articulos|items/;
-  const pick=re=>{for(let i=0;i<lines.length;i++){if(re.test(low[i])&&!bad.test(low[i])){let a=amts(lines[i],1);if(!a.length&&lines[i+1]&&!bad.test(low[i+1]))a=amts(lines[i+1],1);if(a.length)return a[a.length-1]}}return null};
-  out.total=pick(/total a pagar|monto total|total operacion|total venta|total pagado|a pagar/)??pick(/total/);
-  {const fr={};lines.forEach(l=>amts(l,1).forEach(n=>{const k=n.toFixed(2);fr[k]=(fr[k]||0)+1}));
-   const t=out.total,tk=t!=null&&t.toFixed(2);
-   // "$" leído como 5/8/S: si el total no se repite y otro monto repetido es su terminación, usar ese
-   if(t!=null&&(fr[tk]||0)<2){const alt=Object.keys(fr).filter(k=>fr[k]>=2&&+k<t&&tk.endsWith(k)&&/^[58]$/.test(tk.slice(0,tk.length-k.length))).sort((a,b)=>fr[b]-fr[a])[0];if(alt)out.total=+alt}
-   // "Valor en letras: ... 62/100" confirma los centavos
-   const vl=low.find(l=>/valor en letras|son:/.test(l)),cm=vl&&vl.match(/(\d{2})\/100/);
-   if(cm&&out.total!=null&&out.total.toFixed(2).slice(-2)!==cm[1]){const c=Object.keys(fr).filter(k=>k.endsWith(cm[1])&&fr[k]>=2).sort((a,b)=>fr[b]-fr[a])[0];if(c)out.total=+c}}
+  const fr={};lines.forEach(l=>amts(l,1).forEach(n=>{const k=n.toFixed(2);fr[k]=(fr[k]||0)+1}));
+  const fix$=t=>{if(t==null)return t;const tk=t.toFixed(2);if((fr[tk]||0)>=2)return t;const alt=Object.keys(fr).filter(k=>fr[k]>=2&&+k<t&&tk.endsWith(k)&&/^[58]$/.test(tk.slice(0,tk.length-k.length))).sort((x,y)=>fr[y]-fr[x])[0];return alt?+alt:t};
+  const amtAt=i=>{let a=amts(lines[i],1);if(!a.length&&lines[i+1]&&!bad.test(low[i+1])&&!/total|propina/.test(low[i+1]))a=amts(lines[i+1],1);return a.length?fix$(a[a.length-1]):null};
+  const noTot=/sub ?total|subtot|antes de|sin propina|sugerid|otros montos|no afect|gravad|exent|no suj|\biva\b|descuento|rebaja|cambio|efectivo|recibido|pago con|vuelto|ahorr|articulos|items|cantidad|\bcant\b/;
+  const cand=[];let lastProp=-1;
+  lines.forEach((l,i)=>{const L=low[i];if(/propina|servicio|\btip\b/.test(L)&&!/total/.test(L))lastProp=i;
+    if(/total|a pagar|importe/.test(L)&&!noTot.test(L)){const v=amtAt(i);if(v!=null)cand.push({i,v,strong:/a pagar|gran total|con propina|\+ ?propina|incluye propina|total general|monto total/.test(L)})}});
+  if(cand.length){const after=lastProp>=0?cand.filter(c=>c.i>lastProp):[],pool=after.length?after:cand,st=pool.filter(c=>c.strong);
+    out.total=Math.max(...(st.length?st:pool).map(c=>c.v))}
+  if(out.total!=null&&lastProp>=0&&!cand.some(c=>c.i>lastProp)&&!/sugerid/.test(low[lastProp])){const pv=amtAt(lastProp);if(pv&&pv<out.total*.5)out.total=+(out.total+pv).toFixed(2)}
+  {const vl=low.find(l=>/valor en letras|son:/.test(l)),cm=vl&&vl.match(/(\d{2})\/100/);
+   if(cm&&out.total!=null&&out.total.toFixed(2).slice(-2)!==cm[1]){const c=Object.keys(fr).filter(k=>k.endsWith(cm[1])&&fr[k]>=2).sort((x,y)=>fr[y]-fr[x])[0];if(c)out.total=+c}}
   for(let i=0;i<lines.length;i++){if(/sub ?total|subtot/.test(low[i])){const a=amts(lines[i],1);if(a.length){out.sub=a[a.length-1];break}}}
   out.ajuste=/descuento|propina|recargo|envio|delivery/.test(low.join(" "));
   if(out.total==null){const all=[];lines.forEach((l,i)=>{if(!/cambio|efectivo|recibido|pago con|vuelto|hora|fecha/.test(low[i]))all.push(...amts(l))});if(all.length)out.total=Math.max(...all)}
@@ -1432,9 +1435,17 @@ function parseTicket(text){
     else if(m=l.match(/\b(\d{1,2})\s*(?:de\s*)?(ene|feb|mar|abr|may|jun|jul|ago|sep|set|oct|nov|dic)[a-z]*\.?\s*(?:de\s*|del\s*)?(20\d{2})\b/)){d=+m[1];mo=M3[m[2]];y=+m[3]}
     if(m&&mo>=1&&mo<=12&&d>=1&&d<=31&&y>=2020){const f=y+"-"+pad(mo)+"-"+pad(d);if(f<=td){out.fecha=f;break}}}
   const skip=/\bnit\b|\bnrc\b|\bdte\b|factura|ticket|comprobante|\bgiro\b|\btel|direcc|codigo|sello|numero|control|resolucion|\bcaja|cajer|fecha|hora|cliente|www|http|@|consumidor|credito fiscal|sucursal no|serie|autoriz/;
-  for(let i=0;i<Math.min(lines.length,7);i++){const L=lines[i],letters=(L.match(/[a-záéíóúñ]/gi)||[]).length;if(letters>=4&&letters/L.replace(/\s/g,"").length>=.6&&!skip.test(low[i])){out.key=norm(L);out.lugar=L.replace(/[^\wáéíóúñÁÉÍÓÚÑ&.,' -]/g,"").replace(/\s+/g," ").trim().toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase());break}}
+  const tc=v=>v.replace(/[^\wáéíóúñÁÉÍÓÚÑ&.,' -]/g,"").replace(/\s+/g," ").trim().toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase());
+  const clean=v=>v.replace(/,?\s*\b(s\.?\s*a\.?\s*s?\.?\s*(de\s*c\.?\s*v\.?)?|de\s*c\.?\s*v\.?|s\.?\s*de\s*r\.?\s*l\.?|ltda\.?|inc\.?)\s*$/i,"").replace(/[.,\s]+$/,"").trim();
+  const rcp=low.findIndex(l=>/receptor|datos del cliente/.test(l)),lim=rcp>0?rcp:lines.length;
+  for(const re of [/nombre comercial\s*:?\s*(.*)/,/(?:emisor|nombre o razon social|razon social|denominacion)\s*:?\s*(.*)/]){
+    for(let i=0;i<lim;i++){const m=low[i].match(re);if(m){let v=m[1]?lines[i].slice(lines[i].length-m[1].length).trim():"";if(!v&&lines[i+1])v=lines[i+1];v=clean(v);if((v.match(/[a-záéíóúñ]/gi)||[]).length>=3){out.lugar=tc(v);break}}}
+    if(out.lugar)break}
+  for(let i=0;i<lim;i++){const nl=lines[i].match(/\bnit\s*[:.#]?\s*(\d[\d -]{8,20}\d)/i);if(nl){out.nit=nl[1].replace(/\D/g,"").slice(0,14);break}}
+  if(!out.lugar)for(let i=0;i<Math.min(lines.length,7);i++){const L=lines[i],letters=(L.match(/[a-záéíóúñ]/gi)||[]).length;if(letters>=4&&letters/L.replace(/\s/g,"").length>=.6&&!skip.test(low[i])){out.lugar=tc(clean(L));break}}
+  out.key=out.nit&&out.nit.length>=9?"nit"+out.nit:norm(out.lugar);
   const T=norm(text);
-  const rule=(S.reglas||[]).find(r=>r.k&&r.k.length>=4&&T.includes(r.k));
+  const rule=(S.reglas||[]).find(r=>r.k&&(r.k.startsWith("nit")?r.k===out.key:r.k.length>=4&&T.includes(r.k)));
   if(rule){out.lugar=rule.lugar||out.lugar;out.cat=rule.cat;out.key=rule.k}
   else{const prev=out.lugar&&S.items.slice().reverse().find(x=>x.tipo!=="ingreso"&&norm(x.lugar)===norm(out.lugar));if(prev)out.cat=prev.cat;
     if(!out.cat){const k=KW.find(([c,re])=>re.test(" "+lowN(text)+" "));if(k)out.cat=k[0]}}
@@ -1913,7 +1924,7 @@ const ctaByNum=d=>d?S.cuentas.find(c=>c.num===d||(c.tarjetas||[]).some(t=>t.d===
 function catFor(com){const k=norm(com);if(!k)return "";const r=(S.reglas||[]).find(x=>x.k&&(k.includes(x.k)||x.k.includes(k)));if(r)return r.cat;
   const prev=S.items.slice().reverse().find(x=>x.tipo!=="ingreso"&&norm(x.lugar)===k);if(prev)return prev.cat;const kk=KW.find(([c,re])=>re.test(" "+lowN(com)+" "));return kk?kk[0]:""}
 function makePend(text,source,rowId){
-  if(source==="ticket"){const t=parseTicket(String(text||"")),cc=cashAcc();return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:"ticket",monto:t.total||0,saldo:null,ult4:"",tipoNum:"",medio:"Ticket",comercio:t.lugar||"",fecha:t.fecha||todayStr(),tipo:"gasto",cuenta:cc?cc.id:"",cat:t.cat||catFor(t.lugar)||"",ts:Date.now()}}
+  if(source==="ticket"){const t=parseTicket(String(text||"")),cc=cashAcc();return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:"ticket",monto:t.total||0,saldo:null,ult4:"",tipoNum:"",medio:"Ticket",comercio:t.lugar||"",key:t.key||"",fecha:t.fecha||todayStr(),tipo:"gasto",cuenta:cc?cc.id:"",cat:t.cat||catFor(t.lugar)||"",ts:Date.now()}}
   const p=parseAlerta(text,todayStr()),c=ctaByNum(p.ult4);
   return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:source||"pegada",monto:p.monto,saldo:p.saldo,ult4:p.ult4,tipoNum:p.tipoNum,medio:p.medio,comercio:p.comercio,fecha:p.fecha||todayStr(),tipo:p.tipo,cuenta:c?c.id:"",cat:p.tipo==="ingreso"?"Otros ingresos":(catFor(p.comercio)||""),ts:Date.now()};
 }
@@ -1946,7 +1957,7 @@ function finishPend(it){
   const c=S.cuentas.find(x=>x.id===it.cuenta);
   if(c&&p.ult4&&$("pLink")&&$("pLink").checked&&c.num!==p.ult4&&!(c.tarjetas||[]).some(t=>t.d===p.ult4)){(c.tarjetas=c.tarjetas||[]).push({d:p.ult4,tipo:p.medio||(p.tipoNum==="cuenta"?"Cuenta":"Débito")});}
   if(c&&p.saldo!=null&&$("pSaldo")&&$("pSaldo").checked){c.saldo=p.saldo;c.fecha=todayStr();c.ts=Date.now()+5}
-  if(p.comercio&&it.tipo==="gasto"&&!isDemo()){const k=norm(p.comercio),rl=S.reglas||(S.reglas=[]),r=rl.find(x=>x.k===k);if(r){r.cat=it.cat;r.lugar=it.lugar}else rl.push({k,lugar:it.lugar,cat:it.cat});saveMeta("reglas")}
+  if((p.key||p.comercio)&&it.tipo==="gasto"&&!isDemo()){const k=p.key||norm(p.comercio),rl=S.reglas||(S.reglas=[]),r=rl.find(x=>x.k===k);if(r){r.cat=it.cat;r.lugar=it.lugar}else rl.push({k,lugar:it.lugar,cat:it.cat});saveMeta("reglas")}
   S.pend=S.pend.filter(x=>x.id!==p.id);if(S===R)R.pend=S.pend;saveMeta("pend");saveMeta("cuentas");
 }
 async function sha256hex(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
