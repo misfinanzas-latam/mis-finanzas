@@ -516,6 +516,18 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 @media(max-width:380px){.zt b{font-size:16px}.ztot{font-size:15px}.zic{width:38px;height:38px}}
 .zone .fx::before,.zone .list .it{--x:0}
 .subh{list-style:none;margin:14px 0 2px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.lgacc{margin-top:14px;display:grid;gap:6px}
+.lgah{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;opacity:.75}
+.lgah button{border:0;background:none;color:inherit;font:700 13px "Hanken Grotesk",sans-serif;cursor:pointer;min-height:32px;padding:0}
+.lga{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-radius:14px;padding:9px 10px;background:rgb(255 255 255/.38);color:inherit;font:inherit;cursor:pointer;min-height:58px}
+.lga:active{transform:scale(.98)}
+.lgai{width:32px;height:32px;border-radius:10px;flex:none;display:grid;place-items:center;background:rgb(255 255 255/.55)}.lgai .i{width:17px;height:17px}
+.lgat{flex:1;min-width:0;display:grid;line-height:1.25}
+.lgat b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgat b i{font-style:normal;font-size:11px;font-weight:600;opacity:.7}
+.lgat em{font-style:normal;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lgat small{font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lga strong{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lga.neg{background:rgb(255 255 255/.75);box-shadow:inset 0 0 0 1.5px #e11d48}.lga.neg strong,.lga.neg small{color:#e11d48;opacity:1}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -532,6 +544,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
       <svg class="spark" id="lgSpark" aria-hidden="true"></svg>
       <div class="trio"><div style="--c:var(--grn)"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></svg>Recibido</span><strong id="lgIng">$0.00</strong></div><div style="--c:#2563eb"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20.5h18"/></svg>Ahorros</span><strong id="lgAh">$0.00</strong></div><div style="--c:var(--red)"><span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4M5 11l7-7 7 7"/></svg>Gastado</span><strong id="lgGas">$0.00</strong></div></div>
       <div class="free3" id="lgFree" hidden></div>
+      <div class="lgacc" id="lgAcc"></div>
     </div>
     <div id="routeBox"></div>
     <details class="hoja" id="hoja"><summary><span class="h2i"><span class="bub sm" style="--c:#0d9488" id="hojaIc"></span><span id="hojaT">Hoja del mes</span></span></summary><div id="hojaB"></div></details>
@@ -1074,6 +1087,9 @@ function render(){
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
   $("incBox").innerHTML=S.fuentes.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("down")}Ingresos de ${mn}</h2><span class="note">Recibido ${fmt(H.rI)} de ${fmt(H.tI)}</span></div><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div>`:"";
+  $("lgAcc").innerHTML=S.cuentas.length?`<div class="lgah"><span>Disponible por cuenta</span><button data-act="m-tab" data-id="cuentas">Ver cuentas ›</button></div>`+S.cuentas.map(c=>{const sa=ctaSaldo(c),neg=sa<-.004,L=S.items.filter(x=>x.cuenta===c.id).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.ts||0)-(a.ts||0))[0];
+    const last=L?`Último: ${esc(L.lugar||L.cat||"Movimiento")} ${sgn(L)>0?"+":"−"}${fmt(num(L.monto))} · ${+L.fecha.slice(8)} ${MES[+L.fecha.slice(5,7)-1].slice(0,3)}`:`Sin movimientos desde ${c.fecha?dShort(c.fecha):"el inicio"}`;
+    return `<button class="lga${neg?" neg":""}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgai">${ic(isCash(c)?"wallet":"bank")}</span><span class="lgat"><b>${esc(c.nombre||c.banco)}${c.incluir===false?' <i>no suma</i>':""}</b><em>${esc(c.banco)}${c.num?" ···"+esc(c.num):""}${c.tipo&&c.tipo!==c.banco?" · "+esc(c.tipo):""}</em><small>${neg?"Toca para justificar el faltante":last}</small></span><strong>${fmt(sa)}</strong></button>`}).join(""):"";
   $("lgFree").innerHTML=`<div>Por recibir<b>${fmt(H.tI-H.rI)}</b></div><div>Fijos por pagar<b>${fmt(H.tF-H.pF)}</b></div><div>Fin de mes<b class="${H.proy<0?"neg":""}">${fmt(H.proy)}</b></div>`;
   $("fixBox").innerHTML=S.fijos.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos de ${mn}</h2><span class="note">Pagado ${fmt(paidT)} de ${fmt(fmT)}</span></div><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div>`
     :`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos</h2></div><p class="note" style="margin:6px 0 10px">Agrega lo que pagas siempre (alquiler, colegio, préstamos, seguros) para saber cuánto de tu dinero ya está comprometido.</p><button class="btn sm" style="margin-bottom:8px" data-act="fijo-new">${ic("plus")}Agregar gasto fijo</button></div>`;
