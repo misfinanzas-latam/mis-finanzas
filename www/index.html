@@ -1198,10 +1198,14 @@ function arqPanel(){const r=REC();openPanel(`<h3>Arqueo semanal</h3><p class="no
   <label class="ck"><input type="checkbox" id="aOn"${r.arq?" checked":""}> Avisarme cada semana</label>
   <div class="g2"><label class="f">Día<select id="aDia">${opts(DIAS.map((d,i)=>[String(i),d[0].toUpperCase()+d.slice(1)]),String(r.arqDia))}</select></label><label class="f">Hora<input id="aHora" type="time" value="${r.arqHora}"></label></div>
   <div class="g2"><button class="btn full" data-act="notif">Atrás</button><button class="btn solid full" data-act="arq-save">${ic("check")}Guardar</button></div>`)}
-function scutPanel(){const u=location.origin+location.pathname+"?scan=1",ios=isIOS();openPanel(`<h3>Escanear desde la pantalla de inicio</h3>
-  ${ios?`<ol class="alsteps"><li>Toca <b>Copiar enlace</b>.</li><li>Abre la app <b>Atajos</b> › <b>+</b> › <b>Agregar acción</b> › busca <b>Abrir URL</b> y pega el enlace.</li><li>Arriba toca el nombre › ponle <b>Escanear ticket</b>.</li><li>Toca <b>Compartir</b> (o ⓘ) › <b>Agregar a pantalla de inicio</b>.</li></ol><p class="note">También puedes ponerlo en el Centro de control o en el botón de Acción.</p>`
+function scutPanel(){const ios=isIOS(),ok=sb&&uid;openPanel(`<h3>Escanear desde la pantalla de inicio</h3>
+  ${ios?`<p class="note" style="margin-top:-6px">Abre la cámara directo y manda el ticket a tu app, sin abrir Safari. Llega a <b>Por revisar</b>.</p>
+  <ol class="alsteps"><li>Toca <b>Copiar enlace</b>.</li>
+  <li>Abre <b>Atajos</b> › <b>+</b> y agrega estas 3 acciones en orden:<br><b>1.</b> Tomar foto<br><b>2.</b> Extraer texto de la imagen<br><b>3.</b> Obtener contenido de URL</li>
+  <li>En <b>Obtener contenido de URL</b>: pega el enlace en URL › toca <b>›</b> › Método <b>POST</b> › Cuerpo <b>Archivo</b> › Archivo: <b>Texto de la imagen</b>.</li>
+  <li>Nómbralo <b>Escanear ticket</b> › Compartir › <b>Agregar a pantalla de inicio</b>.</li></ol>
+  ${ok?`<button class="btn yel full" data-act="scut-copy" data-id="">${ic("copy")}Copiar enlace</button>`:`<p class="note">Entra con tu cuenta para obtener tu enlace.</p>`}`
    :`<ol class="alsteps"><li>Mantén presionado el ícono de Mis Finanzas en tu pantalla de inicio.</li><li>Arrastra <b>Escanear ticket</b> a la pantalla de inicio.</li></ol><p class="note">Si no aparece, quita la app de la pantalla de inicio y vuélvela a agregar.</p>`}
-  <button class="btn yel full" data-act="scut-copy" data-id="${esc(u)}">${ic("copy")}Copiar enlace</button>
   <button class="btn full" data-act="notif" style="margin-top:8px">Atrás</button>`)}
 
 // ---------- periodo
@@ -1902,6 +1906,7 @@ const ctaByNum=d=>d?S.cuentas.find(c=>c.num===d||(c.tarjetas||[]).some(t=>t.d===
 function catFor(com){const k=norm(com);if(!k)return "";const r=(S.reglas||[]).find(x=>x.k&&(k.includes(x.k)||x.k.includes(k)));if(r)return r.cat;
   const prev=S.items.slice().reverse().find(x=>x.tipo!=="ingreso"&&norm(x.lugar)===k);if(prev)return prev.cat;const kk=KW.find(([c,re])=>re.test(" "+lowN(com)+" "));return kk?kk[0]:""}
 function makePend(text,source,rowId){
+  if(source==="ticket"){const t=parseTicket(String(text||"")),cc=cashAcc();return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:"ticket",monto:t.total||0,saldo:null,ult4:"",tipoNum:"",medio:"Ticket",comercio:t.lugar||"",fecha:t.fecha||todayStr(),tipo:"gasto",cuenta:cc?cc.id:"",cat:t.cat||catFor(t.lugar)||"",ts:Date.now()}}
   const p=parseAlerta(text,todayStr()),c=ctaByNum(p.ult4);
   return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:source||"pegada",monto:p.monto,saldo:p.saldo,ult4:p.ult4,tipoNum:p.tipoNum,medio:p.medio,comercio:p.comercio,fecha:p.fecha||todayStr(),tipo:p.tipo,cuenta:c?c.id:"",cat:p.tipo==="ingreso"?"Otros ingresos":(catFor(p.comercio)||""),ts:Date.now()};
 }
@@ -2129,7 +2134,7 @@ Object.assign(ACT,{
   "arq-set":()=>arqPanel(),
   "arq-save":()=>{S.cfg.rec=Object.assign(REC(),{arq:$("aOn").checked,arqDia:+v("aDia"),arqHora:v("aHora")||"10:00"});saveMeta("cfg");toast("Arqueo semanal guardado");notifPanel()},
   scut:()=>scutPanel(),
-  "scut-copy":async u=>{try{await navigator.clipboard.writeText(u);toast("Enlace copiado")}catch(e){toast(u)}},
+  "scut-copy":async()=>{if(!S.cfg.alertKey&&!(await newAlertKey(true)))return;const u=alLink("ticket");try{await navigator.clipboard.writeText(u);toast("Enlace copiado")}catch(e){toast(u)}},
   "zedit-off":()=>zEdit(false),
   "zedit-on":()=>{closeUmenu();zEdit(true)},
   bio:()=>{closeUmenu();if(bioId()){if(confirm("¿Desactivar Face ID / huella en este teléfono? Seguirás entrando con tu PIN.")){localStorage.removeItem(BIOK());toast("Desactivado")}}else bioOn()},
