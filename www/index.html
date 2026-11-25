@@ -1416,6 +1416,13 @@ function parseTicket(text){
   const out={total:null,fecha:null,lugar:"",cat:"",key:""},bad=/sub ?total|subtot|gravad|exent|no suj|\biva\b|propina|descuento|cambio|efectivo|recibido|pago con|vuelto|ahorr|articulos|items/;
   const pick=re=>{for(let i=0;i<lines.length;i++){if(re.test(low[i])&&!bad.test(low[i])){let a=amts(lines[i],1);if(!a.length&&lines[i+1]&&!bad.test(low[i+1]))a=amts(lines[i+1],1);if(a.length)return a[a.length-1]}}return null};
   out.total=pick(/total a pagar|monto total|total operacion|total venta|total pagado|a pagar/)??pick(/total/);
+  {const fr={};lines.forEach(l=>amts(l,1).forEach(n=>{const k=n.toFixed(2);fr[k]=(fr[k]||0)+1}));
+   const t=out.total,tk=t!=null&&t.toFixed(2);
+   // "$" leído como 5/8/S: si el total no se repite y otro monto repetido es su terminación, usar ese
+   if(t!=null&&(fr[tk]||0)<2){const alt=Object.keys(fr).filter(k=>fr[k]>=2&&+k<t&&tk.endsWith(k)&&/^[58]$/.test(tk.slice(0,tk.length-k.length))).sort((a,b)=>fr[b]-fr[a])[0];if(alt)out.total=+alt}
+   // "Valor en letras: ... 62/100" confirma los centavos
+   const vl=low.find(l=>/valor en letras|son:/.test(l)),cm=vl&&vl.match(/(\d{2})\/100/);
+   if(cm&&out.total!=null&&out.total.toFixed(2).slice(-2)!==cm[1]){const c=Object.keys(fr).filter(k=>k.endsWith(cm[1])&&fr[k]>=2).sort((a,b)=>fr[b]-fr[a])[0];if(c)out.total=+c}}
   for(let i=0;i<lines.length;i++){if(/sub ?total|subtot/.test(low[i])){const a=amts(lines[i],1);if(a.length){out.sub=a[a.length-1];break}}}
   out.ajuste=/descuento|propina|recargo|envio|delivery/.test(low.join(" "));
   if(out.total==null){const all=[];lines.forEach((l,i)=>{if(!/cambio|efectivo|recibido|pago con|vuelto|hora|fecha/.test(low[i]))all.push(...amts(l))});if(all.length)out.total=Math.max(...all)}
