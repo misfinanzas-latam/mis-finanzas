@@ -592,6 +592,24 @@ nav.tabs,.fab{transform:translateZ(0);will-change:transform}
 nav.tabs{bottom:max(6px,calc(env(safe-area-inset-bottom) - 16px))!important}
 .fab{bottom:calc(78px + max(6px,calc(env(safe-area-inset-bottom) - 16px)))!important}
 .zi>.grip{top:22px!important;transform:none!important}
+/* ---- modo ordenar (estilo iOS) ---- */
+.grip{display:none!important}
+body.zedit .grip{display:block!important;position:absolute!important;left:auto!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;width:40px!important;height:40px!important;border-radius:12px!important;background:var(--card)!important;box-shadow:0 2px 8px rgb(0 0 0/.15)!important;opacity:1!important;z-index:5;cursor:grab}
+body.zedit .grip::before{inset:-6px}
+body.zedit .grip::after{content:"";position:absolute;inset:9px;background:var(--ink)!important;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h12M4 10h12M4 14h12'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h12M4 10h12M4 14h12'/%3E%3C/svg%3E") center/contain no-repeat}
+body.zedit .zin .grip{width:30px!important;height:30px!important;right:4px!important;border-radius:10px!important}
+body.zedit .zin .grip::after{inset:7px}
+body.zedit .zi>.zc,body.zedit .zin>.zi>*:not(.grip){pointer-events:none}
+body.zedit .zlist>.zi{animation:zwob .35s ease-in-out infinite alternate}
+body.zedit .zlist>.zi:nth-child(2n){animation-delay:-.17s}
+body.zedit .zlist>.zi.zdrag{animation:none}
+@keyframes zwob{from{transform:rotate(-.35deg)}to{transform:rotate(.35deg)}}
+@media(prefers-reduced-motion:reduce){body.zedit .zlist>.zi{animation:none}}
+body.zedit .zlist>.zi>.zc{outline:2px dashed color-mix(in srgb,var(--g2) 60%,transparent);outline-offset:3px;border-radius:22px}
+.zdone{position:fixed;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(84px + max(6px,calc(env(safe-area-inset-bottom) - 16px)));display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:var(--ink);color:var(--bg);box-shadow:0 10px 30px rgb(0 0 0/.3);font-size:14px;white-space:nowrap}
+.zdone button{border:0;border-radius:999px;min-height:40px;padding:0 18px;font:800 15px "Hanken Grotesk",sans-serif;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);cursor:pointer}
+.zgi{display:inline-block;width:16px;height:16px;vertical-align:-3px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h12M4 10h12M4 14h12'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h12M4 10h12M4 14h12'/%3E%3C/svg%3E") center/contain no-repeat}
+body.zedit .zchev{visibility:hidden}body.zedit .fab{display:none}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -691,6 +709,7 @@ nav.tabs{bottom:max(6px,calc(env(safe-area-inset-bottom) - 16px))!important}
 </div>
 
 <div class="scango" id="scanGo" hidden><label for="photo" class="scanbig" id="scanBig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13" r="4"/></svg><b>Toca para tomar la foto</b></label><button class="btn full" data-act="scango-x">Cancelar</button></div>
+<div class="zdone" id="zDone" hidden><span>Arrastra <i class="zgi"></i> para ordenar</span><button data-act="zedit-off">Listo</button></div>
 <label class="fab" id="fab" for="photo" aria-label="Escanear ticket" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg></label>
 <nav class="tabs" id="tabs">
   <button data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg>Inicio</button>
@@ -861,6 +880,8 @@ const UNIT={dias:30.44,semanas:4.33,meses:1};
 function freqF(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return (UNIT[f.cu]||1)/n}return (FREQI[f.freq]||FREQG.mensual)[1]}
 function freqL(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return "Cada "+n+" "+({dias:n===1?"día":"días",semanas:n===1?"semana":"semanas",meses:n===1?"mes":"meses"}[f.cu]||"meses")}return (FREQI[f.freq]||FREQG.mensual)[0]}
 function zOrder(){const O=(S.cfg&&S.cfg.orden)||{};document.querySelectorAll(".zlist").forEach(l=>{const o=O[l.id];if(!o)return;o.forEach(k=>{const e=l.querySelector(`:scope>[data-k="${k}"]`);if(e)l.appendChild(e)})})}
+let zOpen=[];function zEdit(on){if(on===document.body.classList.contains("zedit"))return;if(on){zOpen=[...document.querySelectorAll(".zlist details[open]")];zOpen.forEach(d=>{d.dataset.keep=1;d.open=false})}else{zOpen.forEach(d=>{d.open=true;delete d.dataset.keep});zOpen=[]}
+  document.body.classList.toggle("zedit",on);$("zDone").hidden=!on;if(on){navigator.vibrate&&navigator.vibrate(15)}}
 function zWrap(){document.querySelectorAll(".zlist").forEach(l=>{[...l.children].forEach(c=>{
     if(c.classList.contains("zi")){const x=c.querySelector(":scope>.zc");if(x)c.hidden=!x.matches("details")&&(x.hidden||!x.innerHTML.trim());return}
     if(c.tagName==="LI"||l.classList.contains("zin")){c.classList.add("zi");if(!c.querySelector(":scope>.grip"))c.insertAdjacentHTML("afterbegin",'<span class="grip" aria-label="Mover"></span>');return}
@@ -871,7 +892,7 @@ function zWrap(){document.querySelectorAll(".zlist").forEach(l=>{[...l.children]
   const start=(it,e)=>{const r=it.getBoundingClientRect();drag={it,l:it.parentElement,ox:e.clientX-r.left,oy:e.clientY-r.top};it.classList.add("zdrag");it.parentElement.classList.add("zsort");navigator.vibrate&&navigator.vibrate(12);eat=true};
   document.addEventListener("pointerdown",e=>{if(!e.target.closest)return;const g=e.target.closest(".grip");
     if(g){const it=itemOf(g);if(!it)return;e.preventDefault();try{g.setPointerCapture(e.pointerId)}catch(_){}start(it,e);return}
-    const sm=e.target.closest(".zlist summary");if(!sm)return;const it=itemOf(sm);if(!it)return;sy=e.clientY;ox=e.clientX;clearTimeout(t);t=setTimeout(()=>start(it,{clientX:ox,clientY:sy}),450)});
+    if(document.body.classList.contains("zedit"))return;const z=e.target.closest(".zlist>*");if(!z||e.target.closest("input,select,textarea"))return;sy=e.clientY;ox=e.clientX;clearTimeout(t);t=setTimeout(()=>{t=null;zEdit(true);eat=true;setTimeout(()=>{eat=false},600)},550)});
   document.addEventListener("pointermove",e=>{if(!drag){if(t&&(Math.abs(e.clientY-sy)>8||Math.abs(e.clientX-ox)>8)){clearTimeout(t);t=null}return}
     const d=drag;d.it.style.transform="";const r=d.it.getBoundingClientRect();
     if(d.l.classList.contains("zin")){const hit=[...d.l.children].find(c=>{if(c===d.it||c.hidden)return false;const q=c.getBoundingClientRect();return e.clientX>=q.left&&e.clientX<=q.right&&e.clientY>=q.top&&e.clientY<=q.bottom});
@@ -883,14 +904,14 @@ function zWrap(){document.querySelectorAll(".zlist").forEach(l=>{[...l.children]
     if(e.clientY<120)scrollBy(0,-12);else if(e.clientY>innerHeight-140)scrollBy(0,12)});
   const end=()=>{clearTimeout(t);t=null;if(!drag)return;const d=drag;drag=null;d.it.style.transform="";d.it.classList.remove("zdrag");d.l.classList.remove("zsort");
     setTimeout(()=>{eat=false},250);S.cfg.orden=Object.assign({},S.cfg.orden,{[d.l.id]:[...d.l.children].map(c=>c.dataset.k).filter(Boolean)});if(S===R)R.cfg=S.cfg;saveMeta("cfg")};
-  document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
+  document.addEventListener("pointerup",()=>{clearTimeout(t);t=null;end()});document.addEventListener("pointercancel",end);
   document.addEventListener("touchmove",e=>{if(drag)e.preventDefault()},{passive:false});
   document.addEventListener("click",e=>{if(eat&&e.target.closest&&e.target.closest(".zlist")){e.preventDefault();e.stopPropagation()}eat=false},true);
-  document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".zlist summary,.grip"))e.preventDefault()});
+  document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".zlist"))e.preventDefault()});
 })();
 function fixFixed(){requestAnimationFrame(()=>{const mx=Math.max(0,document.documentElement.scrollHeight-innerHeight);if(scrollY>mx)scrollTo(scrollX,mx);else{scrollBy(0,1);scrollBy(0,-1)}})}
 document.addEventListener("toggle",e=>{if(e.target.tagName==="DETAILS")fixFixed()},true);
-function zInit(){zWrap();zOrder();document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
+function zInit(){zWrap();zOrder();document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{if(document.body.classList.contains("zedit"))return;try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
 const zsum=(i,t,sub,tot)=>`<summary><span class="zic">${ic(i)}</span><span class="zt"><b>${t}</b><em>${sub||""}</em></span>${tot?`<strong class="ztot">${tot}</strong>`:""}<span class="zchev" aria-hidden="true"></span></summary>`;
 const ended=f=>!!f.fin&&f.fin<todayStr();
 function nextD(f){const td=todayStr();let m=td.slice(0,7);for(let k=0;k<25;k++){const o=occI(f,m).find(d=>d>=td);if(o)return o;m=shift(m,1)}return ""}
@@ -1045,7 +1066,7 @@ function umenuHTML(){
   ${mi("set-name","user","Cambiar mi nombre")}
   <button class="mi" role="menuitem" data-act="set-theme">${ic("spark")}<span>Colores de la app · ${THEMES[curTheme][0]}</span>${sw}</button>
   <div class="ms"></div><div class="mv">Banco</div>
-  ${mi("rec","clock","Recordatorios"+((S.cfg.rec||{}).push?" · activos":""))+mi("alert-setup","bell",S.cfg.alertKey?"Alertas automáticas · activas":"Configurar alertas automáticas")}
+  ${mi("zedit-on","swap","Ordenar secciones")+mi("rec","clock","Recordatorios"+((S.cfg.rec||{}).push?" · activos":""))+mi("alert-setup","bell",S.cfg.alertKey?"Alertas automáticas · activas":"Configurar alertas automáticas")}
   ${mi("paste-alert","inbox","Pegar alerta del banco")}
   ${mi("m-tab","bank","Mis cuentas","","cuentas")}${mi("m-tab","cal","Ingresos y gastos fijos","","fijos")}
   <div class="ms"></div><div class="mv">Seguridad</div>
@@ -1270,7 +1291,7 @@ function render0(){ensureCash();
   $("fixList").innerHTML=S.fijos.length?grp(S.fijos,f=>`<li><button class="it" data-act="fijo-edit" data-id="${f.id}">${bub(f.cat)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${freqL(f)} · ${esc(fDesc(f))}${f.cuenta&&S.cuentas.find(c=>c.id===f.cuenta)?" · desde "+esc(S.cuentas.find(c=>c.id===f.cuenta).banco):""}</span></span><span class="am">${fmt(num(f.monto))}${f.freq!=="mensual"?`<small>≈ ${fmt(gMonthly(f))}/mes</small>`:""}</span></button></li>`):`<li class="empty">Alquiler, colegiatura, préstamos, plan de celular, seguros: con la frecuencia que tengan.</li>`;
 }
 
-function show(t){
+function show(t){if(document.body&&document.body.classList.contains("zedit"))zEdit(false);
   tab=t;$("fab").hidden=false;{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
@@ -2061,6 +2082,8 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
+  "zedit-off":()=>zEdit(false),
+  "zedit-on":()=>{closeUmenu();zEdit(true)},
   bio:()=>{closeUmenu();if(bioId()){if(confirm("¿Desactivar Face ID / huella en este teléfono? Seguirás entrando con tu PIN.")){localStorage.removeItem(BIOK());toast("Desactivado")}}else bioOn()},
   "bio-go":()=>bioUnlock(false),
   cons:()=>consPanel(),
