@@ -569,6 +569,8 @@ section{padding-left:0}
 .top{padding-top:calc(22px + env(safe-area-inset-top))!important}
 #umenu{top:calc(84px + env(safe-area-inset-top))!important}#pmenu{top:calc(80px + env(safe-area-inset-top))!important}
 .qa{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}.qa button{font-size:13px!important;padding-left:2px!important;padding-right:2px!important;min-width:0}
+.rchk{display:grid;gap:8px;margin:4px 0 14px}.rchk label{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}.rchk input{width:22px;height:22px;accent-color:var(--g2);flex:none}
+.bolsab{border-color:color-mix(in srgb,#059669 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#10b981 12%,var(--card)),var(--card) 70%)!important}.bolsab .clipi .i{color:#fff}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1018,7 +1020,7 @@ function umenuHTML(){
   ${mi("set-name","user","Cambiar mi nombre")}
   <button class="mi" role="menuitem" data-act="set-theme">${ic("spark")}<span>Colores de la app · ${THEMES[curTheme][0]}</span>${sw}</button>
   <div class="ms"></div><div class="mv">Banco</div>
-  ${mi("alert-setup","bell",S.cfg.alertKey?"Alertas automáticas · activas":"Configurar alertas automáticas")}
+  ${mi("rec","clock","Recordatorios"+((S.cfg.rec||{}).push?" · activos":""))+mi("alert-setup","bell",S.cfg.alertKey?"Alertas automáticas · activas":"Configurar alertas automáticas")}
   ${mi("paste-alert","inbox","Pegar alerta del banco")}
   ${mi("m-tab","bank","Mis cuentas","","cuentas")}${mi("m-tab","cal","Ingresos y gastos fijos","","fijos")}
   <div class="ms"></div><div class="mv">Seguridad</div>
@@ -1064,6 +1066,36 @@ function trfPanel(from){if(S.cuentas.length<2){toast("Necesitas al menos 2 cuent
   <div class="g2"><label class="f">Monto<input id="tM" class="amt" inputmode="decimal" placeholder="0.00"></label><label class="f">Fecha<input id="tF" type="date" value="${todayStr()}"></label></div>
   <label class="f">Nota (opcional)<input id="tN" placeholder="Ej. retiro en cajero"></label>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="trf-save">${ic("swap")}Transferir</button></div>`);setTimeout(()=>{const e=$("tM");if(e)e.focus()},250)}
+
+// ---------- recordatorios
+const VAPID="BBXe1s3GZW-pNkqu8kTFHoTclY5dRa_24tT440axK-yaAJVfKtAL2hLKxSW2e5MSPpBgj1-eCG4XV67CzMwLp6c";
+const REC=()=>Object.assign({on:true,min:3,am:"07:00",pm:"21:00",dia:true,sem:true,mes:true},S.cfg.rec||{});
+const bolsa=()=>{const r=S.cfg.rec||{};return S.cuentas.find(c=>c.id===r.bolsa)||S.cuentas.find(c=>/cartera|bolsa|billetera/i.test((c.nombre||"")+" "+(c.banco||"")))||S.cuentas.find(c=>isCash(c))};
+function sugBolsa(){const b=bolsa();if(!b)return null;const s=ctaSaldo(b),td=todayStr(),d0=new Date(td+"T12:00");d0.setDate(d0.getDate()-30);const desde=d0.toISOString().slice(0,10);
+  const g=S.items.filter(x=>x.cuenta===b.id&&x.tipo!=="ingreso"&&x.tipo!=="ajuste"&&x.fecha>=desde&&x.fecha<=td),first=g.reduce((m,x)=>x.fecha<m?x.fecha:m,td),dias=Math.max(7,Math.round((Date.parse(td)-Date.parse(first))/864e5)+1),prom=g.reduce((t,x)=>t+num(x.monto),0)/dias,sug=Math.max(10,Math.ceil((prom*7-Math.max(s,0))/5)*5);
+  const otras=S.cuentas.filter(c=>c.id!==b.id).map(c=>({c,s:ctaSaldo(c)})).sort((a,z)=>z.s-a.s),src=otras.find(o=>o.s>=sug)||otras[0];return{b,s,prom,sug,src:src&&src.c}}
+const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent);
+async function pushOn(){if(!sb||!uid){toast("Entra con tu cuenta para activar recordatorios");return false}
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)){toast(isIOS()&&!isStandalone()?"Primero agrega la app a tu pantalla de inicio":"Este navegador no permite notificaciones");return false}
+  const p=await Notification.requestPermission();if(p!=="granted"){toast("Permiso de notificaciones negado. Actívalo en Ajustes › Notificaciones");return false}
+  const reg=await navigator.serviceWorker.ready,k=Uint8Array.from(atob(VAPID.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-VAPID.length%4)%4)),c=>c.charCodeAt(0));
+  const sub=(await reg.pushManager.getSubscription())||(await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})),j=sub.toJSON();
+  const {error}=await sb.from("push_subs").upsert({endpoint:j.endpoint,user_id:uid,p256dh:j.keys.p256dh,auth:j.keys.auth,tz:Intl.DateTimeFormat().resolvedOptions().timeZone||"America/El_Salvador"});
+  if(error){toast("No se pudo activar: "+error.message);return false}S.cfg.rec=Object.assign(REC(),{push:true});saveMeta("cfg");return true}
+function recPanel(){const r=REC(),b=bolsa(),ios=isIOS()&&!isStandalone(),perm=("Notification" in window)?Notification.permission:"no";
+  openPanel(`<h3>Recordatorios</h3>
+  ${ios?`<div class="alwait" style="margin-bottom:10px"><span>Para recibirlos en tu iPhone: <b>Compartir</b> › <b>Agregar a pantalla de inicio</b>, y abre la app desde ese ícono.</span></div>`:""}
+  ${r.push&&perm==="granted"?`<div class="alok" style="margin-bottom:10px">${ic("check")}<b>Activos en este teléfono</b><span>Llegan como notificación aunque la app esté cerrada.</span></div>`:`<button class="btn yel full" data-act="rec-on" style="margin-bottom:12px">${ic("bell")}Activar notificaciones</button>`}
+  <label class="f">Efectivo en tu bolsa<select id="rB">${b?"":`<option value="">— Ninguna —</option>`}${opts(S.cuentas.map(c=>[c.id,(c.nombre||c.banco)+" · "+fmt(ctaSaldo(c))]),b?b.id:"")}<option value="__new">+ Crear “Cartera”</option></select></label>
+  <div class="g2"><label class="f">Avisar si baja de $<input id="rMin" class="amt" inputmode="decimal" value="${num(r.min)}"></label><label class="f">Revisión de la mañana<input id="rAm" type="time" value="${r.am}"></label></div>
+  <label class="f">Hora del cierre<input id="rPm" type="time" value="${r.pm}"></label>
+  <div class="rchk"><label><input type="checkbox" id="rDia"${r.dia?" checked":""}><span>Cada día: ordena tus cuentas</span></label>
+  <label><input type="checkbox" id="rSem"${r.sem?" checked":""}><span>Domingo: cierre de la semana</span></label>
+  <label><input type="checkbox" id="rMes"${r.mes?" checked":""}><span>Último día: cierre del mes</span></label></div>
+  <div class="g2"><button class="btn full" data-act="rec-test"${r.push?"":" disabled"}>Probar</button><button class="btn solid full" data-act="rec-save">${ic("check")}Guardar</button></div>`)}
+function bolsaBanner(){const r=REC(),x=sugBolsa();if(!x||!(x.s<num(r.min)))return "";
+  return `<button class="negb bolsab" data-act="bolsa-go"><span class="clipi" style="background:linear-gradient(135deg,#34d399,#059669)">${ic("wallet")}</span><span><b>${esc(x.b.nombre||"Tu efectivo")} tiene ${fmt(x.s)}</b><em>${x.src?`¿Pasar ${fmt0(x.sug)} de ${esc(x.src.nombre||x.src.banco)}?`:`Te sugerimos tener ${fmt0(x.sug)}`}${x.prom>0?` · gastas ~${fmt(x.prom)}/día`:""}</em></span><i>›</i></button>`}
 
 // ---------- periodo
 function pmenuHTML(){const td=todayStr().slice(0,7),y=td.slice(0,4),cur=RG(),first=S.items.reduce((m,x)=>x.fecha&&x.fecha.slice(0,7)<m?x.fecha.slice(0,7):m,td);
@@ -1170,7 +1202,7 @@ function render0(){
   // gastos fijos
   const fm=fijosMes(month),pend=fm.filter(o=>!o.pago),pendT=pend.reduce((s,o)=>s+num(o.f.monto),0),fmT=fm.reduce((s,o)=>s+(o.pago?num(o.pago.monto):num(o.f.monto)),0),paidT=fmT-pendT,td=todayStr();
   if(!S.pend)S.pend=[];const PP=S.pend.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
-  const NG=negCtas();$("negBox").innerHTML=NG.map(c=>`<button class="negb" data-act="just" data-id="${c.id}">${ic("alert")}<span><b>${esc(c.nombre||c.banco)} está en −${fmt(-ctaSaldo(c))}</b><em>Toca para justificar de dónde salió ese dinero</em></span><i>›</i></button>`).join("");
+  const NG=negCtas();$("negBox").innerHTML=bolsaBanner()+NG.map(c=>`<button class="negb" data-act="just" data-id="${c.id}">${ic("alert")}<span><b>${esc(c.nombre||c.banco)} está en −${fmt(-ctaSaldo(c))}</b><em>Toca para justificar de dónde salió ese dinero</em></span><i>›</i></button>`).join("");
   $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${fmt(PP.reduce((t,p)=>t+(p.tipo==="gasto"?num(p.monto):0),0))} en gastos</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
@@ -1970,6 +2002,12 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
+  rec:()=>{closeUmenu();recPanel()},
+  "rec-on":async()=>{if(await pushOn()){toast("¡Recordatorios activados!");recPanel()}},
+  "rec-test":async()=>{try{await sb.functions.invoke("recordatorios",{body:{accion:"prueba",tipo:"pm"}});toast("Enviada: revisa tus notificaciones")}catch(e){toast("No se pudo enviar")}},
+  "rec-save":()=>{let bid=v("rB");if(bid==="__new"){const c={id:nid("c"),banco:"Efectivo",tipo:"Efectivo",nombre:"Cartera",num:"",saldo:0,fecha:todayStr(),ts:Date.now(),incluir:true};S.cuentas.push(c);saveMeta("cuentas");bid=c.id}
+    S.cfg.rec=Object.assign(REC(),{bolsa:bid||"",min:num(v("rMin"))||0,am:v("rAm")||"07:00",pm:v("rPm")||"21:00",dia:$("rDia").checked,sem:$("rSem").checked,mes:$("rMes").checked});saveMeta("cfg");closePanel();toast("Recordatorios guardados")},
+  "bolsa-go":()=>{const x=sugBolsa();if(!x)return;trfPanel(x.src?x.src.id:"");setTimeout(()=>{if($("tA"))$("tA").value=x.b.id;if($("tM"))$("tM").value=x.sug},60)},
   trf:id=>trfPanel(id||""),
   "trf-save":()=>{const a=v("tDe"),b=v("tA"),m=num(v("tM")),f=v("tF")||todayStr(),n=v("tN").trim();if(a===b){toast("Elige dos cuentas distintas");return}if(!(m>0)){toast("Escribe el monto");$("tM").focus();return}
     const A=S.cuentas.find(x=>x.id===a),B=S.cuentas.find(x=>x.id===b);addAj(a,m,-1,"Transferencia a "+(B.nombre||B.banco),n,f);addAj(b,m,1,"Transferencia desde "+(A.nombre||A.banco),n,f);closePanel();toast(fmt(m)+" de "+(A.nombre||A.banco)+" a "+(B.nombre||B.banco));if(ctaSaldo(A)<-.004)setTimeout(()=>justPanel(a),700)},
@@ -2016,9 +2054,12 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdat
 
 // ---------- arranque
 const GRET=new URLSearchParams(location.search).get("gmail");
-if(GRET)history.replaceState(null,"",location.pathname+location.hash);
+const QS=new URLSearchParams(location.search),QTRF=QS.get("trf"),QTAB=QS.get("tab");
+if(GRET||QTRF||QTAB)history.replaceState(null,"",location.pathname+location.hash);
 function start(){
   if(ready)return;ready=true;$("boot").hidden=true;render();
+  if(QTAB)setTimeout(()=>show(QTAB),300);
+  if(QTRF)setTimeout(()=>{const [a,b,m]=QTRF.split("|");trfPanel(a||"");setTimeout(()=>{if(b&&$("tA"))$("tA").value=b;if(m&&$("tM"))$("tM").value=m},60)},900);
   if(GRET)setTimeout(()=>{const M={ok:"¡Gmail conectado! Tus alertas llegarán solas.",cancelado:"Conexión con Gmail cancelada","sin-permiso":"Falta marcar el permiso de leer correos. Intenta de nuevo y acepta todo.",vencido:"Se tardó mucho. Toca Conectar otra vez.","sin-configurar":"La conexión con Google aún no está activada"};toast(M[GRET]||"No se pudo conectar Gmail");if(GRET==="ok"){pullInbox();confetti&&confetti()}},1200);
   if(isDemo())return;
   if(!R.cfg.onboarded)showOnboarding();else showLock();
