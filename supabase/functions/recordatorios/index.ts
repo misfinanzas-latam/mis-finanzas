@@ -28,7 +28,7 @@ const shiftDay = (d: string, n: number) => { const t = new Date(d + "T12:00:00Z"
 
 export function bolsaDe(cfg: Any, cuentas: Any[]) {
   const r = cfg.rec || {};
-  return cuentas.find((c) => c.id === r.bolsa) || cuentas.find((c) => /cartera|bolsa|billetera/i.test((c.nombre || "") + " " + (c.banco || ""))) || cuentas.find((c) => /efectivo/i.test((c.tipo || "") + (c.banco || "")));
+  return cuentas.find((c) => c.id === r.bolsa) || cuentas.find((c) => c.sys) || cuentas.find((c) => /cartera|bolsa|billetera/i.test((c.nombre || "") + " " + (c.banco || ""))) || cuentas.find((c) => /efectivo/i.test((c.tipo || "") + (c.banco || "")));
 }
 
 async function datos(uid: string) {
@@ -39,7 +39,7 @@ async function datos(uid: string) {
 }
 
 function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnType<typeof local>, forzar = "") {
-  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true }, d.cfg.rec || {});
+  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true, arq: true, arqDia: 6, arqHora: "10:00" }, d.cfg.rec || {});
   const out: { kind: string; title: string; body: string; url: string }[] = [];
   if (!r.on && !forzar) return out;
   const due = (t: string) => forzar || (L.hm >= toMin(t) && L.hm < toMin(t) + 60);
@@ -60,6 +60,12 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
         body: src ? `¿Pasar ${fmt0(sug)} de ${src.c.nombre || src.c.banco}? Gastas ~${fmt(prom)} al día en efectivo.` : `Gastas ~${fmt(prom)} al día en efectivo. Te sugerimos tener ${fmt0(sug)}.`,
         url: SITE + "?trf=" + encodeURIComponent((src ? src.c.id : "") + "|" + b.id + "|" + sug) });
     }
+  }
+  // Arqueo semanal
+  const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  if ((forzar === "arq") || (!forzar && r.arq && DOW[+r.arqDia] === L.dow && due(r.arqHora))) {
+    const tot = d.cuentas.reduce((t: number, c: Any) => t + saldo(c, d.items), 0);
+    out.push({ kind: "arq", title: "Arqueo semanal", body: `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.`, url: SITE + "?act=cons" });
   }
   // Noche: diario / semana / mes (uno solo por noche)
   if (forzar === "pm" || forzar === "sem" || forzar === "mes" || (!forzar && due(r.pm))) {
