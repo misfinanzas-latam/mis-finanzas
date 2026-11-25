@@ -530,6 +530,8 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 .pzn{display:block;font-style:normal;font-size:12px;color:var(--mut);margin-top:8px}.pzn.neg{color:var(--red);font-weight:700}
 .pzoff{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 12px;padding:10px 14px;border-radius:14px;border:1.5px dashed var(--line);background:var(--card);color:var(--mut);font:600 14px "Hanken Grotesk",sans-serif;cursor:pointer;min-height:48px}
 .pzoff .i{width:18px;height:18px}.pzoff span{flex:1;text-align:left}.pzoff b{color:var(--ink)}
+.zone.hoja{padding:0;margin:14px 0}.zone.hoja>summary{font-size:inherit;font-weight:inherit;justify-content:flex-start}.zone.hoja>summary::after{content:none!important}
+#tab-inicio .zone{margin-top:0}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -549,7 +551,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
       <div class="lgacc" id="lgAcc"></div>
     </div>
     <div id="routeBox"></div>
-    <details class="hoja" id="hoja"><summary><span class="h2i"><span class="bub sm" style="--c:#0d9488" id="hojaIc"></span><span id="hojaT">Hoja del mes</span></span></summary><div id="hojaB"></div></details>
+    <details class="zone hoja" id="hoja" data-z="hoja" style="--zc:#0d9488"><summary><span class="zic" id="hojaIc"></span><span class="zt"><b id="hojaT">Hoja del mes</b><em>Resumen del mes</em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb" id="hojaB"></div></details>
     <label class="cap" for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg>Escanear ticket</label>
     <input type="file" id="photo" accept="image/*" capture="environment" hidden>
     <div class="qa" id="qa"></div>
@@ -559,8 +561,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
     <div id="incBox"></div>
     <div id="fixBox"></div>
     <p class="note" id="aiNote"></p>
-    <h2 class="h2i" data-ic="clock">Últimos movimientos</h2>
-    <ul class="list" id="recent"></ul>
+    <details class="zone" data-z="mov" data-def="1" style="--zc:#2563eb"><summary><span class="zic" data-ic="clock"></span><span class="zt"><b>Últimos movimientos</b><em id="recSub"></em></span><span class="zchev" aria-hidden="true"></span></summary><div class="zb"><ul class="list" id="recent"></ul><button class="btn full" style="margin-top:10px" data-act="m-tab" data-id="movimientos">Ver historial</button></div></details>
   </section>
 
   <section id="tab-movimientos" hidden>
@@ -789,6 +790,8 @@ const FREQI={unica:["Una sola vez",0],semanal:FREQG.semanal,quincenal:FREQG.quin
 const UNIT={dias:30.44,semanas:4.33,meses:1};
 function freqF(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return (UNIT[f.cu]||1)/n}return (FREQI[f.freq]||FREQG.mensual)[1]}
 function freqL(f){if(f.freq==="custom"){const n=Math.max(1,+f.cn||1);return "Cada "+n+" "+({dias:n===1?"día":"días",semanas:n===1?"semana":"semanas",meses:n===1?"mes":"meses"}[f.cu]||"meses")}return (FREQI[f.freq]||FREQG.mensual)[0]}
+function zInit(){document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":(d.dataset.z==="ah"||d.dataset.def==="1")}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
+const zsum=(i,t,sub,tot)=>`<summary><span class="zic">${ic(i)}</span><span class="zt"><b>${t}</b><em>${sub||""}</em></span>${tot?`<strong class="ztot">${tot}</strong>`:""}<span class="zchev" aria-hidden="true"></span></summary>`;
 const ended=f=>!!f.fin&&f.fin<todayStr();
 function nextD(f){const td=todayStr();let m=td.slice(0,7);for(let k=0;k<25;k++){const o=occI(f,m).find(d=>d>=td);if(o)return o;m=shift(m,1)}return ""}
 function grp(L,fn){const act=L.filter(f=>f.activo!==false&&!ended(f)).sort((a,b)=>(nextD(a)||"9").localeCompare(nextD(b)||"9")),off=L.filter(f=>!act.includes(f));return act.map(fn).join("")+(off.length?`<li class="subh">Pausados o terminados</li>`+off.map(fn).join(""):"")}
@@ -1041,7 +1044,7 @@ function render(){
       <em class="pzn ${u>1?"neg":""}">${u>1?"Te pasaste "+fmt0(g-P.gas):"Quedan "+fmt0(P.gas-g)+" del plan"}</em></div>`}
   else $("routeBox").innerHTML=S.escs.length?`<button class="pzoff" data-act="go-proy">${ic("trend")}<span>Sin presupuesto en ${mn}</span><b>Aplicar ›</b></button>`:"";
   const all=S.items.slice().sort((x,y)=>(y.fecha+String(y.ts||0).padStart(15,"0")).localeCompare(x.fecha+String(x.ts||0).padStart(15,"0")));
-  $("recent").innerHTML=all.length?all.slice(0,6).map(row).join(""):`<li class="empty">Aún no hay movimientos. Escanea tu primer ticket o registra tu ingreso.</li>`;
+  $("recSub").textContent=all.length?"Los "+Math.min(all.length,6)+" más recientes":"Aún no hay";$("recent").innerHTML=all.length?all.slice(0,6).map(row).join(""):`<li class="empty">Aún no hay movimientos. Escanea tu primer ticket o registra tu ingreso.</li>`;
   $("aiNote").textContent="";$("aiNote").hidden=true;
   // movimientos
   const q=norm($("q").value);
@@ -1090,17 +1093,17 @@ function render(){
   $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${fmt(PP.reduce((t,p)=>t+(p.tipo==="gasto"?num(p.monto):0),0))} en gastos</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
-  $("incBox").innerHTML=S.fuentes.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("down")}Ingresos de ${mn}</h2><span class="note">Recibido ${fmt(H.rI)} de ${fmt(H.tI)}</span></div><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div>`:"";
+  $("incBox").innerHTML=S.fuentes.length?`<details class="zone" data-z="inc" data-def="1" style="--zc:#16a34a">${zsum("down","Ingresos","Recibido "+fmt0(H.rI),fmt(H.tI))}<div class="zb"><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div></details>`:"";
   $("lgAcc").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),neg=sa<-.004,L=S.items.filter(x=>x.cuenta===c.id).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.ts||0)-(a.ts||0))[0];
     return `<button class="lga${neg?" neg":""}${c.incluir===false?" off":""}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgan">${ic(isCash(c)?"wallet":"bank")}<b>${esc(c.nombre||c.banco)}</b></span><strong>${fmt(sa)}</strong><small>${neg?"Justificar":L?`${sgn(L)>0?"+":"−"}${fmt0(num(L.monto))} ${esc(L.lugar||L.cat||"")}`:esc(c.banco)+(c.num?" ··"+esc(c.num):"")}</small></button>`}).join(""):"";
   $("lgFree").innerHTML=`<div>Por recibir<b>${fmt(H.tI-H.rI)}</b></div><div>Fijos por pagar<b>${fmt(H.tF-H.pF)}</b></div><div>Fin de mes<b class="${H.proy<0?"neg":""}">${fmt(H.proy)}</b></div>`;
-  $("fixBox").innerHTML=S.fijos.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos de ${mn}</h2><span class="note">Pagado ${fmt(paidT)} de ${fmt(fmT)}</span></div><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div>`
-    :`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos</h2></div><p class="note" style="margin:6px 0 10px">Alquiler, colegio, préstamos, seguros…</p><button class="btn sm" style="margin-bottom:8px" data-act="fijo-new">${ic("plus")}Agregar gasto fijo</button></div>`;
+  $("fixBox").innerHTML=S.fijos.length?`<details class="zone" data-z="pag" data-def="1" style="--zc:#7c5cff">${zsum("cal","Pagos fijos","Pagado "+fmt0(paidT),fmt(fmT))}<div class="zb"><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div></details>`
+    :`<details class="zone" data-z="pag" data-def="1" style="--zc:#7c5cff">${zsum("cal","Pagos fijos","Alquiler, colegio, préstamos…","")}<div class="zb"><button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button></div></details>`;
   {const ng=negCtas().length;
    $("ahCnt").innerHTML=S.cuentas.length+" cuenta(s)"+(ng?` · <u>${ng} por justificar</u>`:"");
    $("fCnt").textContent=S.fuentes.length?S.fuentes.length+" ingreso(s) · al mes":"Ninguno todavía";
    $("gCnt").textContent=S.fijos.length?S.fijos.length+" gasto(s) · al mes":"Ninguno todavía";
-   document.querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;if(!d.dataset.init){d.dataset.init=1;try{const v=localStorage.getItem(k);d.open=v?v==="1":d.dataset.z==="ah"}catch(e){}d.addEventListener("toggle",()=>{try{localStorage.setItem(k,d.open?"1":"0")}catch(e){}})}})}
+   zInit()}
   $("gTot").textContent=fmt(S.fijos.reduce((s,f)=>s+gMonthly(f),0));
   $("fixList").innerHTML=S.fijos.length?grp(S.fijos,f=>`<li><button class="it" data-act="fijo-edit" data-id="${f.id}">${bub(f.cat)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${freqL(f)} · ${esc(fDesc(f))}${f.cuenta&&S.cuentas.find(c=>c.id===f.cuenta)?" · desde "+esc(S.cuentas.find(c=>c.id===f.cuenta).banco):""}</span></span><span class="am">${fmt(num(f.monto))}${f.freq!=="mensual"?`<small>≈ ${fmt(gMonthly(f))}/mes</small>`:""}</span></button></li>`):`<li class="empty">Alquiler, colegiatura, préstamos, plan de celular, seguros: con la frecuencia que tengan.</li>`;
 }
