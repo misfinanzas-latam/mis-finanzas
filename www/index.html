@@ -108,7 +108,7 @@ mark{background:color-mix(in srgb,var(--y) 28%,transparent);color:var(--ink);pad
 .tot strong{display:block;font-size:17px;color:var(--ink)}
 .acc{display:flex;align-items:center;gap:12px}
 .acc .bk{width:42px;height:42px;border-radius:13px;color:#2563eb;background:color-mix(in srgb,#2563eb 15%,transparent);display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--card);box-shadow:0 -4px 18px rgb(0 0 0/.08);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);box-shadow:0 -4px 18px rgb(0 0 0/.08);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav.tabs button{min-height:60px;border:0;background:none;color:var(--mut);font:600 11px "Hanken Grotesk",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
 nav.tabs button[aria-current=true]{color:var(--ink)}
 nav.tabs button[aria-current=true] svg{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);border-radius:9px;box-shadow:0 4px 10px color-mix(in srgb,var(--g2) 40%,transparent)}
@@ -639,6 +639,13 @@ nav.tabs button{transition:background .25s,transform .15s}nav.tabs button:active
 .ngrp{display:grid;gap:6px;margin-bottom:14px}.ngh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:4px 2px}
 .nrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:60px}
 .nrow>.bub{flex:none!important;width:42px!important;height:42px!important;display:grid!important}.nrow>span:not(.bub){flex:1;min-width:0;display:grid}.nrow b{font-size:15px}.nrow em{font-style:normal;font-size:13px;color:var(--mut)}.nrow>i{font-style:normal;font-size:22px;color:var(--mut)}
+
+/* barra centrada y compacta */
+nav.tabs{left:50%!important;right:auto!important;transform:translateX(-50%) translateZ(0)!important;width:min(calc(100% - 24px),380px)!important;max-width:380px!important;margin:0!important;padding:4px!important}
+nav.tabs button{min-height:54px!important;font-size:10.5px!important}
+.fab{bottom:calc(72px + max(6px,calc(env(safe-area-inset-bottom) - 16px)))!important}
+/* cámara siempre visible: anillo blanco + borde oscuro */
+.fab{color:#fff!important;background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 70%,#000),color-mix(in srgb,var(--g2) 85%,#000))!important;box-shadow:0 0 0 3px #fff,0 0 0 4.5px rgb(0 0 0/.35),0 10px 24px rgb(0 0 0/.35)!important}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
