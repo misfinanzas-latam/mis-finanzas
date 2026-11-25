@@ -571,6 +571,9 @@ section{padding-left:0}
 .qa{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}.qa button{font-size:13px!important;padding-left:2px!important;padding-right:2px!important;min-width:0}
 .rchk{display:grid;gap:8px;margin:4px 0 14px}.rchk label{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}.rchk input{width:22px;height:22px;accent-color:var(--g2);flex:none}
 .bolsab{border-color:color-mix(in srgb,#059669 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#10b981 12%,var(--card)),var(--card) 70%)!important}.bolsab .clipi .i{color:#fff}
+.scango{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--tint) 96%,transparent);display:grid;align-content:center;gap:16px;padding:24px}
+.scanbig{display:grid;justify-items:center;gap:16px;padding:48px 20px;border-radius:28px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);cursor:pointer;box-shadow:0 20px 40px color-mix(in srgb,var(--g2) 40%,transparent)}
+.scanbig svg{width:72px;height:72px}.scanbig b{font-size:20px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -669,6 +672,7 @@ section{padding-left:0}
   </section>
 </div>
 
+<div class="scango" id="scanGo" hidden><label for="photo" class="scanbig" id="scanBig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13" r="4"/></svg><b>Toca para tomar la foto</b></label><button class="btn full" data-act="scango-x">Cancelar</button></div>
 <label class="fab" id="fab" for="photo" aria-label="Escanear ticket" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg></label>
 <nav class="tabs" id="tabs">
   <button data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg>Inicio</button>
@@ -2002,6 +2006,7 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
+  "scango-x":()=>{setTimeout(()=>{$("scanGo").hidden=true},50)},
   rec:()=>{closeUmenu();recPanel()},
   "rec-on":async()=>{if(await pushOn()){toast("¡Recordatorios activados!");recPanel()}},
   "rec-test":async()=>{try{await sb.functions.invoke("recordatorios",{body:{accion:"prueba",tipo:"pm"}});toast("Enviada: revisa tus notificaciones")}catch(e){toast("No se pudo enviar")}},
@@ -2054,11 +2059,15 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdat
 
 // ---------- arranque
 const GRET=new URLSearchParams(location.search).get("gmail");
-const QS=new URLSearchParams(location.search),QTRF=QS.get("trf"),QTAB=QS.get("tab");
-if(GRET||QTRF||QTAB)history.replaceState(null,"",location.pathname+location.hash);
+const QS=new URLSearchParams(location.search),QTRF=QS.get("trf"),QTAB=QS.get("tab"),QSCAN=QS.get("scan"),QADD=QS.get("add");
+if(GRET||QTRF!==null||QTAB||QSCAN||QADD)history.replaceState(null,"",location.pathname+location.hash);
 function start(){
   if(ready)return;ready=true;$("boot").hidden=true;render();
   if(QTAB)setTimeout(()=>show(QTAB),300);
+  if(QSCAN)setTimeout(()=>{$("scanGo").hidden=false},300);
+  $("scanBig").addEventListener("click",()=>setTimeout(()=>{$("scanGo").hidden=true},300));
+  if(QADD==="g")setTimeout(()=>ACT["add-g"](),400);
+  if(QTRF==="")setTimeout(()=>trfPanel(""),400);
   if(QTRF)setTimeout(()=>{const [a,b,m]=QTRF.split("|");trfPanel(a||"");setTimeout(()=>{if(b&&$("tA"))$("tA").value=b;if(m&&$("tM"))$("tM").value=m},60)},900);
   if(GRET)setTimeout(()=>{const M={ok:"¡Gmail conectado! Tus alertas llegarán solas.",cancelado:"Conexión con Gmail cancelada","sin-permiso":"Falta marcar el permiso de leer correos. Intenta de nuevo y acepta todo.",vencido:"Se tardó mucho. Toca Conectar otra vez.","sin-configurar":"La conexión con Google aún no está activada"};toast(M[GRET]||"No se pudo conectar Gmail");if(GRET==="ok"){pullInbox();confetti&&confetti()}},1200);
   if(isDemo())return;
