@@ -822,7 +822,7 @@ try{applyTheme(localStorage.getItem("mf.tema")||"sol")}catch(e){applyTheme("sol"
 const isCash=c=>!!c&&(c.tipo==="Efectivo"||/^efectivo$/i.test((c.banco||"").trim()));
 const ctaLabel=c=>c?(c.banco+(c.num?" ···"+c.num:"")+(c.nombre?" · "+c.nombre:"")):"";
 const ctaShort=(id,list)=>{const c=(list||S.cuentas).find(x=>x.id===id);return c?(c.banco+(c.num?" ···"+c.num:"")):(id||"sin cuenta")};
-const ctaOpts=(list,sel,empty)=>[...list].sort((a,b)=>(b.sys?1:0)-(a.sys?1:0)).map(c=>`<option value="${c.id}"${c.id===sel?" selected":""}>${esc(ctaLabel(c))}</option>`).join("")+`<option value=""${sel===""&&list.length?"":" "}>${esc(empty)}</option>`;
+const ctaOpts=(list,sel,empty)=>[...list].sort((a,b)=>(b.sys?1:0)-(a.sys?1:0)).map(c=>`<option value="${c.id}"${c.id===sel?" selected":""}>${esc(ctaLabel(c))}</option>`).join("")+(empty==null?"":`<option value=""${sel===""&&list.length?"":" "}>${esc(empty)}</option>`);
 const sgn=x=>x.tipo==="ingreso"?1:x.tipo==="ajuste"?(x.aj<0?-1:1):-1;
 function ctaSaldo(c){return num(c.saldo)+S.items.filter(x=>x.cuenta===c.id&&(c.ts?(x.ts||0)>c.ts:x.fecha>=(c.fecha||""))).reduce((t,x)=>t+sgn(x)*num(x.monto),0)}
 const bub=(c,sm)=>{const [n,col]=catI(c);return `<span class="bub${sm?" sm":""}" style="--c:${col}">${ic(n)}</span>`};
@@ -1353,12 +1353,12 @@ function setTipo(t){
   $("fLugar").placeholder=t==="ingreso"?"Ej. Quincena noviembre":"Ej. Super Selectos Escalón";
 }
 function openSheet(x,img){
-  editing=x&&x.id?x.id:null;const v=x||{};pendCtx=null;$("fDel").textContent="Eliminar";$("fCta").innerHTML=ctaOpts(S.cuentas,"","Sin cuenta (no afecta saldos)");$("fCtaL").hidden=!S.cuentas.length;scanCtx=null;pendFijo=null;$("scanInfo").hidden=true;
+  editing=x&&x.id?x.id:null;const v=x||{};pendCtx=null;$("fDel").textContent="Eliminar";$("fCta").innerHTML=ctaOpts(S.cuentas,"",S.cuentas.length?null:"Sin cuenta");$("fCtaL").hidden=!S.cuentas.length;scanCtx=null;pendFijo=null;$("scanInfo").hidden=true;
   $("fFuente").innerHTML=`<option value="">Otra / sin registrar</option>`+S.fuentes.map(f=>`<option value="${f.id}">${esc(f.nombre)} · ${esc(f.tipo)}</option>`).join("");
   setTipo(v.tipo||"gasto");
   $("fTitle").textContent=editing?"Editar movimiento":v.tipo==="ingreso"?"Nuevo ingreso":"Nuevo gasto";
   $("fMonto").value=v.monto!=null&&v.monto!==""?num(v.monto).toFixed(2):"";$("fLugar").value=v.lugar||"";$("fFecha").value=v.fecha||todayStr();
-  if(v.cat){if(![...$("fCat").options].some(o=>o.value===v.cat))$("fCat").insertAdjacentHTML("afterbegin",`<option>${esc(v.cat)}</option>`);$("fCat").value=v.cat}$("fNota").value=v.nota||"";cxAll();if(v.cuenta&&!S.cuentas.some(c=>c.id===v.cuenta)){$("fCta").value="__c";$("fCta_x").value=v.cuenta}else $("fCta").value=v.cuenta!=null?v.cuenta:(!editing&&cashAcc()?cashAcc().id:"");cxAll();$("fFuente").value=v.fuente||"";
+  if(v.cat){if(![...$("fCat").options].some(o=>o.value===v.cat))$("fCat").insertAdjacentHTML("afterbegin",`<option>${esc(v.cat)}</option>`);$("fCat").value=v.cat}$("fNota").value=v.nota||"";cxAll();if(v.cuenta&&!S.cuentas.some(c=>c.id===v.cuenta)){$("fCta").value="__c";$("fCta_x").value=v.cuenta}else $("fCta").value=v.cuenta||(cashAcc()||S.cuentas[0]||{}).id||"";cxAll();$("fFuente").value=v.fuente||"";
   $("fDel").hidden=!editing;$("pv").hidden=!img;if(img)$("pv").src=img;
   $("sheet").hidden=false;if(!img)setTimeout(()=>$("fMonto").focus(),60);
 }
