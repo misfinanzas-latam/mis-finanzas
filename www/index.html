@@ -516,18 +516,20 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 @media(max-width:380px){.zt b{font-size:16px}.ztot{font-size:15px}.zic{width:38px;height:38px}}
 .zone .fx::before,.zone .list .it{--x:0}
 .subh{list-style:none;margin:14px 0 2px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
-.lgacc{margin-top:14px;display:grid;gap:6px}
-.lgah{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;opacity:.75}
-.lgah button{border:0;background:none;color:inherit;font:700 13px "Hanken Grotesk",sans-serif;cursor:pointer;min-height:32px;padding:0}
-.lga{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-radius:14px;padding:9px 10px;background:rgb(255 255 255/.38);color:inherit;font:inherit;cursor:pointer;min-height:58px}
-.lga:active{transform:scale(.98)}
-.lgai{width:32px;height:32px;border-radius:10px;flex:none;display:grid;place-items:center;background:rgb(255 255 255/.55)}.lgai .i{width:17px;height:17px}
-.lgat{flex:1;min-width:0;display:grid;line-height:1.25}
-.lgat b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lgat b i{font-style:normal;font-size:11px;font-weight:600;opacity:.7}
-.lgat em{font-style:normal;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lgat small{font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lga strong{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.lga.neg{background:rgb(255 255 255/.75);box-shadow:inset 0 0 0 1.5px #e11d48}.lga.neg strong,.lga.neg small{color:#e11d48;opacity:1}
+.lgacc{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lga{display:grid;gap:1px;text-align:left;border:0;border-radius:14px;padding:8px 10px;background:rgb(255 255 255/.38);color:inherit;font:inherit;cursor:pointer;min-width:0}
+.lga:active{transform:scale(.97)}
+.lgan{display:flex;align-items:center;gap:5px;min-width:0}.lgan .i{width:14px;height:14px;flex:none;opacity:.7}
+.lgan b{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8}
+.lga strong{font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lga small{font-size:11px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lga.off{opacity:.6}
+.lga.neg{background:rgb(255 255 255/.8);box-shadow:inset 0 0 0 1.5px #e11d48}.lga.neg strong,.lga.neg small{color:#e11d48;opacity:1;font-weight:700}
+.pz{padding:12px 14px}.pzh{display:flex;align-items:center;gap:8px;margin-bottom:8px}.pzh .i{width:18px;height:18px;color:var(--g2)}.pzh b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pzh .lnk{font-size:13px;min-height:32px}
+.pzg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.pzg span{font-size:12px;color:var(--mut)}.pzg strong{display:block;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}.pzg strong small{font-size:12px;font-weight:600;color:var(--mut)}.pzg .trk{margin-top:4px}
+.pzn{display:block;font-style:normal;font-size:12px;color:var(--mut);margin-top:8px}.pzn.neg{color:var(--red);font-weight:700}
+.pzoff{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 12px;padding:10px 14px;border-radius:14px;border:1.5px dashed var(--line);background:var(--card);color:var(--mut);font:600 14px "Hanken Grotesk",sans-serif;cursor:pointer;min-height:48px}
+.pzoff .i{width:18px;height:18px}.pzoff span{flex:1;text-align:left}.pzoff b{color:var(--ink)}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -589,7 +591,6 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
 
   <section id="tab-proyeccion" hidden>
     <h2 class="h2i" data-ic="trend" style="margin-top:4px">Compara rutas</h2>
-    <p class="note" style="margin-top:-4px">Cada escenario combina ingresos, ahorros y gastos al mes. Ajusta cada gasto al 100%, 50% (compartido) o 0% (eliminar) y mira cuál te deja más dinero.</p>
     <label class="f" style="max-width:220px">Proyectar a<select id="horizon" data-cx="num"><option value="3">3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option></select></label>
     <div class="lg" id="plg"></div>
     <div class="fig"><svg id="pchart" role="img" aria-label="Proyección del saldo por escenario"></svg></div>
@@ -616,7 +617,7 @@ h2.h2i>.i{width:34px!important;height:34px!important;padding:7px;border-radius:1
     <div class="zb"><ul class="list" id="fixList"></ul>
     <button class="btn full" style="margin-top:10px" data-act="fijo-new">+ Agregar gasto fijo</button></div>
     </details>
-    <p class="note" style="margin:4px 4px 0">Lo que entra y sale siempre. Cada vez que toque, en Inicio lo marcas con “Recibir” o “Pagar”.</p>
+    
   </section>
 </div>
 
@@ -704,7 +705,7 @@ function applyTheme(k){if(!THEMES[k])k="sol";curTheme=k;const [n,g1,g2,gk,tint]=
   const m=document.querySelector('meta[name=theme-color]');if(m)m.content=g1;try{localStorage.setItem("mf.tema",k)}catch(e){}
   if(typeof drawDaily==="function"){try{drawDaily()}catch(e){}}}
 const swatch=k=>`linear-gradient(135deg,${THEMES[k][1]},${THEMES[k][2]})`;
-function themePanel(){openPanel(`<h3>Colores de la app</h3><p class="note" style="margin-top:-6px">Elige una paleta. Se aplica al momento y se guarda en tu cuenta.</p><div class="th">${Object.keys(THEMES).map(k=>`<button data-act="theme" data-id="${k}" aria-pressed="${k===curTheme}"><i style="background:${swatch(k)}"></i><span>${THEMES[k][0]}${k===curTheme?"<b>✓ Activo</b>":""}</span></button>`).join("")}</div><button class="btn solid full" data-act="close">Listo</button>`)}
+function themePanel(){openPanel(`<h3>Colores de la app</h3><div class="th">${Object.keys(THEMES).map(k=>`<button data-act="theme" data-id="${k}" aria-pressed="${k===curTheme}"><i style="background:${swatch(k)}"></i><span>${THEMES[k][0]}${k===curTheme?"<b>✓ Activo</b>":""}</span></button>`).join("")}</div><button class="btn solid full" data-act="close">Listo</button>`)}
 try{applyTheme(localStorage.getItem("mf.tema")||"sol")}catch(e){applyTheme("sol")}
 const isCash=c=>!!c&&(c.tipo==="Efectivo"||/^efectivo$/i.test((c.banco||"").trim()));
 const ctaLabel=c=>c?(c.banco+(c.num?" ···"+c.num:"")+(c.nombre?" · "+c.nombre:"")):"";
@@ -987,7 +988,7 @@ function pmenuHTML(){const td=todayStr().slice(0,7),y=td.slice(0,4),cur=RG(),fir
   return `<h4>Elegir periodo</h4><div class="pchips">${P.map(([l,a,b])=>`<button data-act="per-set" data-id="${a}|${b}" aria-pressed="${cur.a===a&&cur.b===b}">${l}</button>`).join("")}</div>
   <h4>De un mes a otro</h4>${(()=>{const lo=first<shift(td,-36)?first:shift(td,-36),L=[];for(let m=lo<shift(td,-24)?lo:shift(td,-24);m<=shift(td,12);m=shift(m,1))L.push([m,mLabel(m)]);return `<div class="g2"><label class="f">Desde<select id="pDe">${opts(L,cur.a)}</select></label><label class="f">Hasta<select id="pHa">${opts(L,cur.b)}</select></label></div>`})()}
   <button class="btn solid full" data-act="per-custom">${ic("cal")}Ver ese periodo</button>
-  <p class="note" style="margin:10px 0 0">El periodo aplica a Historial y Resumen. Inicio y los pagos del mes muestran el último mes del periodo.</p>`}
+  `}
 function openPmenu(){closeUmenu();$("pmenu").innerHTML=pmenuHTML();$("pmenu").hidden=false;$("pmenuBg").hidden=false}
 function closePmenu(){$("pmenu").hidden=true;$("pmenuBg").hidden=true}
 function setPeriod(a,b){if(b<a)[a,b]=[b,a];closePmenu();if(a===b){pRange=null;month=a}else{pRange={a,b};month=b;if(tab==="inicio"||tab==="proyeccion"||tab==="cuentas"||tab==="fijos")show("resumen")}render();if(a!==b)toast("Viendo "+RGtext({a,b}))}
@@ -1028,17 +1029,20 @@ function render(){
   // inicio
   $("lgLabel").textContent="Disponible en "+mn;
   countUp($("lgTotal"),disp);$("lgTotal").className="big"+(disp<0?" neg":"");drawRing(H);drawSpark();
-  $("lgEq").textContent=`${fmt(H.tA)} en tus cuentas${H.extIn?" + "+fmt(H.extIn)+" recibido fuera de ellas":""}${H.extOut?" − "+fmt(H.extOut)+" gastado fuera de ellas":""}`;
+  $("lgEq").textContent="";$("lgEq").hidden=true;
   $("lgIng").textContent=fmt(H.rI);$("lgAh").textContent=fmt(H.tA);$("lgGas").textContent=fmt(H.gast);
   $("hojaT").textContent="Hoja de "+mn;$("hojaIc").innerHTML=ic("table");
   $("qa").innerHTML=`<button data-act="add-g">${bubI("minus","#e11d48")}Gasto</button><button data-act="add-i">${bubI("plus","#16a34a")}Ingreso</button><button data-act="fijo-new">${bubI("cal","#7c5cff")}Gasto fijo</button>`;$("hojaB").innerHTML=hojaHTML(month,H);
   const P=H.plan;
   if(P){const g=H.gast,u=P.gas?g/P.gas:0,ui=P.ing?H.rI/P.ing:0;
-    $("routeBox").innerHTML=`<div class="route"><span class="note h2i" style="gap:6px">${ic("trend")}Presupuesto de ${mn}</span><b style="display:block;font-size:17px">${esc(P.nombre)}</b><div class="bar"><b>Ingresos recibidos vs. plan</b><i>${fmt(H.rI)} de ${fmt(P.ing)}</i><div class="trk"><div style="background:var(--grn);width:${Math.min(ui,1)*100}%"></div></div></div><div class="bar"><b>Gastado vs. plan</b><i>${fmt(g)} de ${fmt(P.gas)}</i><div class="trk"><div class="${u>1?"over":""}" style="background:${u>1?"var(--red)":u>.85?"#f59e0b":"#2563eb"};width:${Math.min(u,1)*100}%"></div></div></div><span class="note">${u>1?"Te pasaste por "+fmt(g-P.gas):"Te quedan "+fmt(P.gas-g)+" del plan de gastos"}. Con los fijos pendientes llegarías a ${fmt(H.tF+H.tV)}${H.tF+H.tV>P.gas?" (sobre el plan)":""}.</span><div class="row2" style="margin-bottom:0"><button class="btn sm" data-act="presup-off" data-id="${month}">Quitar presupuesto</button></div></div>`}
-  else $("routeBox").innerHTML=S.escs.length?`<div class="route"><span class="note">Sin presupuesto para ${mn}</span><p class="note" style="margin:4px 0 8px">Tus escenarios no cuentan como reales hasta que apliques uno a este mes.</p><button class="btn sm" data-act="go-proy">${ic("trend")}Aplicar un escenario</button></div>`:"";
+    $("routeBox").innerHTML=`<div class="route pz"><div class="pzh">${ic("trend")}<b>${esc(P.nombre)}</b><button class="lnk" data-act="presup-off" data-id="${month}">Quitar</button></div>
+      <div class="pzg"><div><span>Ingresos</span><strong>${fmt0(H.rI)}<small> / ${fmt0(P.ing)}</small></strong><div class="trk"><div style="background:var(--grn);width:${Math.min(ui,1)*100}%"></div></div></div>
+      <div><span>Gastos</span><strong class="${u>1?"neg":""}">${fmt0(g)}<small> / ${fmt0(P.gas)}</small></strong><div class="trk"><div style="background:${u>1?"var(--red)":u>.85?"#f59e0b":"#2563eb"};width:${Math.min(u,1)*100}%"></div></div></div></div>
+      <em class="pzn ${u>1?"neg":""}">${u>1?"Te pasaste "+fmt0(g-P.gas):"Quedan "+fmt0(P.gas-g)+" del plan"}</em></div>`}
+  else $("routeBox").innerHTML=S.escs.length?`<button class="pzoff" data-act="go-proy">${ic("trend")}<span>Sin presupuesto en ${mn}</span><b>Aplicar ›</b></button>`:"";
   const all=S.items.slice().sort((x,y)=>(y.fecha+String(y.ts||0).padStart(15,"0")).localeCompare(x.fecha+String(x.ts||0).padStart(15,"0")));
   $("recent").innerHTML=all.length?all.slice(0,6).map(row).join(""):`<li class="empty">Aún no hay movimientos. Escanea tu primer ticket o registra tu ingreso.</li>`;
-  $("aiNote").textContent="La foto se lee en tu teléfono, no se envía a ningún lado. Revisa los datos antes de guardar.";
+  $("aiNote").textContent="";$("aiNote").hidden=true;
   // movimientos
   const q=norm($("q").value);
   const xs=aR.xs.filter(x=>!q||norm(x.lugar+" "+x.cat+" "+x.nota+" "+srcName(x)).includes(q)).sort((x,y)=>y.fecha.localeCompare(x.fecha)||(y.ts||0)-(x.ts||0));
@@ -1059,7 +1063,7 @@ function render(){
   $("rec").innerHTML=rec.length?rec.map(r=>`<li class="it" style="cursor:default">${bub(r.cat)}<span class="tx"><b>${esc(r.name)}</b><span>${r.n} veces · promedio ${fmt(r.t/r.n)}</span></span><span class="am">${fmt(r.t)}</span></li>`).join(""):`<li class="empty">Aparecen cuando visitas un lugar 2 veces o más en el periodo.</li>`;
   const mxI=Math.max(...PL.map(o=>Math.max(o.iR,o.iP)),1),mxG=Math.max(...PL.map(o=>Math.max(o.gR,o.gP)),1);
   const cell=(r,p,c,mx)=>`<span class="${c||""}${c==="sd"?(r<0?" neg":r>0?" pos":""):""}">${fmt(r)}${c==="ci"||c==="cg"?`<b class="mb" title="real vs plan"><i style="width:${Math.min(r/(p||mx),1)*100}%"></i></b>`:""}<small>plan ${fmt(p)}</small></span>`;
-  $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo</span></div>${PL.map(o=>`<div class="mxr"><span><b class="mo">${MES3(o.m)} ${o.m.slice(2,4)}</b></span>${cell(o.iR,o.iP,"ci",mxI)}${cell(o.gR,o.gP,"cg",mxG)}${cell(o.iR-o.gR,o.iP-o.gP,"sd")}</div>`).join("")}<div class="mxr tt"><span><b class="mo">Total</b></span>${cell(a2.ing,iPt,"ci",mxI)}${cell(a2.gas,gPt,"cg",mxG)}${cell(a2.ing-a2.gas,iPt-gPt,"sd")}</div><p class="note" style="margin:8px 0 0">Arriba lo real registrado; abajo el plan: el presupuesto aplicado a ese mes o, si no tiene, tus ingresos y gastos fijos programados.</p></div>`:"";
+  $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo</span></div>${PL.map(o=>`<div class="mxr"><span><b class="mo">${MES3(o.m)} ${o.m.slice(2,4)}</b></span>${cell(o.iR,o.iP,"ci",mxI)}${cell(o.gR,o.gP,"cg",mxG)}${cell(o.iR-o.gR,o.iP-o.gP,"sd")}</div>`).join("")}<div class="mxr tt"><span><b class="mo">Total</b></span>${cell(a2.ing,iPt,"ci",mxI)}${cell(a2.gas,gPt,"cg",mxG)}${cell(a2.ing-a2.gas,iPt-gPt,"sd")}</div><p class="note" style="margin:8px 0 0">Arriba lo real; abajo el plan.</p></div>`:"";
   const tips=insights(RR);
   $("tips").innerHTML=tips.length?tips.map(t=>`<div class="tip">${bubI("bulb","#ca8a04")}<div><b>${esc(t.t)}</b><p>${esc(t.d)}</p>${t.s>0?`<mark>Ahorro posible: ${fmt(t.s)}/mes</mark>`:""}</div></div>`).join(""):`<p class="empty">Registra gastos de ${RGtext(RR)} para ver sugerencias.</p>`;
   $("askAi").hidden=!sample||!a2.g.length;
@@ -1069,7 +1073,7 @@ function render(){
   $("plg").innerHTML=E.map((e,i)=>`<span><i style="background:${COLS[i%COLS.length]}"></i>${esc(e.nombre)}</span>`).join("");
   $("escList").innerHTML=E.length?E.map((e,i)=>{const c=calcs[i],ap=Object.entries(S.cfg.presup||{}).filter(([k,p])=>p.escId===e.id).map(([k])=>k).sort(),sel=ap.includes(todayStr().slice(0,7));return `<div class="esc${sel?" sel":""}"><h3><i style="background:${COLS[i%COLS.length]}"></i>${esc(e.nombre)} ${ap.map(k=>`<mark>Aplicado ${MES[+k.slice(5)-1].slice(0,3)} ${k.slice(2,4)}</mark>`).join(" ")} ${i===best&&E.length>1?"<mark>Mayor saldo</mark>":""}</h3>
     <div class="kp"><div><span>Ingresos/mes</span><strong>${fmt(c.ing)}</strong></div><div><span>Gastos/mes</span><strong>${fmt(c.gas)}</strong></div><div><span>Sobra cada mes</span><strong class="${c.neto<0?"neg":"pos"}">${fmt(c.neto)}</strong></div><div><span>En ${N} meses</span><strong class="${c.at(N)<0?"neg":""}">${fmt(c.at(N))}</strong></div></div>
-    <p class="note" style="margin:0 0 10px">${e.ahorros!==false?"Arranca con "+fmt(c.ah)+" de ahorros.":"Sin contar ahorros."} ${(e.lines||[]).filter(l=>l.t==="g"&&num(l.f)<1).length} gasto(s) compartidos o eliminados.</p>
+
     <div class="row2" style="margin:0"><button class="btn sm" data-act="esc-edit" data-id="${e.id}">Editar</button><button class="btn sm" data-act="esc-dup" data-id="${e.id}">Duplicar</button><button class="btn sm solid" data-act="esc-apply" data-id="${e.id}">${ic("cal")}Aplicar a un mes</button></div></div>`}).join(""):`<p class="empty">Aún no tienes escenarios. Toca “Crear desde mis datos” para armar el primero con tus fuentes de ingreso y tus gastos.</p>`;
   drawProy();
   // cuentas
@@ -1083,16 +1087,15 @@ function render(){
   const fm=fijosMes(month),pend=fm.filter(o=>!o.pago),pendT=pend.reduce((s,o)=>s+num(o.f.monto),0),fmT=fm.reduce((s,o)=>s+(o.pago?num(o.pago.monto):num(o.f.monto)),0),paidT=fmT-pendT,td=todayStr();
   if(!S.pend)S.pend=[];const PP=S.pend.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
   const NG=negCtas();$("negBox").innerHTML=NG.map(c=>`<button class="negb" data-act="just" data-id="${c.id}">${ic("alert")}<span><b>${esc(c.nombre||c.banco)} está en −${fmt(-ctaSaldo(c))}</b><em>Toca para justificar de dónde salió ese dinero</em></span><i>›</i></button>`).join("");
-  $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${fmt(PP.reduce((t,p)=>t+(p.tipo==="gasto"?num(p.monto):0),0))} en gastos</span></div><p class="note" style="margin:2px 0 4px">Alertas de tu banco. No cuentan hasta que completes el concepto.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
+  $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${fmt(PP.reduce((t,p)=>t+(p.tipo==="gasto"?num(p.monto):0),0))} en gastos</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
   $("incBox").innerHTML=S.fuentes.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("down")}Ingresos de ${mn}</h2><span class="note">Recibido ${fmt(H.rI)} de ${fmt(H.tI)}</span></div><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div>`:"";
-  $("lgAcc").innerHTML=S.cuentas.length?`<div class="lgah"><span>Disponible por cuenta</span><button data-act="m-tab" data-id="cuentas">Ver cuentas ›</button></div>`+S.cuentas.map(c=>{const sa=ctaSaldo(c),neg=sa<-.004,L=S.items.filter(x=>x.cuenta===c.id).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.ts||0)-(a.ts||0))[0];
-    const last=L?`Último: ${esc(L.lugar||L.cat||"Movimiento")} ${sgn(L)>0?"+":"−"}${fmt(num(L.monto))} · ${+L.fecha.slice(8)} ${MES[+L.fecha.slice(5,7)-1].slice(0,3)}`:`Sin movimientos desde ${c.fecha?dShort(c.fecha):"el inicio"}`;
-    return `<button class="lga${neg?" neg":""}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgai">${ic(isCash(c)?"wallet":"bank")}</span><span class="lgat"><b>${esc(c.nombre||c.banco)}${c.incluir===false?' <i>no suma</i>':""}</b><em>${esc(c.banco)}${c.num?" ···"+esc(c.num):""}${c.tipo&&c.tipo!==c.banco?" · "+esc(c.tipo):""}</em><small>${neg?"Toca para justificar el faltante":last}</small></span><strong>${fmt(sa)}</strong></button>`}).join(""):"";
+  $("lgAcc").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),neg=sa<-.004,L=S.items.filter(x=>x.cuenta===c.id).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.ts||0)-(a.ts||0))[0];
+    return `<button class="lga${neg?" neg":""}${c.incluir===false?" off":""}" data-act="${neg?"just":"acc-edit"}" data-id="${c.id}"><span class="lgan">${ic(isCash(c)?"wallet":"bank")}<b>${esc(c.nombre||c.banco)}</b></span><strong>${fmt(sa)}</strong><small>${neg?"Justificar":L?`${sgn(L)>0?"+":"−"}${fmt0(num(L.monto))} ${esc(L.lugar||L.cat||"")}`:esc(c.banco)+(c.num?" ··"+esc(c.num):"")}</small></button>`}).join(""):"";
   $("lgFree").innerHTML=`<div>Por recibir<b>${fmt(H.tI-H.rI)}</b></div><div>Fijos por pagar<b>${fmt(H.tF-H.pF)}</b></div><div>Fin de mes<b class="${H.proy<0?"neg":""}">${fmt(H.proy)}</b></div>`;
   $("fixBox").innerHTML=S.fijos.length?`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos de ${mn}</h2><span class="note">Pagado ${fmt(paidT)} de ${fmt(fmT)}</span></div><ul class="list">${fm.length?fm.map(o=>{const late=!o.pago&&o.venc<td;return `<li><div class="it">${bub(o.f.cat)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.pago?chip("ok","Pagado"):late?chip("late","Vencido"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.pago?num(o.pago.monto):num(o.f.monto))}</span>${o.pago?`<button class="paid" data-act="edit-item" data-id="${esc(o.pago.id)}" aria-label="Ver pago">${ic("check")}</button>`:`<button class="pay" data-act="fijo-pay" data-id="${o.f.id}|${o.venc}">${ic("check")}Pagar</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún gasto fijo toca este mes.</li>`}</ul></div>`
-    :`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos</h2></div><p class="note" style="margin:6px 0 10px">Agrega lo que pagas siempre (alquiler, colegio, préstamos, seguros) para saber cuánto de tu dinero ya está comprometido.</p><button class="btn sm" style="margin-bottom:8px" data-act="fijo-new">${ic("plus")}Agregar gasto fijo</button></div>`;
+    :`<div class="fx"><div class="fxh"><h2 class="h2i">${ic("cal")}Pagos fijos</h2></div><p class="note" style="margin:6px 0 10px">Alquiler, colegio, préstamos, seguros…</p><button class="btn sm" style="margin-bottom:8px" data-act="fijo-new">${ic("plus")}Agregar gasto fijo</button></div>`;
   {const ng=negCtas().length;
    $("ahCnt").innerHTML=S.cuentas.length+" cuenta(s)"+(ng?` · <u>${ng} por justificar</u>`:"");
    $("fCnt").textContent=S.fuentes.length?S.fuentes.length+" ingreso(s) · al mes":"Ninguno todavía";
@@ -1257,7 +1260,7 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
   <label class="f">Nombre de la cuenta<input id="cNombre" value="${esc(c.nombre)}" placeholder="Ej. Ahorro para emergencias"></label>
   <div class="g2"><label class="f">Saldo base (USD)<input id="cSaldo" class="amt" inputmode="decimal" value="${c.saldo!=null?num(c.saldo).toFixed(2):""}" placeholder="0.00"></label><label class="f">Al día<input id="cFecha" type="date" value="${esc(c.fecha||todayStr())}"></label></div>
   <label class="ck"><input type="checkbox" id="cInc"${c.incluir!==false?" checked":""}> Sumar este ahorro a mi dinero disponible</label>
-  <div class="sec" style="margin-top:6px"><h4>${ic("card")}Tarjetas ligadas a esta cuenta</h4><p class="note" style="margin:0 0 4px">La tarjeta tiene otro número que la cuenta. Ligarlas hace que las alertas de la tarjeta caigan en esta cuenta.</p><div class="cards" id="accCards"></div>
+  <div class="sec" style="margin-top:6px"><h4>${ic("card")}Tarjetas ligadas a esta cuenta</h4><p class="note" style="margin:0 0 4px">Las compras con estas tarjetas se descuentan de esta cuenta.</p><div class="cards" id="accCards"></div>
   <div class="g2"><label class="f">Últimos 4 de la tarjeta<input id="cTnum" inputmode="numeric" maxlength="4" placeholder="Ej. 5678"></label><label class="f">Tipo<select id="cTtipo">${opts(["Débito","Crédito"],"Débito")}</select></label></div>
   <button class="btn sm" data-act="acc-card-add">${ic("plus")}Ligar tarjeta</button></div>
   <p class="note">Por seguridad guarda solo los últimos 4 dígitos, nunca el número completo.</p>
@@ -1269,7 +1272,7 @@ function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"
   <div class="g2"><label class="f">Monto por pago (USD)<input id="sMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Desde (primer pago)<input id="sIni" type="date" value="${esc(f.inicio||todayStr())}"></label></div>
   <label class="f">Hasta (opcional, vacío = sin fin)<input id="sFin" type="date" value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="sIni|sFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se deposita en<select id="sCta" data-cx="cta">${ctaOpts(S.cuentas,f.cuenta!=null?f.cuenta:((S.cuentas.find(c=>!isCash(c))||S.cuentas[0]||{}).id||""),"Sin cuenta / en efectivo")}</select></label>
-  <p class="note">Quincenal usa ese día y 15 días después. “Variable” no se agenda: registras cada ingreso cuando llegue.</p>
+  
   <label class="ck"><input type="checkbox" id="sAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
   <label class="f">Contacto o nota<input id="sNota" value="${esc(f.nota)}" placeholder="Ej. llega por Western Union, paga el 15 y 30"></label>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="src-save" data-id="${f.id||""}">Guardar</button></div>
@@ -1283,7 +1286,7 @@ function fijoForm(f){f=f||{freq:"mensual",inicio:todayStr(),cat:"Vivienda",activ
   <label class="f">Se paga desde<select id="xCta" data-cx="cta" data-v="${esc(f.cuenta||"")}">${ctaOpts(S.cuentas,f.cuenta,"Sin especificar")}</select></label>
   <label class="f">Nota<input id="xNota" value="${esc(f.nota)}" placeholder="Ej. débito automático, NPE, contrato"></label>
   <label class="ck"><input type="checkbox" id="xAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
-  <p class="note">La fecha marca el día de pago: quincenal usa ese día y 15 días después; anual, trimestral, etc. repiten desde ese mes.</p>
+  
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="fijo-save" data-id="${f.id||""}">Guardar</button></div>
   ${f.id?`<button class="btn danger full" style="margin-top:10px" data-act="fijo-del" data-id="${f.id}">Eliminar gasto fijo</button>`:""}`)}
 
@@ -1303,7 +1306,7 @@ function escEditor(){
   openPanel(`<h3>${d._new?"Nuevo escenario":"Editar escenario"}</h3>
   <label class="f">Nombre<input id="eNombre" value="${esc(d.nombre)}" placeholder="Ej. Compartir gastos"></label>
   <label class="ck"><input type="checkbox" id="eAh"${d.ahorros!==false?" checked":""}> Sumar mis ahorros (${fmt(ahInc())})</label>
-  <p class="note" style="margin:0 0 8px">Montos al mes. % = cuánto pagas tú: 100% todo, 50% compartido, 0% eliminado.</p>
+  <p class="note" style="margin:0 0 8px">Montos al mes · % = lo que pagas tú.</p>
   <h3 style="font-size:16px;margin:14px 0 8px">Ingresos</h3>${L.map((l,i)=>l.t==="i"?lnRow(l,i):"").join("")}<button class="btn sm" data-act="ln-add" data-id="i">+ Ingreso</button>
   <h3 style="font-size:16px;margin:18px 0 8px">Gastos</h3>${L.map((l,i)=>l.t==="g"?lnRow(l,i):"").join("")}<div class="row2" style="margin:0"><button class="btn sm" data-act="ln-add" data-id="g">+ Gasto</button>${S.fijos.length?`<button class="btn sm" data-act="ln-fijos">+ Mis gastos fijos</button>`:""}</div>
   <div class="tot" id="eTot"></div>
@@ -1369,7 +1372,7 @@ function obRender(){
     <label class="f">Banco o institución<input id="obBanco" list="dlBancos" placeholder="Ej. Banco Agrícola o Efectivo" value="${esc(e.banco||"")}"></label>
     <div class="g2"><label class="f">Tipo<select id="obTipo" data-cx="tipoC" data-v="${esc(e.tipo||"")}">${opts(listOf("tipoC"),e.tipo)}</select></label><label class="f">Últimos 4 dígitos<input id="obNum" inputmode="numeric" maxlength="4" placeholder="Ej. 4417" value="${esc(e.num||"")}"></label></div>
     <div class="g2"><label class="f">Saldo (USD)<input id="obSaldo" inputmode="decimal" placeholder="0.00" value="${e.saldo!=null?num(e.saldo).toFixed(2):""}"></label><label class="f">Nombre de la cuenta<input id="obCta" placeholder="Opcional" value="${esc(e.nombre||"")}"></label></div>
-    <p class="note" style="margin:-4px 0 8px">Solo los últimos 4 dígitos, nunca el número completo. En efectivo no hace falta.</p>
+    <p class="note" style="margin:-4px 0 8px">Solo los últimos 4.</p>
     <label class="ck"><input type="checkbox" id="obInc"${e.incluir!==false?" checked":""}> Sumar a mi dinero disponible</label>
     ${saveBtn("c","Agregar esta cuenta")}</div>
     <div class="g2" style="margin-top:22px"><button class="btn full" data-act="ob-back">Atrás</button><button class="btn solid full" data-act="ob-next">${ob.cuentas.length?"Siguiente":"No tengo / después"}</button></div>`}
@@ -1459,10 +1462,10 @@ const ACT={
   "esc-edit":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;draft=clone(e);escEditor()},
   "esc-dup":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;const c=clone(e);c.id=nid("e");c.nombre=e.nombre+" (copia)";S.escs.push(c);saveMeta("escs");toast("Escenario duplicado")},
   "esc-apply":id=>{const e=S.escs.find(x=>x.id===id);if(!e)return;const c=calc(e),P=S.cfg.presup||{},m0=todayStr().slice(0,7),ms=Array.from({length:13},(_,k)=>shift(m0,k-1));
-    openPanel(`<h3>Aplicar “${esc(e.nombre)}”</h3><p class="note">Sus montos quedan como el <b>presupuesto</b> del mes que elijas y se comparan contra lo real. No se registra ningún movimiento.</p>
+    openPanel(`<h3>Aplicar “${esc(e.nombre)}”</h3>
     <div class="kp" style="margin:10px 0 14px"><div><span>Ingresos plan</span><strong>${fmt(c.ing)}</strong></div><div><span>Gastos plan</span><strong>${fmt(c.gas)}</strong></div></div>
-    <label class="f">¿En qué mes se aplica?<select id="apM" data-cx="mes">${ms.map(m=>`<option value="${m}"${m===(month<m0?m0:month)?" selected":""}>${mLabel(m)}${P[m]?" · ya tiene: "+esc(P[m].nombre):""}</option>`).join("")}</select></label>
-    <p class="note">Si el mes ya tiene presupuesto, se reemplaza. Si luego editas el escenario, vuelve a aplicarlo para actualizar el mes.</p>
+    <label class="f">Mes<select id="apM" data-cx="mes">${ms.map(m=>`<option value="${m}"${m===(month<m0?m0:month)?" selected":""}>${mLabel(m)}${P[m]?" · ya tiene: "+esc(P[m].nombre):""}</option>`).join("")}</select></label>
+
     <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="apply-ok" data-id="${e.id}">Aplicar</button></div>`)},
   "apply-ok":id=>{const e=S.escs.find(x=>x.id===id),m=v("apM");if(!e||!m)return;const c=calc(e);S.cfg.presup=S.cfg.presup||{};
     S.cfg.presup[m]={escId:e.id,nombre:e.nombre,ing:Math.round(c.ing*100)/100,gas:Math.round(c.gas*100)/100,lines:(e.lines||[]).map(l=>({t:l.t,n:l.n,m:Math.round(num(l.m)*num(l.f)*100)/100})),aplicado:todayStr()};
@@ -1807,7 +1810,7 @@ async function alertPanel(via,paso){
     ${(S.cfg.alertOk||{})[via]?`<div class="alok">${ic("check")}<b>¡Conectado!</b><span>Ya recibimos alertas por esta vía.</span></div>`:`<div class="alwait" id="alWait"><i></i><span>Se pondrá en verde con tu próxima alerta del banco.</span></div>`}
     <button class="btn solid full" data-act="close" style="margin-top:10px">Listo</button>`);alWait(via);return}
 }
-function pastePanel(){openPanel(`<h3>Pegar alerta del banco</h3><p class="note" style="margin-top:-6px">Copia el SMS o el correo de tu banco y pégalo aquí. Leemos el monto, la tarjeta o cuenta, el comercio y la fecha.</p>
+function pastePanel(){openPanel(`<h3>Pegar alerta del banco</h3><p class="note" style="margin-top:-6px">Pega el SMS o correo del banco.</p>
   <textarea class="ta" id="paTxt" placeholder="Ej. BAC: Compra aprobada en SUPER SELECTOS por USD 23.55 con tarjeta ****1234 el 23/11/2026"></textarea>
   <div class="g2" style="margin-top:10px"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="paste-read">${ic("check")}Leer alerta</button></div>`);setTimeout(()=>{const e=$("paTxt");if(e)e.focus()},80)}
 
