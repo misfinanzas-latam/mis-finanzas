@@ -568,6 +568,7 @@ section{padding-left:0}
 /* encabezado más abajo, fuera del difuminado del iPhone */
 .top{padding-top:calc(22px + env(safe-area-inset-top))!important}
 #umenu{top:calc(84px + env(safe-area-inset-top))!important}#pmenu{top:calc(80px + env(safe-area-inset-top))!important}
+.qa{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}.qa button{font-size:13px!important;padding-left:2px!important;padding-right:2px!important;min-width:0}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -645,7 +646,7 @@ section{padding-left:0}
     <details class="zone" data-z="ah" style="--zc:#0ea5e9">
     <summary><span class="zic" data-ic="piggy"></span><span class="zt"><b>Mis ahorros</b><em><span id="ahCnt"></span></em></span><strong class="ztot" id="ahTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
     <div class="zb"><ul class="list zlist" id="accList"></ul>
-    <button class="btn full" style="margin-top:10px" data-act="acc-new">+ Agregar cuenta o banco</button></div>
+    <div class="g2" style="margin-top:10px"><button class="btn full" data-act="trf">⇄ Transferir</button><button class="btn full" data-act="acc-new">+ Agregar cuenta</button></div></div>
     </details>
 
   </section>
@@ -1055,7 +1056,14 @@ function justPanel(cid){const c=S.cuentas.find(x=>x.id===cid);if(!c)return;const
   <button class="jopt" data-act="just-aj" data-id="${cid}|Me prestaron"><b>Me prestaron</b><span>Queda anotado como préstamo</span></button></div>
   <label class="f" style="margin-top:12px">Otro motivo (escríbelo)<input id="jMot" placeholder="Ej. vuelto de mi hermano"></label>
   <div class="g2"><button class="btn full" data-act="close">Después</button><button class="btn solid full" data-act="just-aj" data-id="${cid}|">${ic("check")}Guardar motivo</button></div>`)}
-function addAj(cid,monto,aj,lugar,nota){const it={id:nid("j"),tipo:"ajuste",aj,cuenta:cid,monto:Math.round(monto*100)/100,lugar,fecha:todayStr(),cat:"Ajuste",nota:nota||"",ts:Date.now()};putItem(it);return it}
+function addAj(cid,monto,aj,lugar,nota,fecha){const it={id:nid("j"),tipo:"ajuste",aj,cuenta:cid,monto:Math.round(monto*100)/100,lugar,fecha:fecha||todayStr(),cat:"Ajuste",nota:nota||"",ts:Date.now()};putItem(it);return it}
+
+function trfPanel(from){if(S.cuentas.length<2){toast("Necesitas al menos 2 cuentas");return}const o=S.cuentas.map(c=>[c.id,(c.nombre||c.banco)+" · "+fmt(ctaSaldo(c))]),to=(S.cuentas.find(c=>c.id!==from)||S.cuentas[1]).id;
+  openPanel(`<h3>Transferir entre cuentas</h3>
+  <div class="g2"><label class="f">Desde<select id="tDe">${opts(o,from||S.cuentas[0].id)}</select></label><label class="f">Hacia<select id="tA">${opts(o,from?to:S.cuentas[1].id)}</select></label></div>
+  <div class="g2"><label class="f">Monto<input id="tM" class="amt" inputmode="decimal" placeholder="0.00"></label><label class="f">Fecha<input id="tF" type="date" value="${todayStr()}"></label></div>
+  <label class="f">Nota (opcional)<input id="tN" placeholder="Ej. retiro en cajero"></label>
+  <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="trf-save">${ic("swap")}Transferir</button></div>`);setTimeout(()=>{const e=$("tM");if(e)e.focus()},250)}
 
 // ---------- periodo
 function pmenuHTML(){const td=todayStr().slice(0,7),y=td.slice(0,4),cur=RG(),first=S.items.reduce((m,x)=>x.fecha&&x.fecha.slice(0,7)<m?x.fecha.slice(0,7):m,td);
@@ -1108,7 +1116,7 @@ function render0(){
   $("lgEq").textContent="";$("lgEq").hidden=true;
   $("lgIng").textContent=fmt(H.rI);$("lgAh").textContent=fmt(H.tA);$("lgGas").textContent=fmt(H.gast);
   $("hojaT").textContent="Hoja de "+mn;$("hojaIc").innerHTML=ic("table");
-  $("qa").innerHTML=`<button data-act="add-g">${bubI("minus","#e11d48")}Gasto</button><button data-act="add-i">${bubI("plus","#16a34a")}Ingreso</button><button data-act="fijo-new">${bubI("cal","#7c5cff")}Gasto fijo</button>`;$("hojaB").innerHTML=hojaHTML(month,H);
+  $("qa").innerHTML=`<button data-act="add-g">${bubI("minus","#e11d48")}Gasto</button><button data-act="add-i">${bubI("plus","#16a34a")}Ingreso</button><button data-act="fijo-new">${bubI("cal","#7c5cff")}Gasto fijo</button><button data-act="trf">${bubI("swap","#0ea5e9")}Transferir</button>`;$("hojaB").innerHTML=hojaHTML(month,H);
   const P=H.plan;
   if(P){const g=H.gast,u=P.gas?g/P.gas:0,ui=P.ing?H.rI/P.ing:0;
     $("routeBox").innerHTML=`<div class="route pz"><div class="pzh">${ic("trend")}<b>${esc(P.nombre)}</b><button class="lnk" data-act="presup-off" data-id="${month}">Quitar</button></div>
@@ -1962,6 +1970,9 @@ Object.assign(ACT,{
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
   dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
   "just":id=>justPanel(id),
+  trf:id=>trfPanel(id||""),
+  "trf-save":()=>{const a=v("tDe"),b=v("tA"),m=num(v("tM")),f=v("tF")||todayStr(),n=v("tN").trim();if(a===b){toast("Elige dos cuentas distintas");return}if(!(m>0)){toast("Escribe el monto");$("tM").focus();return}
+    const A=S.cuentas.find(x=>x.id===a),B=S.cuentas.find(x=>x.id===b);addAj(a,m,-1,"Transferencia a "+(B.nombre||B.banco),n,f);addAj(b,m,1,"Transferencia desde "+(A.nombre||A.banco),n,f);closePanel();toast(fmt(m)+" de "+(A.nombre||A.banco)+" a "+(B.nombre||B.banco));if(ctaSaldo(A)<-.004)setTimeout(()=>justPanel(a),700)},
   zone:k=>{if(k!=="ah"&&tab!=="fijos")show("fijos");const z=document.querySelector(`.zone[data-z="${k}"]`);if(z){z.open=true}if(z)z.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})},
   "just-mv":k=>{const [a,b]=k.split("|"),m=num(v("jMonto"));if(!(m>0)){toast("Escribe el monto");return}const A=S.cuentas.find(x=>x.id===a),B=S.cuentas.find(x=>x.id===b);
     addAj(b,m,-1,"Traslado a "+(A.nombre||A.banco),"Para completar un pago");addAj(a,m,1,"Traslado desde "+(B.nombre||B.banco),"Para completar un pago");closePanel();toast("Listo: "+fmt(m)+" salió de "+(B.nombre||B.banco))},
