@@ -824,6 +824,7 @@ const ctaLabel=c=>c?(c.banco+(c.num?" ···"+c.num:"")+(c.nombre?" · "+c.nombr
 const ctaShort=(id,list)=>{const c=(list||S.cuentas).find(x=>x.id===id);return c?(c.banco+(c.num?" ···"+c.num:"")):(id||"sin cuenta")};
 const ctaOpts=(list,sel,empty)=>[...list].sort((a,b)=>(b.sys?1:0)-(a.sys?1:0)).map(c=>`<option value="${c.id}"${c.id===sel?" selected":""}>${esc(ctaLabel(c))}</option>`).join("")+(empty==null?"":`<option value=""${sel===""&&list.length?"":" "}>${esc(empty)}</option>`);
 const sgn=x=>x.tipo==="ingreso"?1:x.tipo==="ajuste"?(x.aj<0?-1:1):-1;
+function ctaMovTxt(c){const L=S.items.filter(x=>x.cuenta===c.id&&(c.ts?(x.ts||0)>c.ts:x.fecha>=(c.fecha||"")));if(!L.length)return "· sin movimientos";const t=L.reduce((a,x)=>a+sgn(x)*num(x.monto),0);return "· "+L.length+" movimiento"+(L.length>1?"s":"")+" "+(t<0?"−":"+")+fmt(Math.abs(t))}
 function ctaSaldo(c){return num(c.saldo)+S.items.filter(x=>x.cuenta===c.id&&(c.ts?(x.ts||0)>c.ts:x.fecha>=(c.fecha||""))).reduce((t,x)=>t+sgn(x)*num(x.monto),0)}
 const bub=(c,sm)=>{const [n,col]=catI(c);return `<span class="bub${sm?" sm":""}" style="--c:${col}">${ic(n)}</span>`};
 const bubI=(n,col,cls)=>`<span class="bub ${cls||""}" style="--c:${col}">${ic(n)}</span>`;
@@ -1509,7 +1510,7 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
   <label class="f">Banco o institución<input id="cBanco" list="dlBancos" value="${esc(c.banco)}" placeholder="Ej. Banco Agrícola"></label>
   <div class="g2"><label class="f">Tipo<select id="cTipo" data-cx="tipoC" data-v="${esc(c.tipo||"")}">${opts(listOf("tipoC"),c.tipo)}</select></label><label class="f">Últimos 4 dígitos<input id="cNum" inputmode="numeric" maxlength="4" value="${esc(c.num)}" placeholder="Ej. 4417"></label></div>
   <label class="f">Nombre de la cuenta<input id="cNombre" value="${esc(c.nombre)}" placeholder="Ej. Ahorro para emergencias"></label>
-  <div class="g2"><label class="f">Saldo base (USD)<input id="cSaldo" class="amt" inputmode="decimal" value="${c.saldo!=null?num(c.saldo).toFixed(2):""}" placeholder="0.00"></label><label class="f">Al día<input id="cFecha" type="date" value="${esc(c.fecha||todayStr())}"></label></div>
+  ${c.id?`<label class="f">Saldo actual (USD)<input id="cSaldo" class="amt" inputmode="decimal" value="${ctaSaldo(c).toFixed(2)}"></label><p class="note" style="margin:-4px 0 8px">Inicial ${fmt(num(c.saldo))} (${dShort(c.fecha||todayStr())}) ${ctaMovTxt(c)}. Si lo cambias se guarda un ajuste por la diferencia.</p>`:`<div class="g2"><label class="f">Saldo actual (USD)<input id="cSaldo" class="amt" inputmode="decimal" placeholder="0.00"></label><label class="f">Al día<input id="cFecha" type="date" value="${todayStr()}"></label></div>`}
   <label class="ck"><input type="checkbox" id="cInc"${c.incluir!==false?" checked":""}> Sumar este ahorro a mi dinero disponible</label>
   <div class="sec" style="margin-top:6px"><h4>${ic("card")}Tarjetas ligadas a esta cuenta</h4><p class="note" style="margin:0 0 4px">Las compras con estas tarjetas se descuentan de esta cuenta.</p><div class="cards" id="accCards"></div>
   <div class="g2"><label class="f">Últimos 4 de la tarjeta<input id="cTnum" inputmode="numeric" maxlength="4" placeholder="Ej. 5678"></label><label class="f">Tipo<select id="cTtipo">${opts(["Débito","Crédito"],"Débito")}</select></label></div>
@@ -1700,7 +1701,11 @@ const ACT={
   "acc-save":id=>{const b=v("cBanco");if(!b){toast("Escribe el banco o institución");return}if(!isCash({banco:b,tipo:v("cTipo")})&&v("cNum").replace(/\D/g,"").length!==4){toast("Escribe los últimos 4 dígitos");$("cNum").focus();return}
     const c={id:id||nid("c"),banco:b,tipo:v("cTipo"),num:v("cNum").replace(/\D/g,"").slice(-4),nombre:v("cNombre"),saldo:Math.round(num(v("cSaldo"))*100)/100,fecha:v("cFecha")||todayStr(),incluir:$("cInc").checked,tarjetas:clone(accCards)};
     {const d=v("cTnum").replace(/\D/g,"");if(d.length===4&&!c.tarjetas.some(t=>t.d===d))c.tarjetas.push({d,tipo:v("cTtipo")})}
-    const i=S.cuentas.findIndex(x=>x.id===c.id),pv=i>=0?S.cuentas[i]:null;c.ts=pv&&pv.ts&&num(pv.saldo)===c.saldo&&pv.fecha===c.fecha?pv.ts:Date.now();if(i>=0)S.cuentas[i]=c;else S.cuentas.push(c);closePanel();saveMeta("cuentas");toast("Cuenta guardada")},
+    const i=S.cuentas.findIndex(x=>x.id===c.id),pv=i>=0?S.cuentas[i]:null;let dif=0;
+    if(pv){const act=Math.round(ctaSaldo(pv)*100)/100;dif=Math.round((c.saldo-act)*100)/100;c.saldo=num(pv.saldo);c.fecha=pv.fecha;c.ts=pv.ts;if(pv.sys)c.sys=true}else c.ts=Date.now();
+    if(i>=0)S.cuentas[i]=c;else S.cuentas.push(c);
+    if(Math.abs(dif)>=.005)addAj(c.id,Math.abs(dif),dif>0?1:-1,"Ajuste de saldo","Corrección manual del saldo");
+    closePanel();saveMeta("cuentas");render();toast(Math.abs(dif)>=.005?"Saldo corregido con un ajuste de "+fmt(dif):"Cuenta guardada")},
   "acc-del":(id,b)=>{if(!confirmBtn(b,"Toca otra vez para eliminar"))return;S.cuentas=S.cuentas.filter(c=>c.id!==id);if(S===R)R.cuentas=S.cuentas;closePanel();saveMeta("cuentas")},
   "src-new":()=>srcForm(),
   "src-edit":id=>srcForm(S.fuentes.find(f=>f.id===id)),
