@@ -560,6 +560,11 @@ ul.zlist{gap:12px}ul.zlist>li.zi{list-style:none}
 .lga{padding-right:14px!important}
 @media(max-width:380px){.lga strong{font-size:13px!important}}
 section{padding-left:0}
+/* ---- encabezado nítido ---- */
+.top{background:linear-gradient(to bottom,var(--tint) 0%,var(--tint) 62%,color-mix(in srgb,var(--tint) 0%,transparent) 100%)!important;padding-bottom:18px!important}
+:root[data-theme=dark] .top{background:linear-gradient(to bottom,#121211 0%,#121211 62%,rgb(18 18 17/0) 100%)!important}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .top{background:linear-gradient(to bottom,#121211 0%,#121211 62%,rgb(18 18 17/0) 100%)!important}}
+.top h1,.mnav,.eyeb{background:var(--card)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -584,7 +589,6 @@ section{padding-left:0}
     </div>
     </div>
     <div id="routeBox" data-k="presu"></div>
-    <div data-k="scan"><label class="cap" for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="4"/></svg>Escanear ticket</label></div>
     <div data-k="qa"><div class="qa" id="qa"></div></div>
     <div data-k="clip"><button class="clipb" data-act="clip"><span class="clipi" data-ic="copy"></span><span><b>Pegar alerta del banco</b><em>Copia el SMS o correo y toca aquí</em></span><i>›</i></button></div>
     <div id="incBox" data-k="inc"></div>
@@ -1175,7 +1179,7 @@ function render0(){
 }
 
 function show(t){
-  tab=t;$("fab").hidden=t==="inicio";{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
+  tab=t;$("fab").hidden=false;{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
   requestAnimationFrame(()=>{drawDaily();drawProy()});window.scrollTo(0,0);
