@@ -559,6 +559,7 @@ ul.zlist{gap:12px}ul.zlist>li.zi{list-style:none}
 .lga strong{font-size:14px!important}
 .lga{padding-right:14px!important}
 @media(max-width:380px){.lga strong{font-size:13px!important}}
+.avh{display:flex;gap:10px;align-items:center;margin-bottom:8px}.avh b{display:block;font-size:17px}.avh small{color:var(--mut,#64748b)}.avh .bkic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--tint,#eef2ff)}.avs{display:flex;justify-content:space-between;align-items:baseline;padding:10px 12px;border-radius:14px;background:rgb(127 127 127/.08)}.avs strong{font-size:24px;font-variant-numeric:tabular-nums}
 .lga strong.sm{font-size:12px!important}
 section{padding-left:0}
 /* ---- encabezado nítido ---- */
@@ -1506,6 +1507,17 @@ document.addEventListener("change",e=>{const s=e.target;if(s.matches&&s.matches(
 const confirmBtn=(b,label)=>{if(b.dataset.armed){return true}b.dataset.armed=1;const t=b.textContent;b.textContent=label;setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=t}},4000);return false};
 
 function accCardsRender(){const el=$("accCards");if(el)el.innerHTML=accCards.length?accCards.map((t,i)=>`<span>···${esc(t.d)} · ${esc(t.tipo)}<button data-act="acc-card-del" data-id="${i}" aria-label="Quitar">×</button></span>`).join(""):`<span class="note" style="background:none;padding:0">Ninguna todavía</span>`}
+function accView(id){const c=S.cuentas.find(x=>x.id===id);if(!c)return;const sa=ctaSaldo(c);
+  const L=S.items.filter(x=>x.cuenta===c.id&&(c.ts?(x.ts||0)>c.ts:x.fecha>=(c.fecha||""))).sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")||(a.ts||0)-(b.ts||0));
+  let run=num(c.saldo);const rows=L.map(x=>{const d=sgn(x)*num(x.monto);run+=d;const aj=x.tipo==="ajuste",ing=x.tipo==="ingreso";
+    return `<li><button class="it" data-act="${aj?"aj-item":"edit-item"}" data-id="${esc(x.id)}">${aj?bubI("swap","#64748b"):bub(x.cat)}<span class="tx"><b>${esc(aj?(x.lugar||"Ajuste"):ing?srcName(x):(x.lugar||"Sin nombre"))}</b><span>${dShort(x.fecha)} · ${esc(aj?"Ajuste":x.cat||"")}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am ${d>=0?"pos":""}">${d>=0?"+":"−"}${fmt(Math.abs(d))}<small>Saldo ${fmt(run)}</small></span></button></li>`}).reverse();
+  openPanel(`<div class="avh"><span class="bkic">${ic(isCash(c)?"wallet":"bank")}</span><div><b>${esc(c.nombre||c.banco)}</b><small>${esc(c.banco)}${c.num?" · •••• "+esc(c.num):""}</small></div></div>
+  <div class="avs"><span>Saldo actual</span><strong class="${sa<-.004?"neg":""}">${fmt(sa)}</strong></div>
+  <div class="g2" style="margin:10px 0"><button class="btn sm full" data-act="trf" data-id="${c.id}">${ic("swap")}Transferir</button><button class="btn sm full" data-act="acc-form" data-id="${c.id}">${ic("edit")}Editar cuenta</button></div>
+  <h4 style="margin:6px 0">Movimientos <small class="note">(${L.length})</small></h4>
+  <ul class="list">${rows.join("")}<li><div class="it">${bubI("pin","#94a3b8")}<span class="tx"><b>Saldo inicial</b><span>${dShort(c.fecha||todayStr())}</span></span><span class="am">${fmt(num(c.saldo))}</span></div></li></ul>
+  ${sa<-.004?`<button class="btn yel full" data-act="just" data-id="${c.id}" style="margin-top:10px">Justificar −${fmt(-sa)}</button>`:""}
+  <button class="btn full" data-act="close" style="margin-top:10px">Cerrar</button>`)}
 function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas||[]);setTimeout(accCardsRender,0);openPanel(`<h3>${c.id?"Editar cuenta":"Nueva cuenta de ahorro"}</h3>
   <label class="f">Banco o institución<input id="cBanco" list="dlBancos" value="${esc(c.banco)}" placeholder="Ej. Banco Agrícola"></label>
   <div class="g2"><label class="f">Tipo<select id="cTipo" data-cx="tipoC" data-v="${esc(c.tipo||"")}">${opts(listOf("tipoC"),c.tipo)}</select></label><label class="f">Últimos 4 dígitos<input id="cNum" inputmode="numeric" maxlength="4" value="${esc(c.num)}" placeholder="Ej. 4417"></label></div>
@@ -1697,7 +1709,8 @@ const ACT={
     try{await navigator.clipboard.writeText(csv);toast("CSV copiado: pégalo en Excel o Notas")}catch(e){toast("No se pudo copiar")}},
   ai:()=>askAi(),
   "acc-new":()=>accForm(),
-  "acc-edit":id=>accForm(S.cuentas.find(c=>c.id===id)),
+  "acc-edit":id=>accView(id),
+  "acc-form":id=>accForm(S.cuentas.find(c=>c.id===id)),
   "acc-save":id=>{const b=v("cBanco");if(!b){toast("Escribe el banco o institución");return}if(!isCash({banco:b,tipo:v("cTipo")})&&v("cNum").replace(/\D/g,"").length!==4){toast("Escribe los últimos 4 dígitos");$("cNum").focus();return}
     const c={id:id||nid("c"),banco:b,tipo:v("cTipo"),num:v("cNum").replace(/\D/g,"").slice(-4),nombre:v("cNombre"),saldo:Math.round(num(v("cSaldo"))*100)/100,fecha:v("cFecha")||todayStr(),incluir:$("cInc").checked,tarjetas:clone(accCards)};
     {const d=v("cTnum").replace(/\D/g,"");if(d.length===4&&!c.tarjetas.some(t=>t.d===d))c.tarjetas.push({d,tipo:v("cTtipo")})}
