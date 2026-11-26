@@ -701,6 +701,22 @@ nav.tabs button[aria-current=true] svg.i .f{fill-opacity:.3}
 @media(max-width:380px){.fx .it>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}.fx .it>.pay .i{width:19px;height:19px}}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}}
 :root[data-theme=dark] .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}
+/* ===== Campos con formato: montos tipo cajero y fechas dd/mm/aaaa ===== */
+input[data-money],input[data-date]{font-variant-numeric:tabular-nums}
+label.f input[data-date]{padding-right:38px!important}
+@media (max-width:359px){.dpk{display:none!important}label.f input[data-date]{padding-right:0!important}}
+.dpk{position:absolute;right:6px;bottom:3px;width:38px;height:38px;border:0;border-radius:10px;background:none;color:var(--mut);display:grid;place-items:center;padding:0;cursor:pointer}
+.dpk svg{width:20px;height:20px}.dpk:active{background:var(--pl)}
+@media (hover:hover){.dpk:hover{background:var(--pl);color:var(--ink)}}
+label.f:has(input.bad){border-color:#e5484d!important;box-shadow:0 0 0 4px rgb(229 72 77/.14)!important}
+input.bad{color:#e5484d!important}.ln input.bad{border-color:#e5484d!important}
+.ln{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 78px!important}
+.ln input[data-k=n]{grid-column:1/3;grid-row:1}
+.ln input[data-k=d]{grid-column:1;grid-row:2;text-align:center;padding:0 4px}
+.ln input[data-k=m]{grid-column:2;grid-row:2}
+.ln select{grid-column:3;grid-row:2}
+.ln>button{grid-column:3;grid-row:1;justify-self:end;width:40px}
+.ln .cxi{grid-column:3;grid-row:3!important}
 .sbb{display:none}
 /* ===== Computadora: barra lateral, ancho completo y tableros en columnas (el celular no cambia) ===== */
 @media (min-width:900px) and (min-height:560px){
@@ -875,9 +891,9 @@ body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
     <div class="scan" id="scanInfo" hidden></div>
     <div class="seg"><button type="button" data-t="gasto">Gasto</button><button type="button" data-t="ingreso">Ingreso</button></div>
     <label class="f" id="fFuenteRow" hidden>¿Quién te lo da?<select id="fFuente"></select></label>
-    <label class="f">Monto (USD)<input class="amt" id="fMonto" inputmode="decimal" placeholder="0.00" required></label>
+    <label class="f">Monto<input class="amt" id="fMonto" data-money required></label>
     <label class="f">Comercio o lugar<input id="fLugar" placeholder="Ej. Super Selectos Escalón" required></label>
-    <div class="g2"><label class="f">Fecha<input id="fFecha" type="date" required></label>
+    <div class="g2"><label class="f">Fecha<input id="fFecha" data-date required></label>
     <label class="f">Categoría<select id="fCat" data-cx="cat"></select></label></div>
     <label class="f" id="fCtaL"><span id="fCtaT">Se pagó desde</span><select id="fCta" data-cx="cta"></select></label>
     <label class="f" id="fNotaL">Concepto<input id="fNota" placeholder="Ej. Despensa de la semana"></label>
@@ -1071,7 +1087,9 @@ let zone="ah";
 const gMonthly=f=>f.activo===false||ended(f)?0:num(f.monto)*freqF(f);
 const dim=m=>new Date(+m.slice(0,4),+m.slice(5),0).getDate();
 const mdiff=(a,b)=>(+b.slice(0,4)-+a.slice(0,4))*12+(+b.slice(5,7)-+a.slice(5,7));
-const dShort=d=>(+d.slice(8))+" "+MES[+d.slice(5,7)-1].slice(0,3);
+const dShort0=d=>(+d.slice(8))+" "+MES[+d.slice(5,7)-1].slice(0,3);
+const dShort=d=>d?dShort0(d)+(d.slice(0,4)!==todayStr().slice(0,4)?" "+d.slice(0,4):""):"";
+const dLong=d=>d?dShort0(d)+" "+d.slice(0,4):"";
 function occ(f,m){
   if(f.activo===false||!f.inicio||m<f.inicio.slice(0,7)||(f.fin&&m>f.fin.slice(0,7)))return[];
   const ini=f.inicio,d0=+ini.slice(8),n=dim(m),cl=d=>m+"-"+pad(Math.min(d,n)),out=[];
@@ -1123,7 +1141,7 @@ function hojaSerie(ms){const m0=todayStr().slice(0,7),inc=new Set(S.cuentas.filt
     H.tI=H.I.reduce((t,x)=>t+x.m,0);H.tE=H.E.reduce((t,x)=>t+x.m,0);H.res=H.tI-H.tE;H.fin=H.ini+H.res+H.aj;out.push(H);prev=H});
   return out}
 function hojaNueva(ms){const L=hojaSerie(ms),m0=todayStr().slice(0,7);
-  const row=(x,i,a)=>`<tr${a&&a.length>12&&i>=8?' class="xtra"':""}><td>${x.d?`<span class="hd">${dShort(x.d)}</span>`:""}${esc(x.n)}</td><td class="hs">${x.ok?"✓":""}</td><td>${fmt(x.m)}</td></tr>`;
+  const row=(x,i,a)=>`<tr${a&&a.length>12&&i>=8?' class="xtra"':""}><td>${x.d?`<span class="hd">${dShort0(x.d)}</span>`:""}${esc(x.n)}</td><td class="hs">${x.ok?"✓":""}</td><td>${fmt(x.m)}</td></tr>`;
   const more=a=>a.length>12?`<tr class="more"><td colspan="3"><button data-act="hoja-more">Ver ${a.length-8} más</button></td></tr>`:"";
   const mes=H=>`<div class="hm"><div class="hmT"><b>${MES[+H.m.slice(5)-1]}</b><span>${H.m.slice(0,4)}</span><em>${H.m<m0?"cerrado":H.m===m0?"en curso":H.pres?"presupuesto: "+esc(H.pres):"proyectado"}</em></div>
    <table class="hn"><tr class="hi"><td>${H.m<=m0?"Saldo al inicio del mes":"Saldo inicial (cierre anterior)"}</td><td></td><td>${fmt(H.ini)}</td></tr>
@@ -1140,12 +1158,12 @@ function hojaNueva(ms){const L=hojaSerie(ms),m0=todayStr().slice(0,7);
     <tr class="hf"><td>Saldo final</td><td></td><td class="${f.fin<0?"neg":""}">${fmt(f.fin)}</td></tr></table></div>`}
   return h+`<div class="row2"><button class="btn sm" data-act="hoja-copy" data-id="${ms[0]}|${ms[ms.length-1]}">${ic("copy")}Copiar hoja</button></div>`}
 function hojaTexto(ms){const L=hojaSerie(ms),f=v=>fmtR(v).replace("$","").padStart(11),O=[];
-  L.forEach(H=>{O.push("","=== "+MES[+H.m.slice(5)-1].toUpperCase()+" "+H.m.slice(0,4)+" ===",f(H.ini)+"  Saldo inicial","INGRESOS");H.I.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort(x.d)+" ":"")+x.n));O.push(f(H.tI)+"  TOTAL INGRESOS","EGRESOS");H.E.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort(x.d)+" ":"")+x.n));O.push(f(H.tE)+"  TOTAL EGRESOS");if(Math.abs(H.aj)>.004)O.push(f(H.aj)+"  Ajustes");O.push(f(H.res)+"  INGRESOS - EGRESOS",f(H.fin)+"  SALDO AL CIERRE")});
+  L.forEach(H=>{O.push("","=== "+MES[+H.m.slice(5)-1].toUpperCase()+" "+H.m.slice(0,4)+" ===",f(H.ini)+"  Saldo inicial","INGRESOS");H.I.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort0(x.d)+" ":"")+x.n));O.push(f(H.tI)+"  TOTAL INGRESOS","EGRESOS");H.E.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort0(x.d)+" ":"")+x.n));O.push(f(H.tE)+"  TOTAL EGRESOS");if(Math.abs(H.aj)>.004)O.push(f(H.aj)+"  Ajustes");O.push(f(H.res)+"  INGRESOS - EGRESOS",f(H.fin)+"  SALDO AL CIERRE")});
   if(L.length>1)O.push("","=== RESUMEN ===",f(L[0].ini)+"  Saldo inicial",f(L.reduce((t,H)=>t+H.tI,0))+"  + Ingresos",f(L.reduce((t,H)=>t+H.tE,0))+"  - Egresos",f(L[L.length-1].fin)+"  SALDO FINAL");
   return O.join("\n").trim()}
 function hojaHTML(m,H){
   const st=x=>x.ok?`<td class="st ok">✓</td>`:x.late?`<td class="st late">vencido</td>`:`<td class="st">pendiente</td>`;
-  const r=(x,showSt)=>`<tr><td>${esc(x.n)}<small>${x.d?dShort(x.d)+" · ":""}${esc(x.fr||"")}</small></td>${showSt?st(x):"<td></td>"}<td>${fmt(x.m)}</td></tr>`;
+  const r=(x,showSt)=>`<tr><td>${esc(x.n)}<small>${x.d?dShort0(x.d)+" · ":""}${esc(x.fr||"")}</small></td>${showSt?st(x):"<td></td>"}<td>${fmt(x.m)}</td></tr>`;
   const sec=(t)=>`<tr class="sec"><td colspan="3">${t}</td></tr>`,tot=(t,a,b)=>`<tr class="tt"><td>${t}</td><td class="st">${a||""}</td><td>${fmt(b)}</td></tr>`;
   let h=`<table class="ht">`;
   h+=sec("Ingresos")+(H.I.length?H.I.map(x=>r(x,1)).join(""):`<tr><td colspan="3" class="note">Sin ingresos fijos ni registrados.</td></tr>`)+tot("Total ingresos","recibido "+fmt0(H.rI),H.tI);
@@ -1154,22 +1172,22 @@ function hojaHTML(m,H){
   h+=sec("Gastos variables")+(H.V.length?H.V.map(x=>r(x,0)).join(""):`<tr><td colspan="3" class="note">Sin gastos variables registrados.</td></tr>`)+tot("Total variables","",H.tV);
   h+=tot("Total gastos (fijos + variables)","",H.tF+H.tV);
   h+=`<tr class="gt"><td>Saldo hoy</td><td class="st">real</td><td class="${H.real<0?"neg":""}">${fmt(H.real)}</td></tr><tr class="gt"><td>Saldo a fin de mes</td><td class="st">si todo se cumple</td><td class="${H.proy<0?"neg":""}">${fmt(H.proy)}</td></tr>`;
-  if(H.plan){const P=H.plan,Ls=P.lines||[],pl=(t,lb)=>{const L=Ls.filter(l=>l.t===t&&num(l.m));return L.length?`<tr class="sec"><td colspan="3">${lb}</td></tr>`+L.slice().sort((a,b)=>(+a.d||99)-(+b.d||99)).map(l=>`<tr><td>${esc(l.n)}${+l.d?`<small>${dShort(m+"-"+String(Math.min(+l.d,dim(m))).padStart(2,"0"))} (estimado)</small>`:""}</td><td></td><td>${fmt(num(l.m))}</td></tr>`).join(""):""};
+  if(H.plan){const P=H.plan,Ls=P.lines||[],pl=(t,lb)=>{const L=Ls.filter(l=>l.t===t&&num(l.m));return L.length?`<tr class="sec"><td colspan="3">${lb}</td></tr>`+L.slice().sort((a,b)=>(+a.d||99)-(+b.d||99)).map(l=>`<tr><td>${esc(l.n)}${+l.d?`<small>${dShort0(m+"-"+String(Math.min(+l.d,dim(m))).padStart(2,"0"))} (estimado)</small>`:""}</td><td></td><td>${fmt(num(l.m))}</td></tr>`).join(""):""};
     h+=sec("Presupuesto aplicado: "+esc(P.nombre))+pl("i","Ingresos planeados")+pl("g","Gastos planeados")+`<tr><td>Ingresos</td><td class="st">plan ${fmt0(P.ing)}</td><td>${fmt(H.tI)}</td></tr><tr><td>Gastos proyectados</td><td class="st">plan ${fmt0(P.gas)}</td><td class="${H.tF+H.tV>P.gas?"neg":""}">${fmt(H.tF+H.tV)}</td></tr><tr class="tt"><td>Diferencia en gastos</td><td class="st">${H.tF+H.tV>P.gas?"te pasaste":"te queda"}</td><td>${fmt(Math.abs(P.gas-H.tF-H.tV))}</td></tr>`}
   h+=`</table><div class="row2"><button class="btn sm" data-act="hoja-copy" data-id="${m}">${ic("copy")}Copiar hoja</button></div>`;
   return h;
 }
 function hojaText(m,H){
-  const L=[],ln=(x,st)=>L.push(fmtR(x.m).replace("$","").padStart(10)+"  "+x.n+(x.d?" ("+dShort(x.d)+")":"")+(st?(x.ok?" ✓":" pendiente"):""));
+  const L=[],ln=(x,st)=>L.push(fmtR(x.m).replace("$","").padStart(10)+"  "+x.n+(x.d?" ("+dShort0(x.d)+")":"")+(st?(x.ok?" ✓":" pendiente"):""));
   L.push("HOJA "+mLabel(m).toUpperCase(),"","INGRESOS");H.I.forEach(x=>ln(x,1));L.push(fmtR(H.tI).replace("$","").padStart(10)+"  TOTAL INGRESOS","","AHORROS");H.A.forEach(x=>ln(x));
   L.push(fmtR(H.tA).replace("$","").padStart(10)+"  DISPONIBLE (suma de cuentas)","","GASTOS FIJOS");H.F.forEach(x=>ln(x,1));
   L.push(fmtR(H.tF).replace("$","").padStart(10)+"  TOTAL FIJOS","","GASTOS VARIABLES");H.V.forEach(x=>ln(x));L.push(fmtR(H.tV).replace("$","").padStart(10)+"  TOTAL VARIABLES","");
   L.push("SALDO HOY: "+fmtR(H.real),"SALDO A FIN DE MES: "+fmtR(H.proy));if(H.plan){L.push("","PRESUPUESTO "+H.plan.nombre);(H.plan.lines||[]).filter(l=>num(l.m)).forEach(l=>L.push(fmtR(num(l.m)).replace("$","").padStart(10)+"  "+(l.t==="i"?"+ ":"- ")+l.n));L.push("Ingresos plan "+fmtR(H.plan.ing)+" · Gastos plan "+fmtR(H.plan.gas))}
   return L.join("\n");
 }
-function fDesc(f){const t=fDesc0(f);return f.fin&&f.freq!=="unica"?t+(ended(f)?" · terminó ":" · hasta ")+dShort(f.fin)+" "+f.fin.slice(0,4):t}
+function fDesc(f){const t=fDesc0(f);return f.fin&&f.freq!=="unica"?t+(ended(f)?" · terminó ":" · hasta ")+dLong(f.fin):t}
 function fDesc0(f){const d0=f.inicio?+f.inicio.slice(8):1;
-  if(f.freq==="unica")return "una sola vez · "+(f.inicio?dShort(f.inicio)+" "+f.inicio.slice(0,4):"sin fecha");
+  if(f.freq==="unica")return "una sola vez · "+(f.inicio?dLong(f.inicio):"sin fecha");
   if(f.freq==="variable")return "sin fecha fija";
   if(f.freq==="quincenal"){const a=d0>15?d0-15:d0;return "días "+a+" y "+(a+15)}
   if(f.freq==="semanal")return "cada "+(f.inicio?DIAS[new Date(f.inicio+"T12:00").getDay()]:"semana");
@@ -1195,7 +1213,7 @@ function presuSum(m){const P=(S.cfg.presup||{})[m];if(!P)return "";const m0=toda
   ${r("+ Ingresos proyectados de "+MES[+m.slice(5)-1].toLowerCase(),P.ing)}${r("= Subtotal",sub,"tt")}${r("− Egresos proyectados",-P.gas)}${r("Sobrante proyectado",sub-P.gas,"gt")}</table>`}
 function presuLines(m){const P=(S.cfg.presup||{})[m];if(!P)return "";const td=todayStr();
   const L=(P.lines||[]).map((l,i)=>({...l,i})).sort((a,b)=>(+a.d||99)-(+b.d||99));
-  const dl=l=>{if(!+l.d)return "Sin fecha";const dd=Math.min(+l.d,dim(m)),f=m+"-"+String(dd).padStart(2,"0");return dShort(f)+(f<td?" · pasó":"")};
+  const dl=l=>{if(!+l.d)return "Sin fecha";const dd=Math.min(+l.d,dim(m)),f=m+"-"+String(dd).padStart(2,"0");return dShort0(f)+(f<td?" · pasó":"")};
   const sec=(t,lb)=>{const X=L.filter(l=>l.t===t);return X.length?`<h4 class="hojam">${lb}</h4><ul class="list">${X.map(l=>`<li><button class="it" data-act="presu-ln" data-id="${m}|${l.i}">${bubI("cal",t==="i"?"#16a34a":"#e11d48")}<span class="tx"><b>${esc(l.n)}</b><span>${dl(l)}</span></span><span class="am ${t==="i"?"pos":""}">${t==="i"?"+":"−"}${fmt(num(l.m))}</span></button></li>`).join("")}</ul>`:""};
   return L.length?sec("i","Ingresos")+sec("g","Egresos")+`<p class="note" style="margin:6px 0 0">Toca una línea para poner o cambiar su fecha estimada.</p>`:""}
 let escSel=null;
@@ -1233,9 +1251,9 @@ const horizon=()=>+(S.cfg.horizon||6);
 
 // ---------- filas
 function row(x){
-  if(x.tipo==="ajuste")return `<li><button class="it" data-act="aj-item" data-id="${esc(x.id)}">${bubI("swap","#64748b")}<span class="tx"><b>${esc(x.lugar||"Ajuste de saldo")}</b><span>Ajuste · ${+x.fecha.slice(8)} ${MES[+x.fecha.slice(5,7)-1].slice(0,3)}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am aj">${x.aj<0?"−":"+"}${fmt(num(x.monto))}</span></button></li>`;
+  if(x.tipo==="ajuste")return `<li><button class="it" data-act="aj-item" data-id="${esc(x.id)}">${bubI("swap","#64748b")}<span class="tx"><b>${esc(x.lugar||"Ajuste de saldo")}</b><span>Ajuste · ${dShort(x.fecha)}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am aj">${x.aj<0?"−":"+"}${fmt(num(x.monto))}</span></button></li>`;
   const ing=x.tipo==="ingreso";
-  return `<li><button class="it" data-act="edit-item" data-id="${esc(x.id)}">${bub(x.cat)}<span class="tx"><b>${esc(ing?srcName(x):(x.lugar||"Sin nombre"))}</b><span>${esc(x.cat)} · ${+x.fecha.slice(8)} ${MES[+x.fecha.slice(5,7)-1].slice(0,3)}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am ${ing?"pos":""}">${ing?"+":""}${fmt(num(x.monto))}</span></button></li>`;
+  return `<li><button class="it" data-act="edit-item" data-id="${esc(x.id)}">${bub(x.cat)}<span class="tx"><b>${esc(ing?srcName(x):(x.lugar||"Sin nombre"))}</b><span>${esc(x.cat)} · ${dShort(x.fecha)}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am ${ing?"pos":""}">${ing?"+":""}${fmt(num(x.monto))}</span></button></li>`;
 }
 
 function insights(r){
@@ -1333,7 +1351,7 @@ function justPanel(cid){const c=S.cuentas.find(x=>x.id===cid);if(!c)return;const
   const otras=S.cuentas.filter(x=>x.id!==cid);
   openPanel(`<h3>¿De dónde salió el resto?</h3>
   <p><b>${esc(c.nombre||c.banco)}</b> quedó en <b class="neg">−${fmt(d)}</b>. Pagaste más de lo que tenía registrado; dime de dónde salió ese dinero para que la cuenta cuadre en $0.</p>
-  <label class="f">Monto a justificar<input id="jMonto" class="amt" inputmode="decimal" value="${d.toFixed(2)}"></label>
+  <label class="f">Monto a justificar<input id="jMonto" class="amt" data-money value="${d.toFixed(2)}"></label>
   ${otras.length?`<h4 style="margin:4px 0 8px">Lo completé con otra cuenta</h4><div class="jopts">${otras.map(o=>`<button class="jopt" data-act="just-mv" data-id="${cid}|${o.id}"><b>${esc(o.nombre||o.banco)}</b><span>${esc(o.banco)} · ${fmt(ctaSaldo(o))}</span></button>`).join("")}</div>`:""}
   <h4 style="margin:14px 0 8px">Otro motivo</h4>
   <div class="jopts"><button class="jopt" data-act="just-aj" data-id="${cid}|Tenía más dinero del registrado"><b>Tenía más de lo registrado</b><span>Corrige el saldo hacia arriba</span></button>
@@ -1345,7 +1363,7 @@ function addAj(cid,monto,aj,lugar,nota,fecha){const it={id:nid("j"),tipo:"ajuste
 function trfPanel(from){if(S.cuentas.length<2){toast("Necesitas al menos 2 cuentas");return}const o=S.cuentas.map(c=>[c.id,(c.nombre||c.banco)+" · "+fmt(ctaSaldo(c))]),to=(S.cuentas.find(c=>c.id!==from)||S.cuentas[1]).id;
   openPanel(`<h3>Transferir entre cuentas</h3>
   <div class="g2"><label class="f">Desde<select id="tDe">${opts(o,from||S.cuentas[0].id)}</select></label><label class="f">Hacia<select id="tA">${opts(o,from?to:S.cuentas[1].id)}</select></label></div>
-  <div class="g2"><label class="f">Monto<input id="tM" class="amt" inputmode="decimal" placeholder="0.00"></label><label class="f">Fecha<input id="tF" type="date" value="${todayStr()}"></label></div>
+  <div class="g2"><label class="f">Monto<input id="tM" class="amt" data-money></label><label class="f">Fecha<input id="tF" data-date value="${todayStr()}"></label></div>
   <label class="f">Nota (opcional)<input id="tN" placeholder="Ej. retiro en cajero"></label>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="trf-save">${ic("swap")}Transferir</button></div>`);setTimeout(()=>{const e=$("tM");if(e)e.focus()},250)}
 
@@ -1370,7 +1388,7 @@ function recPanel(){const r=REC(),b=bolsa(),ios=isIOS()&&!isStandalone(),perm=("
   ${ios?`<div class="alwait" style="margin-bottom:10px"><span>Para recibirlos en tu iPhone: <b>Compartir</b> › <b>Agregar a pantalla de inicio</b>, y abre la app desde ese ícono.</span></div>`:""}
   ${r.push&&perm==="granted"?`<div class="alok" style="margin-bottom:10px">${ic("check")}<b>Activos en este teléfono</b><span>Llegan como notificación aunque la app esté cerrada.</span></div>`:`<button class="btn yel full" data-act="rec-on" style="margin-bottom:12px">${ic("bell")}Activar notificaciones</button>`}
   <label class="f">Efectivo en tu bolsa<select id="rB">${b?"":`<option value="">— Ninguna —</option>`}${opts(S.cuentas.map(c=>[c.id,(c.nombre||c.banco)+" · "+fmt(ctaSaldo(c))]),b?b.id:"")}<option value="__new">+ Crear “Cartera”</option></select></label>
-  <div class="g2"><label class="f">Avisar si baja de $<input id="rMin" class="amt" inputmode="decimal" value="${num(r.min)}"></label><label class="f">Revisión de la mañana<input id="rAm" type="time" value="${r.am}"></label></div>
+  <div class="g2"><label class="f">Avisar si baja de<input id="rMin" class="amt" data-money value="${num(r.min)}"></label><label class="f">Revisión de la mañana<input id="rAm" type="time" value="${r.am}"></label></div>
   <label class="f">Hora del cierre<input id="rPm" type="time" value="${r.pm}"></label>
   <div class="rchk"><label><input type="checkbox" id="rDia"${r.dia?" checked":""}><span>Cada día: ordena tus cuentas</span></label>
   <label><input type="checkbox" id="rSem"${r.sem?" checked":""}><span>Domingo: cierre de la semana</span></label>
@@ -1382,10 +1400,10 @@ function bolsaBanner(){const r=REC(),x=sugBolsa();if(!x||!(x.s<num(r.min)))retur
 // ---------- consolidación (arqueo físico)
 const difs=()=>S.items.filter(x=>x.tipo==="ajuste"&&x.cons&&!x.just);
 function consPanel(){openPanel(`<h3>Consolidar cuentas</h3><p class="note" style="margin-top:-6px">Cuenta el dinero real y escríbelo. Lo que no cuadre queda como diferencia para justificar.</p>
-  <div class="cons">${[...S.cuentas].sort((a,b)=>(b.sys?1:0)-(a.sys?1:0)).map(c=>{const sa=ctaSaldo(c);return `<label class="consr"><span><b>${esc(c.nombre||c.banco)}</b><em>En la app: ${fmt(sa)}</em></span><input class="amt" inputmode="decimal" data-cid="${c.id}" placeholder="${sa.toFixed(2)}"></label>`}).join("")}</div>
+  <div class="cons">${[...S.cuentas].sort((a,b)=>(b.sys?1:0)-(a.sys?1:0)).map(c=>{const sa=ctaSaldo(c);return `<label class="consr"><span><b>${esc(c.nombre||c.banco)}</b><em>En la app: ${fmt(sa)}</em></span><input class="amt" data-money data-neg data-cid="${c.id}" placeholder="${sa.toFixed(2)}"></label>`}).join("")}</div>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="cons-save">${ic("check")}Consolidar</button></div>`)}
 function difPanel(){const D=difs();if(!D.length){closePanel();toast("Todo justificado");return}
-  openPanel(`<h3>Diferencias por justificar</h3><ul class="list">${D.map(x=>`<li><button class="it" data-act="dif-item" data-id="${x.id}">${bubI("swap",x.aj<0?"#e11d48":"#16a34a")}<span class="tx"><b>${x.aj<0?"Faltaron":"Sobraron"} ${fmt(num(x.monto))}</b><span>${esc(ctaShort(x.cuenta))} · ${+x.fecha.slice(8)} ${MES[+x.fecha.slice(5,7)-1].slice(0,3)}</span></span><span class="am">›</span></button></li>`).join("")}</ul>
+  openPanel(`<h3>Diferencias por justificar</h3><ul class="list">${D.map(x=>`<li><button class="it" data-act="dif-item" data-id="${x.id}">${bubI("swap",x.aj<0?"#e11d48":"#16a34a")}<span class="tx"><b>${x.aj<0?"Faltaron":"Sobraron"} ${fmt(num(x.monto))}</b><span>${esc(ctaShort(x.cuenta))} · ${dShort(x.fecha)}</span></span><span class="am">›</span></button></li>`).join("")}</ul>
   <button class="btn full" data-act="close" style="margin-top:10px">Después</button>`)}
 function difItem(id){const x=S.items.find(y=>y.id===id);if(!x)return;const falta=x.aj<0,otras=S.cuentas.filter(c=>c.id!==x.cuenta);
   openPanel(`<h3>${falta?"Faltaron":"Sobraron"} ${fmt(num(x.monto))}</h3><p class="note" style="margin-top:-6px">${esc(ctaShort(x.cuenta))} · ${esc(x.nota||"")}</p>
@@ -1691,6 +1709,60 @@ $("photo").onchange=async e=>{
 };
 $("busyCancel").onclick=()=>{scanTok++;$("busy").hidden=true;ocrProg=null;$("fMonto").focus()};
 
+// ---------- entradas con formato: montos tipo cajero (1230 → $12.30) y fechas día/mes/año sin teclear separadores
+const VDS=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");
+const rawV=el=>VDS.get.call(el),rawS=(el,x)=>VDS.set.call(el,x);
+const HASPK="showPicker" in HTMLInputElement.prototype;
+const monTxt=c=>(c<0?"−$":"$")+NF2.format(Math.abs(c)/100);
+function monCents(el){const r=rawV(el),d=r.replace(/\D/g,"").replace(/^0+(?=\d)/,"").slice(0,11);if(!d)return null;return (el.dataset.neg!=null&&(r.match(/[-−]/g)||[]).length%2===1?-1:1)*parseInt(d,10)}
+function monParse(x){if(typeof x==="number")return isFinite(x)?x:null;let t=String(x??"").replace(/[$\s]/g,"").replace(/−/g,"-");if(!t)return null;
+  t=/,\d{1,2}$/.test(t)&&!t.includes(".")?t.replace(",","."):t.replace(/,/g,"");const n=parseFloat(t);return isFinite(n)?n:null}
+function monPut(el,n){if(n==null){rawS(el,"");return}if(el.dataset.neg==null)n=Math.abs(n);rawS(el,monTxt(Math.round(n*100)))}
+function datG(r){let d=String(r).replace(/\D/g,""),o="";if(!d)return "";
+  if(+d[0]>3){o="0"+d[0];d=d.slice(1)}else{o=d.slice(0,2);d=d.slice(2)}
+  if(o.length<2||!d)return o;
+  if(+d[0]>1){o+="0"+d[0];d=d.slice(1)}else{o+=d.slice(0,2);d=d.slice(2)}
+  return o.length<4||!d?o:o+d.slice(0,4)}
+const datTxt=g=>g.length<=2?g:g.length<=4?g.slice(0,2)+"/"+g.slice(2):g.slice(0,2)+"/"+g.slice(2,4)+"/"+g.slice(4);
+function datIso(el){const g=datG(rawV(el));if(!g)return "";const fx=el.dataset.fix!=null,cx=el.dataset.mes||todayStr().slice(0,7);
+  let D=g.slice(0,2).padStart(2,"0"),M=g.slice(2,4),Y=g.slice(4);
+  M=!M||fx?cx.slice(5,7):M.padStart(2,"0");
+  if(!Y||fx)Y=cx.slice(0,4);else if(Y.length===2)Y="20"+Y;else if(Y.length!==4)return "";
+  const y=+Y,m=+M,dd=+D,n=m>=1&&m<=12?new Date(y,m,0).getDate():0;
+  if(!n||dd<1||y<1900||y>2100)return "";if(dd>n){if(!fx)return "";D=pad(n)}
+  return Y+"-"+M+"-"+D}
+function datPut(el,x){const m=String(x??"").match(/^(\d{4})-(\d{2})-(\d{2})/);rawS(el,m?m[3]+"/"+m[2]+"/"+m[1]:"")}
+const datBad=el=>!!rawV(el).trim()&&!datIso(el);
+function fxOne(el){if(el.dataset.fx)return;el.dataset.fx="1";const M=el.dataset.money!=null,ini=rawV(el);
+  Object.defineProperty(el,"value",{configurable:true,get(){if(M){const c=monCents(el);return c==null?"":(c/100).toFixed(2)}return datIso(el)},set(x){M?monPut(el,monParse(x)):datPut(el,x)}});
+  el.type="text";el.inputMode="numeric";el.autocomplete="off";
+  if(M){const ph=monParse(el.getAttribute("placeholder"));el.placeholder=ph!=null?monTxt(Math.round(ph*100)):"$0.00";monPut(el,monParse(ini));return}
+  el.placeholder="dd/mm/aaaa";el.maxLength=10;datPut(el,ini);
+  if(HASPK&&el.parentElement&&el.parentElement.matches("label.f"))el.insertAdjacentHTML("afterend",`<button type="button" class="dpk" tabindex="-1" aria-label="Elegir en el calendario">${ic("cal")}</button>`)}
+const fxEnh=root=>root.querySelectorAll("input[data-money],input[data-date]").forEach(fxOne);
+document.addEventListener("input",e=>{const el=e.target;if(!el.dataset||!el.dataset.fx)return;clearTimeout(el._sel);
+  if(el.dataset.money!=null){const c=monCents(el);rawS(el,c==null?"":monTxt(c))}
+  else{rawS(el,datTxt(datG(rawV(el))));el.classList.remove("bad");el.setCustomValidity(datBad(el)?"Fecha no válida: escribe día, mes y año":"")}
+  const n=rawV(el).length;try{el.setSelectionRange(n,n)}catch(x){}},true);
+document.addEventListener("focusout",e=>{const el=e.target;if(!el.dataset||!el.dataset.fx||el.dataset.date==null)return;
+  if(!rawV(el).trim()){el.classList.remove("bad");el.setCustomValidity("");return}
+  const iso=datIso(el);if(iso){datPut(el,iso);el.classList.remove("bad");el.setCustomValidity("")}else{el.classList.add("bad");el.setCustomValidity("Fecha no válida: escribe día, mes y año")}});
+document.addEventListener("focusin",e=>{const el=e.target;if(el.dataset&&el.dataset.fx){clearTimeout(el._sel);el._sel=setTimeout(()=>{if(document.activeElement===el)try{el.setSelectionRange(0,rawV(el).length)}catch(x){}},0)}});
+document.addEventListener("paste",e=>{const el=e.target;if(!el.dataset||!el.dataset.fx)return;const t=(e.clipboardData||window.clipboardData).getData("text")||"";
+  if(el.dataset.money!=null){const n=monParse(t.replace(/[^\d.,\-−]/g,""));if(n==null)return;e.preventDefault();monPut(el,n)}
+  else{const m=t.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);if(!m)return;e.preventDefault();datPut(el,m[1]+"-"+pad(m[2])+"-"+pad(m[3]))}
+  el.dispatchEvent(new Event("input",{bubbles:true}))},true);
+let DPK=null;
+document.addEventListener("click",e=>{const b=e.target.closest(".dpk");if(!b)return;e.preventDefault();const el=b.previousElementSibling;if(!el||el.dataset.date==null)return;
+  if(!DPK){DPK=document.createElement("input");DPK.type="date";DPK.tabIndex=-1;DPK.setAttribute("aria-hidden","true");DPK.style.cssText="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0;margin:0";document.body.appendChild(DPK);
+    DPK.addEventListener("change",()=>{const t=DPK._t;if(!t||!DPK.value)return;t.value=DPK.value;t.classList.remove("bad");t.setCustomValidity("");t.dispatchEvent(new Event("input",{bubbles:true}));t.dispatchEvent(new Event("change",{bubbles:true}))})}
+  const r=b.getBoundingClientRect(),cx=el.dataset.mes,fx=el.dataset.fix!=null&&cx;
+  DPK.style.left=Math.round(r.left)+"px";DPK.style.top=Math.round(r.bottom)+"px";DPK._t=el;
+  DPK.min=fx?cx+"-01":"";DPK.max=fx?cx+"-"+pad(dim(cx)):"";DPK.value=el.value||(fx?cx+"-01":todayStr());
+  try{DPK.showPicker()}catch(x){}});
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches("input[data-money],input[data-date]"))fxOne(n);else if(n.firstElementChild)fxEnh(n)}}).observe(document.body,{childList:true,subtree:true});
+fxEnh(document);
+
 // ---------- paneles genéricos
 function openPanel(html){$("panelBody").innerHTML=html;$("panel").hidden=false}
 function closePanel(){$("panel").hidden=true;$("panelBody").innerHTML="";draft=null}
@@ -1738,7 +1810,7 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
   <label class="f">Banco o institución<input id="cBanco" list="dlBancos" value="${esc(c.banco)}" placeholder="Ej. Banco Agrícola"></label>
   <div class="g2"><label class="f">Tipo<select id="cTipo" data-cx="tipoC" data-v="${esc(c.tipo||"")}">${opts(listOf("tipoC"),c.tipo)}</select></label><label class="f">Últimos 4 dígitos<input id="cNum" inputmode="numeric" maxlength="4" value="${esc(c.num)}" placeholder="Ej. 4417"></label></div>
   <label class="f">Nombre de la cuenta<input id="cNombre" value="${esc(c.nombre)}" placeholder="Ej. Ahorro para emergencias"></label>
-  ${c.id?`<label class="f">Saldo actual (USD)<input id="cSaldo" class="amt" inputmode="decimal" value="${ctaSaldo(c).toFixed(2)}"></label><p class="note" style="margin:-4px 0 8px">Inicial ${fmt(num(c.saldo))} (${dShort(c.fecha||todayStr())}) ${ctaMovTxt(c)}. Si lo cambias se guarda un ajuste por la diferencia.</p>`:`<div class="g2"><label class="f">Saldo actual (USD)<input id="cSaldo" class="amt" inputmode="decimal" placeholder="0.00"></label><label class="f">Al día<input id="cFecha" type="date" value="${todayStr()}"></label></div>`}
+  ${c.id?`<label class="f">Saldo actual<input id="cSaldo" class="amt" data-money data-neg value="${ctaSaldo(c).toFixed(2)}"></label><p class="note" style="margin:-4px 0 8px">Inicial ${fmt(num(c.saldo))} (${dShort(c.fecha||todayStr())}) ${ctaMovTxt(c)}. Si lo cambias se guarda un ajuste por la diferencia.</p>`:`<div class="g2"><label class="f">Saldo actual<input id="cSaldo" class="amt" data-money data-neg></label><label class="f">Al día<input id="cFecha" data-date value="${todayStr()}"></label></div>`}
   <label class="ck"><input type="checkbox" id="cInc"${c.incluir!==false?" checked":""}> Sumar este ahorro a mi dinero disponible</label>
   <div class="sec" style="margin-top:6px"><h4>${ic("card")}Tarjetas ligadas a esta cuenta</h4><p class="note" style="margin:0 0 4px">Las compras con estas tarjetas se descuentan de esta cuenta.</p><div class="cards" id="accCards"></div>
   <div class="g2"><label class="f">Últimos 4 de la tarjeta<input id="cTnum" inputmode="numeric" maxlength="4" placeholder="Ej. 5678"></label><label class="f">Tipo<select id="cTtipo">${opts(["Débito","Crédito"],"Débito")}</select></label></div>
@@ -1749,8 +1821,8 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
 function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"Editar ingreso fijo":"Nuevo ingreso fijo"}</h3>
   <label class="f">¿Quién te da el dinero?<input id="sNombre" value="${esc(f.nombre)}" placeholder="Ej. Empresa, cliente, familiar"></label>
   <div class="g2"><label class="f">Tipo<select id="sTipo" data-cx="tipoF" data-v="${esc(f.tipo||"")}">${opts(listOf("tipoF"),f.tipo)}</select></label><label class="f">Frecuencia<select id="sFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
-  <div class="g2"><label class="f">Monto por pago (USD)<input id="sMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Desde (primer pago)<input id="sIni" type="date" value="${esc(f.inicio||todayStr())}"></label></div>
-  <label class="f">Hasta (opcional, vacío = sin fin)<input id="sFin" type="date" value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="sIni|sFin|${n}">${l}</button>`).join("")}</div>
+  <div class="g2"><label class="f">Monto por pago<input id="sMonto" class="amt" data-money value="${f.monto!=null?num(f.monto).toFixed(2):""}"></label><label class="f">Desde (primer pago)<input id="sIni" data-date value="${esc(f.inicio||todayStr())}"></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="sFin" data-date value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="sIni|sFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se deposita en<select id="sCta" data-cx="cta">${ctaOpts(S.cuentas,f.cuenta!=null?f.cuenta:((S.cuentas.find(c=>!isCash(c))||S.cuentas[0]||{}).id||""),"Sin cuenta / en efectivo")}</select></label>
   
   <label class="ck"><input type="checkbox" id="sAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
@@ -1760,9 +1832,9 @@ function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"
 
 function fijoForm(f){f=f||{freq:"mensual",inicio:todayStr(),cat:"Vivienda",activo:true};openPanel(`<h3>${f.id?"Editar gasto fijo":"Nuevo gasto fijo"}</h3>
   <label class="f">¿Qué pagas?<input id="xNombre" value="${esc(f.nombre)}" placeholder="Ej. Alquiler, colegiatura, préstamo carro"></label>
-  <div class="g2"><label class="f">Monto por pago (USD)<input id="xMonto" class="amt" inputmode="decimal" value="${f.monto!=null?num(f.monto).toFixed(2):""}" placeholder="0.00"></label><label class="f">Cada cuánto<select id="xFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
-  <div class="g2"><label class="f">Desde (primer pago)<input id="xIni" type="date" value="${esc(f.inicio)}"></label><label class="f">Categoría<select id="xCat" data-cx="cat" data-v="${esc(f.cat||"")}">${opts(listOf("cat"),f.cat)}</select></label></div>
-  <label class="f">Hasta (opcional, vacío = sin fin)<input id="xFin" type="date" value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="xIni|xFin|${n}">${l}</button>`).join("")}</div>
+  <div class="g2"><label class="f">Monto por pago<input id="xMonto" class="amt" data-money value="${f.monto!=null?num(f.monto).toFixed(2):""}"></label><label class="f">Cada cuánto<select id="xFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
+  <div class="g2"><label class="f">Desde (primer pago)<input id="xIni" data-date value="${esc(f.inicio)}"></label><label class="f">Categoría<select id="xCat" data-cx="cat" data-v="${esc(f.cat||"")}">${opts(listOf("cat"),f.cat)}</select></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="xFin" data-date value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="xIni|xFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se paga desde<select id="xCta" data-cx="cta" data-v="${esc(f.cuenta||"")}">${ctaOpts(S.cuentas,f.cuenta,"Sin especificar")}</select></label>
   <label class="f">Nota<input id="xNota" value="${esc(f.nota)}" placeholder="Ej. débito automático, NPE, contrato"></label>
   <label class="ck"><input type="checkbox" id="xAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
@@ -1780,13 +1852,13 @@ function escFromData(name){
   if(!lines.length)lines.push({id:nid("l"),t:"i",n:"Salario",m:0,f:1});
   return{id:nid("e"),nombre:name||"Plan base",ahorros:true,lines:lines.concat(gl.length?gl:["Vivienda","Supermercado","Servicios (luz, agua, tel.)","Transporte","Educación","Tarjetas y préstamos"].map(n=>({id:nid("l"),t:"g",n,m:0,f:1})))};
 }
-function lnRow(l,i){return `<div class="ln"><input data-i="${i}" data-k="n" value="${esc(l.n)}" aria-label="Concepto" placeholder="Concepto"><input data-i="${i}" data-k="d" inputmode="numeric" value="${l.d||""}" placeholder="Día" aria-label="Día estimado del mes"><input data-i="${i}" data-k="m" inputmode="decimal" value="${l.m?num(l.m).toFixed(2):""}" placeholder="0.00" aria-label="Monto mensual"><select id="lf${i}" data-i="${i}" data-k="f" data-cx="pct" aria-label="Porcentaje">${opts([["1","100%"],["0.5","50%"],["0","0%"]].concat([1,.5,0].includes(num(l.f))?[]:[[String(num(l.f)),Math.round(num(l.f)*100)+"%"]]),String(num(l.f)))}</select><button data-act="ln-del" data-id="${i}" aria-label="Quitar">×</button></div>`}
+function lnRow(l,i){const tm=shift(todayStr().slice(0,7),1);return `<div class="ln"><input data-i="${i}" data-k="n" value="${esc(l.n)}" aria-label="Concepto" placeholder="Concepto"><input data-i="${i}" data-k="d" data-date data-fix data-mes="${tm}" value="${l.d?tm+"-"+pad(Math.min(+l.d,dim(tm))):""}" aria-label="Fecha estimada"><input data-i="${i}" data-k="m" data-money value="${l.m?num(l.m).toFixed(2):""}" aria-label="Monto mensual"><select id="lf${i}" data-i="${i}" data-k="f" data-cx="pct" aria-label="Porcentaje">${opts([["1","100%"],["0.5","50%"],["0","0%"]].concat([1,.5,0].includes(num(l.f))?[]:[[String(num(l.f)),Math.round(num(l.f)*100)+"%"]]),String(num(l.f)))}</select><button data-act="ln-del" data-id="${i}" aria-label="Quitar">×</button></div>`}
 function escEditor(){
   const d=draft,L=d.lines||[];
   openPanel(`<h3>${d._new?"Nuevo escenario":"Editar escenario"}</h3>
   <label class="f">Nombre<input id="eNombre" value="${esc(d.nombre)}" placeholder="Ej. Compartir gastos"></label>
   <label class="ck"><input type="checkbox" id="eAh"${d.ahorros!==false?" checked":""}> Sumar mi dinero (${fmt(ahInc())})</label>
-  <p class="note" style="margin:0 0 8px">Montos al mes · Día = fecha estimada · % = lo que pagas tú.</p>
+  <p class="note" style="margin:0 0 8px">Montos al mes · fecha estimada en ${esc(mLabel(shift(todayStr().slice(0,7),1)))} · % = lo que pagas tú.</p>
   <h3 style="font-size:16px;margin:14px 0 8px">Ingresos</h3>${L.map((l,i)=>l.t==="i"?lnRow(l,i):"").join("")}<button class="btn sm" data-act="ln-add" data-id="i">+ Ingreso</button>
   <h3 style="font-size:16px;margin:18px 0 8px">Gastos</h3>${L.map((l,i)=>l.t==="g"?lnRow(l,i):"").join("")}<div class="row2" style="margin:0"><button class="btn sm" data-act="ln-add" data-id="g">+ Gasto</button>${S.fijos.length?`<button class="btn sm" data-act="ln-fijos">+ Mis gastos fijos</button>`:""}</div>
   <div class="tot" id="eTot"></div>
@@ -1798,7 +1870,7 @@ function escTot(){if(!draft||!$("eTot"))return;draft.ahorros=$("eAh").checked;co
 $("panelBody").addEventListener("input",e=>{
   const t=e.target;if(!draft)return;
   if(/^lf\d+_x$/.test(t.id)){const l=draft.lines[+t.id.slice(2,-2)];if(l)l.f=Math.max(0,num(t.value))/100}
-  else if(t.dataset.i!=null&&!(t.dataset.k==="f"&&t.value==="__c")){const l=draft.lines[+t.dataset.i];if(l)l[t.dataset.k]=t.dataset.k==="n"?t.value:num(t.value)}
+  else if(t.dataset.i!=null&&!(t.dataset.k==="f"&&t.value==="__c")){const l=draft.lines[+t.dataset.i],k=t.dataset.k;if(l)l[k]=k==="n"?t.value:k==="d"?(t.value?+t.value.slice(8):""):num(t.value)}
   if(t.id==="eNombre")draft.nombre=t.value;
   escTot();
 });
@@ -1860,7 +1932,7 @@ function obRender(){
     <div id="obForm">${ob.ed.c>=0?`<p class="stl" style="margin:0 0 8px"><b>Editando: ${esc(e.banco)}</b></p>`:""}
     <label class="f">Banco o institución<input id="obBanco" list="dlBancos" placeholder="Ej. Banco Agrícola o Efectivo" value="${esc(e.banco||"")}"></label>
     <div class="g2"><label class="f">Tipo<select id="obTipo" data-cx="tipoC" data-v="${esc(e.tipo||"")}">${opts(listOf("tipoC"),e.tipo)}</select></label><label class="f">Últimos 4 dígitos<input id="obNum" inputmode="numeric" maxlength="4" placeholder="Ej. 4417" value="${esc(e.num||"")}"></label></div>
-    <div class="g2"><label class="f">Saldo (USD)<input id="obSaldo" inputmode="decimal" placeholder="0.00" value="${e.saldo!=null?num(e.saldo).toFixed(2):""}"></label><label class="f">Nombre de la cuenta<input id="obCta" placeholder="Opcional" value="${esc(e.nombre||"")}"></label></div>
+    <div class="g2"><label class="f">Saldo<input id="obSaldo" data-money data-neg value="${e.saldo!=null?num(e.saldo).toFixed(2):""}"></label><label class="f">Nombre de la cuenta<input id="obCta" placeholder="Opcional" value="${esc(e.nombre||"")}"></label></div>
     <p class="note" style="margin:-4px 0 8px">Solo los últimos 4.</p>
     <label class="f">Tarjetas de esta cuenta (últimos 4, separados por coma)<input id="obTj" inputmode="numeric" placeholder="Ej. 1234, 5678" value="${esc((e.tarjetas||[]).map(t=>t.d).join(", "))}"></label>
     <label class="ck"><input type="checkbox" id="obInc"${e.incluir!==false?" checked":""}> Sumar a mi dinero disponible</label>
@@ -1871,8 +1943,8 @@ function obRender(){
     <div id="obForm">${ob.ed.f>=0?`<p class="stl" style="margin:0 0 8px"><b>Editando: ${esc(e.nombre)}</b></p>`:""}
     <label class="f">Nombre<input id="obFn" placeholder="Ej. Sueldo, remesa de mi hermano" value="${esc(e.nombre||"")}"></label>
     <div class="g2"><label class="f">Tipo<select id="obFt" data-cx="tipoF" data-v="${esc(e.tipo||"")}">${opts(listOf("tipoF"),e.tipo)}</select></label><label class="f">Frecuencia<select id="obFf" data-cx="freq" data-v="${esc(e.freq||"quincenal")}" data-cn="${e.cn||""}" data-cu="${e.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),e.freq)}</select></label></div>
-    <div class="g2"><label class="f">Monto por pago (USD)<input id="obFm" inputmode="decimal" placeholder="0.00" value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Próximo pago<input id="obFi" type="date" value="${esc(e.inicio||todayStr())}"></label></div>
-  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obFh" type="date" value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obFi|obFh|${n}">${l}</button>`).join("")}</div>
+    <div class="g2"><label class="f">Monto por pago<input id="obFm" data-money value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Próximo pago<input id="obFi" data-date value="${esc(e.inicio||todayStr())}"></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obFh" data-date value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obFi|obFh|${n}">${l}</button>`).join("")}</div>
     <label class="f">Se deposita en<select id="obFc" data-cx="cta" data-v="${esc(e.cuenta||"")}">${ctaOpts(ob.cuentas,e.cuenta,"Sin cuenta / lo recibo en efectivo")}</select></label>
     ${saveBtn("f","Agregar este ingreso")}</div>
     <div class="g2" style="margin-top:22px"><button class="btn full" data-act="ob-back">Atrás</button><button class="btn solid full" data-act="ob-next">${ob.fuentes.length?"Siguiente":"Después"}</button></div>`}
@@ -1880,9 +1952,9 @@ function obRender(){
     ${ob.fijos.length?`<div class="added"><ul class="list">${ob.fijos.map((f,i)=>item("x",i,bub(f.cat,1),f.nombre,`${freqL(f)} · ${dShort(f.inicio)} · ${esc(ctaShort(f.cuenta,ob.cuentas))}`,f.monto)).join("")}</ul></div>`:""}
     <div id="obForm">${ob.ed.x>=0?`<p class="stl" style="margin:0 0 8px"><b>Editando: ${esc(e.nombre)}</b></p>`:""}
     <label class="f">¿Qué pagas?<input id="obXn" placeholder="Ej. Alquiler" value="${esc(e.nombre||"")}"></label>
-    <div class="g2"><label class="f">Monto (USD)<input id="obXm" inputmode="decimal" placeholder="0.00" value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Cada cuánto<select id="obXf" data-cx="freq" data-v="${esc(e.freq||"mensual")}" data-cn="${e.cn||""}" data-cu="${e.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),e.freq)}</select></label></div>
-    <div class="g2"><label class="f">Próximo pago<input id="obXi" type="date" value="${esc(e.inicio||todayStr())}"></label><label class="f">Categoría<select id="obXc" data-cx="cat" data-v="${esc(e.cat||"")}">${opts(listOf("cat"),e.cat)}</select></label></div>
-  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obXh" type="date" value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obXi|obXh|${n}">${l}</button>`).join("")}</div>
+    <div class="g2"><label class="f">Monto<input id="obXm" data-money value="${e.monto!=null?num(e.monto).toFixed(2):""}"></label><label class="f">Cada cuánto<select id="obXf" data-cx="freq" data-v="${esc(e.freq||"mensual")}" data-cn="${e.cn||""}" data-cu="${e.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),e.freq)}</select></label></div>
+    <div class="g2"><label class="f">Próximo pago<input id="obXi" data-date value="${esc(e.inicio||todayStr())}"></label><label class="f">Categoría<select id="obXc" data-cx="cat" data-v="${esc(e.cat||"")}">${opts(listOf("cat"),e.cat)}</select></label></div>
+  <label class="f">Hasta (opcional, vacío = sin fin)<input id="obXh" data-date value="${esc(e.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="obXi|obXh|${n}">${l}</button>`).join("")}</div>
     <label class="f">Se paga desde<select id="obXa" data-cx="cta" data-v="${esc(e.cuenta||"")}">${ctaOpts(ob.cuentas,e.cuenta,"Sin cuenta / lo pago en efectivo")}</select></label>
     ${saveBtn("x","Agregar este gasto")}</div>
     <div class="g2" style="margin-top:22px"><button class="btn full" data-act="ob-back">Atrás</button><button class="btn solid full" data-act="ob-next">${ob.fijos.length?"Siguiente":"Después"}</button></div>`}
@@ -1957,9 +2029,9 @@ const ACT={
   "esc-edit":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;draft=clone(e);escEditor()},
   "esc-dup":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;const c=clone(e);c.id=nid("e");c.nombre=e.nombre+" (copia)";c.creado=todayStr();delete c.arch;S.escs.push(c);saveMeta("escs");toast("Escenario duplicado")},
   "presu-ln":id=>{const [m,i]=id.split("|"),P=(S.cfg.presup||{})[m],l=P&&P.lines[+i];if(!l)return;
-    openPanel(`<h3>${esc(l.n)}</h3><p class="note">${l.t==="i"?"Ingreso":"Egreso"} del presupuesto de ${esc(mLabel(m))}</p><div class="g2"><label class="f">Día estimado<input id="plD" inputmode="numeric" value="${l.d||""}" placeholder="1–31"></label><label class="f">Monto<input id="plM" class="amt" inputmode="decimal" value="${num(l.m).toFixed(2)}"></label></div>
+    openPanel(`<h3>${esc(l.n)}</h3><p class="note">${l.t==="i"?"Ingreso":"Egreso"} del presupuesto de ${esc(mLabel(m))}</p><div class="g2"><label class="f">Fecha estimada<input id="plD" data-date data-fix data-mes="${m}" value="${l.d?m+"-"+pad(Math.min(+l.d,dim(m))):""}"></label><label class="f">Monto<input id="plM" class="amt" data-money value="${num(l.m).toFixed(2)}"></label></div>
     <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="presu-ln-ok" data-id="${id}">Guardar</button></div>`)},
-  "presu-ln-ok":id=>{const [m,i]=id.split("|"),P=S.cfg.presup[m],l=P.lines[+i],d=Math.round(num(v("plD")));l.d=d>=1&&d<=31?d:"";l.m=Math.round(num(v("plM"))*100)/100;
+  "presu-ln-ok":id=>{const [m,i]=id.split("|"),P=S.cfg.presup[m],l=P.lines[+i],fd=v("plD");l.d=fd?+fd.slice(8):"";l.m=Math.round(num(v("plM"))*100)/100;
     P.ing=Math.round(P.lines.filter(x=>x.t==="i").reduce((t,x)=>t+num(x.m),0)*100)/100;P.gas=Math.round(P.lines.filter(x=>x.t==="g").reduce((t,x)=>t+num(x.m),0)*100)/100;
     saveMeta("cfg");closePanel();render();toast("Línea actualizada")},
   "hoja-more":(id,b)=>{const t=b.closest("table");if(t){t.classList.add("all");b.closest("tr").remove()}},
@@ -2039,6 +2111,7 @@ document.addEventListener("click",e=>{
   const inMenu=e.target.closest("#umenu");
   if(inMenu&&e.target.closest("a.mi")){closeUmenu();return}
   const b=e.target.closest("[data-act]");if(!b)return;const f=ACT[b.dataset.act];if(!f)return;e.preventDefault();
+  if(!/^(close|ln-del|ln-add|ln-fijos)$/.test(b.dataset.act)){const box=b.closest(".pan,.ovl"),bad=box&&[...box.querySelectorAll("input[data-date]")].find(datBad);if(bad){bad.classList.add("bad");toast("Revisa la fecha: día, mes y año");bad.focus();return}}
   f(b.dataset.id,b,e);
   if(inMenu&&!b.dataset.armed)closeUmenu();
 });
@@ -2405,7 +2478,7 @@ Object.assign(ACT,{
   "gm-go":async()=>{toast("Abriendo Google…");try{const {data,error}=await sb.functions.invoke("gmail-oauth",{method:"POST",body:{}});if(error||!data||!data.url){const m=(data&&data.error)||"";toast(/configurar/i.test(m)||(error&&/503/.test(String(error.context&&error.context.status)))?"La conexión con Google aún no está activada":"No se pudo abrir Google. Intenta de nuevo.");return}location.href=data.url}catch(e){toast("Sin conexión")}},
   "gm-now":async()=>{toast("Revisando Gmail…");try{await sb.functions.invoke("gmail-poll",{method:"POST",body:{}});await pullInbox();alertPanel("gmail",2)}catch(e){toast("No se pudo revisar")}},
   "gm-off":async()=>{if(!confirm("¿Desconectar Gmail? Ya no llegarán las alertas por correo."))return;await sb.rpc("gmail_disconnect");if(S.cfg.alertOk){delete S.cfg.alertOk.gmail;saveMeta("cfg")}toast("Gmail desconectado");alertPanel("gmail",2)},
-  dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const d=new Date(ini+"T12:00");d.setMonth(d.getMonth()+ +n);d.setDate(d.getDate()-1);$(b).value=d.toISOString().slice(0,10)},
+  dur:k=>{const [a,b,n]=k.split("|"),ini=v(a)||todayStr();if(+n===0){$(b).value="";return}const tm=shift(ini.slice(0,7),+n),d=new Date(tm+"-"+pad(Math.min(+ini.slice(8),dim(tm)))+"T12:00");d.setDate(d.getDate()-1);$(b).value=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())},
   "just":id=>justPanel(id),
   notif:()=>{closeUmenu();notifPanel()},
   "arq-set":()=>arqPanel(),
