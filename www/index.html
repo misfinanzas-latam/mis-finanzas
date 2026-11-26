@@ -717,6 +717,20 @@ input.bad{color:#e5484d!important}.ln input.bad{border-color:#e5484d!important}
 .ln select{grid-column:3;grid-row:2}
 .ln>button{grid-column:3;grid-row:1;justify-self:end;width:40px}
 .ln .cxi{grid-column:3;grid-row:3!important}
+/* ===== Botón + en abanico: ticket, gasto e ingreso ===== */
+.fab .dic svg{transition:transform .3s cubic-bezier(.3,1.4,.5,1)}
+.fab.on{z-index:21}.fab.on .dic svg{transform:rotate(45deg)}
+.dial{position:fixed;inset:0;z-index:20}
+.dial .dbk{position:absolute;inset:0;background:rgb(0 0 0/.4);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .2s}
+.dial.on .dbk{opacity:1}
+.dop{position:absolute;left:calc(var(--fx) - 28px);top:calc(var(--fy) - 28px);width:56px;height:56px;border-radius:50%;border:0;padding:0;margin:0;display:grid;place-items:center;color:#fff;background:var(--c);box-shadow:0 0 0 3px #fff,0 10px 22px rgb(0 0 0/.32);cursor:pointer;opacity:0;transform:translate(0,0) scale(.3);transition:transform .34s cubic-bezier(.3,1.35,.5,1) var(--dl),opacity .16s var(--dl);-webkit-tap-highlight-color:transparent}
+.dial.on .dop{opacity:1;transform:translate(var(--dx),var(--dy)) scale(1)}
+.dop svg{width:26px;height:26px}
+.dop.dcam{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk)}
+.dop em{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);font:700 13px/1 "Hanken Grotesk",system-ui,sans-serif;font-style:normal;color:#fff;white-space:nowrap;text-shadow:0 1px 3px rgb(0 0 0/.65);pointer-events:none}
+.dop:active{filter:brightness(.9)}
+body.zedit .dial{display:none!important}
+.sbq{display:none}
 .sbb{display:none}
 /* ===== Computadora: barra lateral, ancho completo y tableros en columnas (el celular no cambia) ===== */
 @media (min-width:900px) and (min-height:560px){
@@ -724,17 +738,21 @@ input.bad{color:#e5484d!important}.ln input.bad{border-color:#e5484d!important}
 body{padding-left:var(--sbw)}
 .app{max-width:var(--cw)!important;padding:14px 28px 56px!important}
 .top{margin:-14px -28px 8px!important;padding-left:28px!important;padding-right:28px!important}
-nav.tabs{left:12px!important;top:12px!important;bottom:12px!important;right:auto!important;transform:translateZ(0)!important;width:calc(var(--sbw) - 24px)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column;align-items:stretch;gap:4px;padding:80px 12px 92px!important;border-radius:26px!important;overflow:hidden}
+nav.tabs{left:12px!important;top:12px!important;bottom:12px!important;right:auto!important;transform:translateZ(0)!important;width:calc(var(--sbw) - 24px)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column;align-items:stretch;gap:4px;padding:80px 12px 112px!important;border-radius:26px!important;overflow:hidden}
 .sbb{position:absolute;top:22px;left:16px;right:12px;display:flex!important;align-items:center;gap:10px;font:800 18px/1 "Hanken Grotesk",system-ui,sans-serif;letter-spacing:-.01em;color:var(--ink);pointer-events:none;z-index:1}
 .sbb i{width:36px;height:36px;flex:none;border-radius:11px;position:relative;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 6px 14px color-mix(in srgb,var(--g2) 40%,transparent)}
 .sbb i::after{content:"";position:absolute;inset:7px;background:var(--gk);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat}
 nav.tabs button{min-height:46px!important;flex:none;flex-direction:row!important;justify-content:flex-start!important;gap:8px!important;padding:0 14px 0 6px!important;font-size:15px!important;border-radius:15px!important}
 nav.tabs button:active{transform:scale(.98)}
-.fab:not([hidden]){display:flex!important}
-.fab{left:24px!important;right:auto!important;bottom:24px!important;width:calc(var(--sbw) - 48px)!important;height:50px!important;border-radius:16px!important;align-items:center;justify-content:center;gap:10px;font:700 15px "Hanken Grotesk",system-ui,sans-serif;box-shadow:0 0 0 2px #fff,0 0 0 3px rgb(0 0 0/.25),0 10px 22px rgb(0 0 0/.25)!important}
-.fab::after{content:"Escanear ticket"}
-.fab svg{width:22px;height:22px}
-body.zedit .fab{display:none!important}
+.fab,.dial{display:none!important}
+.sbq:not([hidden]){display:grid}
+.sbq{position:fixed;left:24px;bottom:24px;width:calc(var(--sbw) - 48px);grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;z-index:6}
+.sbq>*{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:70px;border:0;border-radius:16px;background:var(--card);color:var(--ink);font:700 12.5px "Hanken Grotesk",system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 2px rgb(0 0 0/.06),0 6px 16px rgb(0 0 0/.08);transition:transform .15s}
+.sbq .dic{width:32px;height:32px;border-radius:50%;background:var(--c);color:#fff}
+.sbq .dic svg{width:18px;height:18px}
+.sbq .dcam .dic{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk)}
+.sbq>*:active{transform:scale(.96)}
+body.zedit .sbq{display:none!important}
 .toast,.zdone,.upd{left:calc(50% + var(--sbw)/2)!important}
 .toast,.zdone{bottom:28px!important}
 #umenu{left:calc(var(--sbw) + max(0px,(100vw - var(--sbw) - var(--cw))/2) + 28px)!important}
@@ -744,7 +762,7 @@ body.zedit .fab{display:none!important}
 }
 @media (min-width:900px) and (min-height:560px) and (hover:hover){
 nav.tabs button:not([aria-current=true]):hover{background:rgb(127 127 127/.13)}
-.btn:not(:disabled):hover,.mini:hover,.pyb:hover,.lga:hover{transform:translateY(-1px)}
+.btn:not(:disabled):hover,.mini:hover,.pyb:hover,.lga:hover,.sbq>*:hover{transform:translateY(-1px)}
 .zone>summary:hover{background:color-mix(in srgb,var(--zc) 7%,transparent)}
 }
 @media (min-width:1100px) and (min-height:560px){
@@ -758,7 +776,7 @@ body.zedit :is(#zlIni,#zlRes,#zlFij){grid-template-columns:minmax(0,1fr)}
 body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
 #zlIni>.zi:is([data-k=presu],[data-k=qa]){align-self:stretch;display:flex;flex-direction:column}
 #zlIni>.zi:is([data-k=presu],[data-k=qa])>.zc{flex:1;display:flex;flex-direction:column}
-#zlIni>.zi[data-k=presu] .minis{margin:0;flex:1}#zlIni>.zi[data-k=qa] .qa{flex:1}
+#zlIni>.zi:is([data-k=presu],[data-k=qa]) .minis{margin:0;flex:1}
 .pzw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;align-items:start}
 .pzl>.hojam:first-child{margin-top:8px}
 #hojaB:has(>.hsum){display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));column-gap:16px;align-items:start}
@@ -798,7 +816,7 @@ body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
     </div>
     </div>
     <div data-k="presu"><div class="minis"><span id="routeBox"></span><button class="mini" data-act="clip"><span class="mic" style="--c:#0ea5e9" data-ic="copy"></span><span><b>Pegar alerta</b><em>SMS o correo</em></span></button></div></div>
-    <div data-k="qa"><div class="qa" id="qa"></div></div>
+    <div data-k="qa"><div class="minis" id="qa"></div></div>
     <div id="incBox" data-k="inc"></div>
     <div id="fixBox" data-k="pag"></div>
     </div>
@@ -872,7 +890,13 @@ body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
 
 <div class="scango" id="scanGo" hidden><label for="photo" class="scanbig" id="scanBig"><span class="dic" data-ic="camera"></span><b>Toca para tomar la foto</b></label><button class="btn full" data-act="scango-x">Cancelar</button></div>
 <div class="zdone" id="zDone" hidden><span>Arrastra <i class="zgi"></i> para ordenar</span><button data-act="zedit-off">Listo</button></div>
-<label class="fab" id="fab" for="photo" aria-label="Escanear ticket" hidden><span class="dic" data-ic="camera"></span></label>
+<button class="fab" id="fab" type="button" aria-label="Agregar: ticket, gasto o ingreso" aria-expanded="false" hidden><span class="dic" data-ic="plus"></span></button>
+<div class="dial" id="dial" hidden><div class="dbk" data-act="dial-x"></div>
+  <button class="dop" type="button" data-act="dial-g" style="--c:#e11d48;--dx:-108px;--dy:0px;--dl:0ms" aria-label="Nuevo gasto"><span class="dic" data-ic="minus"></span><em>Gasto</em></button>
+  <label class="dop dcam" id="dCam" for="photo" style="--dx:-77px;--dy:-77px;--dl:35ms" aria-label="Escanear ticket"><span class="dic" data-ic="camera"></span><em>Ticket</em></label>
+  <button class="dop" type="button" data-act="dial-i" style="--c:#16a34a;--dx:0px;--dy:-108px;--dl:70ms" aria-label="Nuevo ingreso"><span class="dic" data-ic="plus"></span><em>Ingreso</em></button>
+</div>
+<div class="sbq" id="sbq" hidden><button type="button" data-act="dial-g" style="--c:#e11d48"><span class="dic" data-ic="minus"></span>Gasto</button><button type="button" data-act="dial-i" style="--c:#16a34a"><span class="dic" data-ic="plus"></span>Ingreso</button><label class="dcam" for="photo"><span class="dic" data-ic="camera"></span>Ticket</label></div>
 <nav class="tabs" id="tabs">
   <span class="sbb" aria-hidden="true"><i></i>Mis Finanzas</span>
   <button data-tab="inicio">Inicio</button>
@@ -1506,7 +1530,7 @@ function render0(){ensureCash();
   {const RRh=RG(),ms=[];for(let m=RRh.a;m<=RRh.b&&ms.length<24;m=shift(m,1))ms.push(m);
    $("hojaT").textContent="Hoja de "+(ms.length>1?RGlabel(RRh):MES[+ms[0].slice(5)-1]+" "+ms[0].slice(0,4));$("hojaIc").innerHTML=ic("table");
    $("hojaB").innerHTML=hojaNueva(ms)}
-  $("qa").innerHTML=`<button data-act="add-g">${bubI("minus","#e11d48")}Gasto</button><button data-act="add-i">${bubI("plus","#16a34a")}Ingreso</button><button data-act="fijo-new">${bubI("cal","#7c5cff")}Gasto fijo</button><button data-act="trf">${bubI("swap","#0ea5e9")}Transferir</button>`;
+  $("qa").innerHTML=`<button class="mini" data-act="fijo-new"><span class="mic" style="--c:#7c5cff">${ic("cal")}</span><span><b>Gasto fijo</b><em>Pagos que se repiten</em></span></button><button class="mini" data-act="trf"><span class="mic" style="--c:#0ea5e9">${ic("swap")}</span><span><b>Transferir</b><em>Entre tus cuentas</em></span></button>`;
   const P=H.plan;
   $("routeBox").innerHTML=P?(()=>{const g=H.gast,u=P.gas?g/P.gas:0;return `<button class="mini${u>1?" bad":""}" data-act="m-tab" data-id="resumen"><span class="mic" style="--c:${u>1?"#e11d48":"#7c5cff"}" data-ic="trend"></span><span><b>Presupuesto</b><em>${u>1?"Te pasaste "+fmt0(g-P.gas):"Quedan "+fmt0(P.gas-g)}</em></span></button>`})()
     :`<button class="mini" data-act="go-proy"><span class="mic" style="--c:#7c5cff" data-ic="trend"></span><span><b>Presupuesto</b><em>${S.escs.some(e=>!e.arch)?"Aplicar a "+mn:"Sin presupuesto"}</em></span></button>`;
@@ -1569,7 +1593,7 @@ function render0(){ensureCash();
 
 function show(t){if(t==="movimientos"){t="cuentas";const z=$("histZ");if(z)z.open=true}
   if(t!=="resumen"){const m0=todayStr().slice(0,7);if(month!==m0||pRange){month=m0;pRange=null;render()}}if(document.body&&document.body.classList.contains("zedit"))zEdit(false);
-  tab=t;$("fab").hidden=false;{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
+  tab=t;$("fab").hidden=false;$("sbq").hidden=false;dialSet(false);{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
   requestAnimationFrame(()=>{drawDaily()});window.scrollTo(0,0);
@@ -1763,11 +1787,18 @@ document.addEventListener("click",e=>{const b=e.target.closest(".dpk");if(!b)ret
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches("input[data-money],input[data-date]"))fxOne(n);else if(n.firstElementChild)fxEnh(n)}}).observe(document.body,{childList:true,subtree:true});
 fxEnh(document);
 
+// ---------- botón + en abanico (celular); en computadora los 3 botones van directos en la barra lateral
+function dialSet(o){const d=$("dial"),f=$("fab");if(!d)return;clearTimeout(d._t);
+  if(o){const r=f.getBoundingClientRect();d.style.setProperty("--fx",Math.round(r.left+r.width/2)+"px");d.style.setProperty("--fy",Math.round(r.top+r.height/2)+"px");d.hidden=false;void d.offsetWidth;d.classList.add("on");f.classList.add("on");f.setAttribute("aria-expanded","true")}
+  else{if(d.hidden)return;d.classList.remove("on");f.classList.remove("on");f.setAttribute("aria-expanded","false");d._t=setTimeout(()=>{if(!d.classList.contains("on"))d.hidden=true},260)}}
+$("fab").onclick=()=>dialSet(!$("dial").classList.contains("on"));
+$("dCam").addEventListener("click",()=>setTimeout(()=>dialSet(false),80));
+
 // ---------- paneles genéricos
 function openPanel(html){$("panelBody").innerHTML=html;$("panel").hidden=false}
 function closePanel(){$("panel").hidden=true;$("panelBody").innerHTML="";draft=null}
 $("panel").onclick=e=>{if(e.target.id==="panel")closePanel()};
-document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("panel").hidden)closePanel();else if(!$("sheet").hidden)closeSheet()});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("dial").hidden){dialSet(false);return}if(!$("panel").hidden)closePanel();else if(!$("sheet").hidden)closeSheet()});
 const CXL={cat:"cxCats",tipoF:"cxTiposF",tipoC:"cxTiposC"};
 const listOf=k=>({cat:CATS,tipoF:TIPOSF,tipoC:TIPOSC}[k]).concat(S.cfg[CXL[k]]||[]);
 function cxSave(k,t){const key=CXL[k];if(!key||!t||isDemo())return;if(listOf(k).some(x=>norm(x)===norm(t)))return;(S.cfg[key]=S.cfg[key]||[]).push(t);setTimeout(()=>saveMeta("cfg"),0)}
@@ -1988,6 +2019,7 @@ async function obFinish(){
 const ACT={
   "edit-item":id=>{const x=S.items.find(x=>x.id===id);if(x)openSheet(x)},
   "add-g":()=>openSheet({tipo:"gasto"}),
+  "dial-x":()=>dialSet(false),"dial-g":()=>{dialSet(false);ACT["add-g"]()},"dial-i":()=>{dialSet(false);ACT["add-i"]()},
   "add-i":()=>{const f=S.fuentes[0];openSheet({tipo:"ingreso",cat:f?f.tipo:"Salario",fuente:f?f.id:"",lugar:f?f.nombre:"",monto:f?f.monto:""})},
   close:closePanel,
   "demo-on":()=>{D=makeDemo();S=D;month=todayStr().slice(0,7);render();show("inicio")},
