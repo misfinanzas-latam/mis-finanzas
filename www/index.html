@@ -647,6 +647,22 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
 /* cámara siempre visible: anillo blanco + borde oscuro */
 .fab{color:#fff!important;background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 70%,#000),color-mix(in srgb,var(--g2) 85%,#000))!important;box-shadow:0 0 0 3px #fff,0 0 0 4.5px rgb(0 0 0/.35),0 10px 24px rgb(0 0 0/.35)!important}
 .perbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 12px}.perbar>span{font-weight:700;font-size:15px}
+.pyc{display:flex;justify-content:space-between;align-items:baseline;padding:10px 12px;border-radius:14px;background:rgb(127 127 127/.08);margin-top:6px}.pyc strong{font-size:20px;font-variant-numeric:tabular-nums}
+.pys{display:grid;gap:8px}.pyb{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.pyb i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--mut)}.pyb.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}.pyb.on i{border-color:var(--ink);background:radial-gradient(var(--ink) 45%,transparent 50%)}
+.pyb span{flex:1;min-width:0}.pyb b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pyb em{font-style:normal;font-size:12px;color:var(--mut)}.pyb strong{font-variant-numeric:tabular-nums;font-size:16px}
+.pyw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+.pyt{border-collapse:separate;border-spacing:0;font-size:13px;font-variant-numeric:tabular-nums;min-width:100%}
+.pyt th,.pyt td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.pyt th:first-child,.pyt td:first-child{position:sticky;left:0;background:var(--card);text-align:left;z-index:1;max-width:120px;white-space:normal;overflow-wrap:anywhere}
+.pyt th{vertical-align:bottom;min-width:104px}.pyt th button{border:0;background:none;font:700 12.5px "Hanken Grotesk",sans-serif;color:var(--ink);text-align:right;white-space:normal;cursor:pointer;padding:0}
+.pyx{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}.pyx button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line)!important;display:grid;place-items:center}.pyx svg{width:14px;height:14px}
+.pyt th.on,.pyt td[data-on]{background:color-mix(in srgb,var(--g1) 18%,transparent)}
+.pyt td small{display:block;font-size:10px;color:var(--mut)}.pyt td.z{color:var(--mut)}
+.pyt tr.sec td{font-weight:700;text-align:left;padding-top:12px;border-bottom:2px solid var(--ink)}
+.pyt tr.tt td{font-weight:700;background:rgb(127 127 127/.07)}.pyt tr.tt td:first-child{background:color-mix(in srgb,var(--card) 92%,#888)}
+.pyt tr.gt td{font-weight:800;font-size:14px;border-top:2px solid var(--ink)}
+.pyap{margin:4px 0 12px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -704,13 +720,11 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
   </section>
 
   <section id="tab-proyeccion" hidden>
-    <div class="zlist" id="zlProy"><div class="rcard" data-k="chart"><h2 class="h2i" data-ic="trend">Compara rutas</h2>
-    <label class="f" style="max-width:220px">Proyectar a<select id="horizon" data-cx="num"><option value="3">3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option></select></label>
-    <div class="lg" id="plg"></div>
-    <div class="fig"><svg id="pchart" role="img" aria-label="Proyección del saldo por escenario"></svg></div>
+    <div class="rcard pyh"><h2 class="h2i" data-ic="trend" id="pyT">Presupuesto</h2>
+    <div id="pyHead"></div>
     <div class="row2"><button class="btn solid" data-act="esc-new"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo escenario</button><button class="btn" data-act="esc-fromdata">Crear desde mis datos</button><button class="btn" data-act="esc-archv" id="archB">Archivo</button></div>
-    </div></div>
-    <div class="zlist" id="escList"></div>
+    </div>
+    <div id="escList"></div>
   </section>
 
   <section id="tab-cuentas" hidden>
@@ -1024,6 +1038,32 @@ function agg(m){
   inc.forEach(x=>{const n=srcName(x);bySrc[n]=(bySrc[n]||0)+num(x.monto)});
   return{xs,g,inc,gas:sum(g),ing:sum(inc),byCat,bySrc,places:Object.values(byPlace)};
 }
+let escSel=null;
+function renderProy(){escPurge();const m0=todayStr().slice(0,7),nm=shift(m0,1),E=S.escs.filter(e=>!e.arch),P=(S.cfg.presup||{})[nm];
+  const cier=hoja(m0).proy,cs=E.map(calc),fin=cs.map(c=>cier+c.ing-c.gas);
+  if(!E.some(e=>e.id===escSel))escSel=(P&&E.some(e=>e.id===P.escId))?P.escId:(E[0]||{}).id||null;
+  $("pyT").lastChild.textContent="Presupuesto de "+MES[+nm.slice(5)-1].toLowerCase();
+  $("pyHead").innerHTML=`<div class="pyc"><span>Cierre estimado de ${MES[+m0.slice(5)-1].toLowerCase()}</span><strong class="${cier<0?"neg":""}">${fmt(cier)}</strong></div>
+   ${P?`<p class="note" style="margin:6px 0 0">Aplicado: <b>${esc(P.nombre)}</b> · ingresos ${fmt(P.ing)} · gastos ${fmt(P.gas)}</p>`:`<p class="note" style="margin:6px 0 0">Aún no hay presupuesto para ${mLabel(nm)}.</p>`}`;
+  if(!E.length){$("escList").innerHTML=`<p class="empty">No hay escenarios a la vista. Toca “Crear desde mis datos” o “Nuevo escenario”.</p>`;return}
+  // resumen = selector
+  const sum=`<div class="pys">${E.map((e,i)=>`<button class="pyb${e.id===escSel?" on":""}" data-act="esc-sel" data-id="${e.id}"><i></i><span><b>${esc(e.nombre)}</b><em>Sobra ${fmt(cs[i].ing-cs[i].gas)}</em></span><strong class="${fin[i]<0?"neg":""}">${fmt(fin[i])}</strong></button>`).join("")}</div>`;
+  // tabla comparativa
+  const names=t=>{const o=[];E.forEach(e=>(e.lines||[]).forEach(l=>{if(l.t===t&&!o.includes(l.n))o.push(l.n)}));return o};
+  const cell=(e,t,n)=>{const l=(e.lines||[]).find(x=>x.t===t&&x.n===n);if(!l||!num(l.f)||!num(l.m))return `<td class="z">—</td>`;const v=num(l.m)*num(l.f);return `<td>${fmt(v)}${num(l.f)!==1?`<small>${Math.round(num(l.f)*100)}%</small>`:""}</td>`};
+  const col=i=>E[i].id===escSel?' class="on"':"";
+  const th=`<tr><th></th>${E.map((e,i)=>`<th${col(i)}><button data-act="esc-sel" data-id="${e.id}">${esc(e.nombre)}</button><span class="pyx"><button data-act="esc-edit" data-id="${e.id}" aria-label="Editar">${ic("edit")}</button><button data-act="esc-dup" data-id="${e.id}" aria-label="Duplicar">${ic("copy")}</button></span></th>`).join("")}</tr>`;
+  const rows=(t,lb)=>`<tr class="sec"><td colspan="${E.length+1}">${lb}</td></tr>`+names(t).map(n=>`<tr><td>${esc(n)}</td>${E.map((e,i)=>cell(e,t,n).replace("<td",`<td${E[i].id===escSel?' data-on="1"':""}`)).join("")}</tr>`).join("");
+  const tr=(lb,vals,cls)=>`<tr class="${cls}"><td>${lb}</td>${vals.map((v,i)=>`<td${E[i].id===escSel?' data-on="1"':""} class="${v<0?"neg":""}">${fmt(v)}</td>`).join("")}</tr>`;
+  const tbl=`<div class="pyw"><table class="pyt">${th}
+    ${tr("Cierre de "+MES[+m0.slice(5)-1].toLowerCase(),E.map(()=>cier),"tt")}
+    ${rows("i","Ingresos")}${tr("Total ingresos",cs.map(c=>c.ing),"tt")}
+    ${rows("g","Gastos")}${tr("Total gastos",cs.map(c=>c.gas),"tt")}
+    ${tr("Sobrante del mes",cs.map(c=>c.ing-c.gas),"tt")}
+    ${tr("Saldo final de "+MES[+nm.slice(5)-1].toLowerCase(),fin,"gt")}</table></div>`;
+  const se=E.find(e=>e.id===escSel);
+  $("escList").innerHTML=`<div class="rcard"><h2 class="h2i">${ic("table")}Montos finales</h2>${sum}</div><div class="rcard"><h2 class="h2i">${ic("table")}Comparativo</h2><p class="note" style="margin:0 0 8px">Desliza a los lados para ver todos. Toca un nombre para elegirlo.</p>${tbl}</div>
+  ${se?`<button class="btn solid full pyap" data-act="esc-apnext" data-id="${se.id}">${ic("cal")}Aplicar “${esc(se.nombre)}” a ${mLabel(nm)}</button>`:""}`}
 function calc(e){
   const L=e.lines||[],ing=L.filter(l=>l.t==="i").reduce((s,l)=>s+num(l.m)*num(l.f),0),gas=L.filter(l=>l.t==="g").reduce((s,l)=>s+num(l.m)*num(l.f),0);
   const ah=e.ahorros!==false?ahInc():0,neto=ing-gas;
@@ -1089,7 +1129,7 @@ function drawProy(){
   s.innerHTML=o;
 }
 const ro1=new ResizeObserver(drawDaily);ro1.observe($("daily"));
-const ro2=new ResizeObserver(drawProy);ro2.observe($("pchart"));
+
 
 // ---------- menú de usuario
 function umenuHTML(){
@@ -1151,7 +1191,7 @@ function trfPanel(from){if(S.cuentas.length<2){toast("Necesitas al menos 2 cuent
 
 // ---------- recordatorios
 const VAPID="BBXe1s3GZW-pNkqu8kTFHoTclY5dRa_24tT440axK-yaAJVfKtAL2hLKxSW2e5MSPpBgj1-eCG4XV67CzMwLp6c";
-const REC=()=>Object.assign({on:true,min:3,am:"07:00",pm:"21:00",dia:true,sem:true,mes:true,arq:true,arqDia:6,arqHora:"10:00"},S.cfg.rec||{});
+const REC=()=>Object.assign({on:true,min:3,am:"07:00",pm:"21:00",dia:true,sem:true,mes:true,arq:true,arqDia:6,arqHora:"10:00",presu:true,presuHora:"09:00"},S.cfg.rec||{});
 const bolsa=()=>{const r=S.cfg.rec||{};return S.cuentas.find(c=>c.id===r.bolsa)||cashAcc()||S.cuentas.find(c=>/cartera|bolsa|billetera/i.test((c.nombre||"")+" "+(c.banco||"")))||S.cuentas.find(c=>isCash(c))};
 function sugBolsa(){const b=bolsa();if(!b)return null;const s=ctaSaldo(b),td=todayStr(),d0=new Date(td+"T12:00");d0.setDate(d0.getDate()-30);const desde=d0.toISOString().slice(0,10);
   const g=S.items.filter(x=>x.cuenta===b.id&&x.tipo!=="ingreso"&&x.tipo!=="ajuste"&&x.fecha>=desde&&x.fecha<=td),first=g.reduce((m,x)=>x.fecha<m?x.fecha:m,td),dias=Math.max(7,Math.round((Date.parse(td)-Date.parse(first))/864e5)+1),prom=g.reduce((t,x)=>t+num(x.monto),0)/dias,sug=Math.max(10,Math.ceil((prom*7-Math.max(s,0))/5)*5);
@@ -1202,7 +1242,8 @@ function notifPanel(){const r=REC(),row=(act,icn,col,t,sub)=>`<button class="nro
   openPanel(`<h3>Notificaciones y alertas</h3>
   <div class="ngrp"><span class="ngh">En tu teléfono</span>
   ${row("rec","clock","#0ea5e9","Recordatorios",r.push?"Activos":"Desactivados")}
-  ${row("arq-set","check","#16a34a","Arqueo semanal",r.arq?`${DIAS[r.arqDia][0].toUpperCase()+DIAS[r.arqDia].slice(1)} a las ${r.arqHora}`:"Apagado")}</div>
+  ${row("arq-set","check","#16a34a","Arqueo semanal",r.arq?`${DIAS[r.arqDia][0].toUpperCase()+DIAS[r.arqDia].slice(1)} a las ${r.arqHora}`:"Apagado")}
+  ${row("presu-set","trend","#7c5cff","Presupuesto del mes siguiente",r.presu?`Cada día 30 a las ${r.presuHora}`:"Apagado")}</div>
   <div class="ngrp"><span class="ngh">De tu banco</span>
   ${row("alert-setup","bell","#e11d48","Alertas automáticas",S.cfg.alertKey?"Configuradas":"SMS o correo del banco")}
   ${row("paste-alert","inbox","#7c5cff","Pegar alerta","Del portapapeles")}</div>
@@ -1314,14 +1355,7 @@ function render0(){ensureCash();
   $("tips").innerHTML=tips.length?tips.map(t=>`<div class="tip">${bubI("bulb","#ca8a04")}<div><b>${esc(t.t)}</b><p>${esc(t.d)}</p>${t.s>0?`<mark>Ahorro posible: ${fmt(t.s)}/mes</mark>`:""}</div></div>`).join(""):`<p class="empty">Registra gastos de ${RGtext(RR)} para ver sugerencias.</p>`;
   $("askAi").hidden=!sample||!a2.g.length;
   // proyección
-  {const hs=$("horizon"),hv=String(horizon());if(hs.value!=="__c"||!$("horizon_x")||+$("horizon_x").value!==horizon()){if(![...hs.options].some(o=>o.value===hv))hs.insertAdjacentHTML("afterbegin",`<option value="${hv}">${hv} meses</option>`);hs.value=hv}}
-  escPurge();const N=horizon(),E=S.escs.filter(e=>!e.arch),calcs=E.map(calc),best=calcs.length?calcs.reduce((b,c,i)=>c.at(N)>calcs[b].at(N)?i:b,0):-1;
-  $("plg").innerHTML=E.map((e,i)=>`<span><i style="background:${COLS[i%COLS.length]}"></i>${esc(e.nombre)}</span>`).join("");
-  $("escList").innerHTML=E.length?E.map((e,i)=>{const c=calcs[i],ap=Object.entries(S.cfg.presup||{}).filter(([k,p])=>p.escId===e.id).map(([k])=>k).sort(),sel=ap.includes(todayStr().slice(0,7));return `<div class="esc${sel?" sel":""}" data-k="${e.id}"><h3><i style="background:${COLS[i%COLS.length]}"></i>${esc(e.nombre)} ${ap.map(k=>`<mark>Aplicado ${MES[+k.slice(5)-1].slice(0,3)} ${k.slice(2,4)}</mark>`).join(" ")} ${i===best&&E.length>1?"<mark>Mayor saldo</mark>":""}</h3>
-    <div class="kp"><div><span>Ingresos/mes</span><strong>${fmt(c.ing)}</strong></div><div><span>Gastos/mes</span><strong>${fmt(c.gas)}</strong></div><div><span>Sobra cada mes</span><strong class="${c.neto<0?"neg":"pos"}">${fmt(c.neto)}</strong></div><div><span>En ${N} meses</span><strong class="${c.at(N)<0?"neg":""}">${fmt(c.at(N))}</strong></div></div>
-
-    <div class="row2" style="margin:0"><button class="btn sm" data-act="esc-edit" data-id="${e.id}">Editar</button><button class="btn sm" data-act="esc-dup" data-id="${e.id}">Duplicar</button><button class="btn sm solid" data-act="esc-apply" data-id="${e.id}">${ic("cal")}Aplicar a un mes</button></div></div>`}).join(""):`<p class="empty">Aún no tienes escenarios. Toca “Crear desde mis datos” para armar el primero con tus fuentes de ingreso y tus gastos.</p>`;
-  drawProy();
+  renderProy();
   // cuentas
   $("ahTot").textContent=fmt(S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0));
   $("accList").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),dif=Math.abs(sa-num(c.saldo))>.004,G=isCash(c)?["#34d399","#047857"]:BKG[[...(c.banco||"").toLowerCase()].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%BKG.length];return `<li data-k="${c.id}"><button class="bk" data-act="acc-edit" data-id="${c.id}" style="--b1:${G[0]};--b2:${G[1]}"><span class="bk1"><span class="bkic">${ic(isCash(c)?"wallet":"bank")}</span><b>${esc(c.sys?c.nombre:c.banco)}</b><em>${c.sys?"Principal":c.num?"•••• "+esc(c.num):esc(c.tipo||"")}</em></span><span class="bk2"><span>${esc(c.sys?"Lo que andas contigo":c.nombre||c.tipo)}</span><strong>${fmt(sa)}</strong></span><span class="bk3"><i class="${c.incluir!==false?"on":""}">${c.incluir!==false?"Suma al disponible":"No suma"}</i>${(c.tarjetas||[]).length?`<i>${ic("card")} ${c.tarjetas.map(t=>"··"+esc(t.d)).join(" ")}</i>`:isCash(c)?"":`<i>${ic("card")} + Ligar tarjeta</i>`}${sa<-.004?`<i class="jneg" data-act="just" data-id="${c.id}">Justificar −${fmt(-sa)}</i>`:""}${dif?`<small>base ${fmt(num(c.saldo))} al ${c.fecha?dShort(c.fecha):"inicio"}</small>`:""}</span></button></li>`}).join(""):`<li class="empty">Agrega tus cuentas de ahorro, depósitos o efectivo guardado.</li>`;
@@ -1356,7 +1390,7 @@ function show(t){if(t==="movimientos"){t="cuentas";const z=$("histZ");if(z)z.ope
   tab=t;$("fab").hidden=false;{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t));
   if(location.hash!=="#"+t)history.replaceState(null,"","#"+t);
-  requestAnimationFrame(()=>{drawDaily();drawProy()});window.scrollTo(0,0);
+  requestAnimationFrame(()=>{drawDaily()});window.scrollTo(0,0);
 }
 
 // ---------- formulario de movimiento
@@ -1757,6 +1791,10 @@ const ACT={
   "esc-fromdata":()=>{draft=escFromData("");draft.nombre="Según mis datos de "+MES[+escFromData.rm.slice(5)-1];draft._new=true;escEditor()},
   "esc-edit":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;draft=clone(e);escEditor()},
   "esc-dup":id=>{const e=S.escs.find(e=>e.id===id);if(!e)return;const c=clone(e);c.id=nid("e");c.nombre=e.nombre+" (copia)";c.creado=todayStr();delete c.arch;S.escs.push(c);saveMeta("escs");toast("Escenario duplicado")},
+  "esc-sel":id=>{escSel=id;renderProy()},
+  "esc-apnext":id=>{const e=S.escs.find(x=>x.id===id);if(!e)return;const nm=shift(todayStr().slice(0,7),1),P=(S.cfg.presup||{})[nm],c=calc(e);
+    openPanel(`<h3>Aplicar a ${esc(mLabel(nm))}</h3><p><b>${esc(e.nombre)}</b> · ingresos ${fmt(c.ing)} · gastos ${fmt(c.gas)}</p>${P?`<p class="note">Reemplaza el presupuesto actual: ${esc(P.nombre)}.</p>`:""}
+    <input type="hidden" id="apM" value="${nm}"><div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="apply-ok" data-id="${e.id}">Aplicar</button></div>`)},
   "esc-apply":id=>{const e=S.escs.find(x=>x.id===id);if(!e)return;const c=calc(e),P=S.cfg.presup||{},m0=todayStr().slice(0,7),ms=Array.from({length:13},(_,k)=>shift(m0,k-1));
     openPanel(`<h3>Aplicar “${esc(e.nombre)}”</h3>
     <div class="kp" style="margin:10px 0 14px"><div><span>Ingresos plan</span><strong>${fmt(c.ing)}</strong></div><div><span>Gastos plan</span><strong>${fmt(c.gas)}</strong></div></div>
@@ -1833,7 +1871,7 @@ document.addEventListener("click",e=>{
 });
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
 $("q").oninput=render;
-$("horizon").onchange=()=>{if($("horizon").value==="__c")return;S.cfg.horizon=+$("horizon").value;if(isDemo())render();else saveMeta("cfg")};
+
 document.addEventListener("change",e=>{if(e.target.id==="horizon_x"){const n=Math.min(120,Math.max(1,parseInt(e.target.value)||0));if(!n)return;S.cfg.horizon=n;if(isDemo())render();else saveMeta("cfg")}});
 $("prev").onclick=()=>{if(isRange()){const n=nMes(pRange);pRange={a:shift(pRange.a,-n),b:shift(pRange.b,-n)};month=pRange.b}else month=shift(month,-1);render()};
 $("next").onclick=()=>{if(isRange()){const n=nMes(pRange);pRange={a:shift(pRange.a,n),b:shift(pRange.b,n)};month=pRange.b}else month=shift(month,1);render()};
@@ -2197,6 +2235,10 @@ Object.assign(ACT,{
   "just":id=>justPanel(id),
   notif:()=>{closeUmenu();notifPanel()},
   "arq-set":()=>arqPanel(),
+  "presu-set":()=>{const r=REC();openPanel(`<h3>Presupuesto del mes siguiente</h3><p class="note">Cada día 30 (o el último día si el mes es más corto) te recuerda revisar tus fijos, armar escenarios y aplicar el presupuesto del mes siguiente.</p>
+    <label class="ck"><input type="checkbox" id="pOn"${r.presu?" checked":""}> Avisarme cada mes</label><label class="f">Hora<input id="pHora" type="time" value="${r.presuHora}"></label>
+    <div class="g2"><button class="btn full" data-act="notif">Volver</button><button class="btn solid full" data-act="presu-save">${ic("check")}Guardar</button></div>`)},
+  "presu-save":()=>{S.cfg.rec=Object.assign(REC(),{presu:$("pOn").checked,presuHora:v("pHora")||"09:00"});saveMeta("cfg");toast("Recordatorio guardado");notifPanel()},
   "arq-save":()=>{S.cfg.rec=Object.assign(REC(),{arq:$("aOn").checked,arqDia:+v("aDia"),arqHora:v("aHora")||"10:00"});saveMeta("cfg");toast("Arqueo semanal guardado");notifPanel()},
   scut:()=>scutPanel(),
   "scut-copy":async()=>{if(!S.cfg.alertKey&&!(await newAlertKey(true)))return;const u=alLink("ticket");try{await navigator.clipboard.writeText(u);toast("Enlace copiado")}catch(e){toast(u)}},

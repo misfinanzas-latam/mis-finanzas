@@ -39,7 +39,7 @@ async function datos(uid: string) {
 }
 
 function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnType<typeof local>, forzar = "") {
-  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true, arq: true, arqDia: 6, arqHora: "10:00" }, d.cfg.rec || {});
+  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true, arq: true, arqDia: 6, arqHora: "10:00", presu: true, presuHora: "09:00" }, d.cfg.rec || {});
   const out: { kind: string; title: string; body: string; url: string }[] = [];
   if (!r.on && !forzar) return out;
   const due = (t: string) => forzar || (L.hm >= toMin(t) && L.hm < toMin(t) + 60);
@@ -66,6 +66,13 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
   if ((forzar === "arq") || (!forzar && r.arq && DOW[+r.arqDia] === L.dow && due(r.arqHora))) {
     const tot = d.cuentas.reduce((t: number, c: Any) => t + saldo(c, d.items), 0);
     out.push({ kind: "arq", title: "Arqueo semanal", body: `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.`, url: SITE + "?act=cons" });
+  }
+  // Día 30 (o último día si el mes es más corto): armar presupuesto del mes siguiente
+  const dd = +L.day.slice(8);
+  if (forzar === "presu" || (!forzar && r.presu && (dd === 30 || (L.last && dd < 30)) && due(r.presuHora))) {
+    const [yy, mm] = L.day.split("-").map(Number), nx = mm === 12 ? `${yy + 1}-01` : `${yy}-${String(mm + 1).padStart(2, "0")}`;
+    const P = (d.cfg.presup || {})[nx], nom = MES[+nx.slice(5) - 1];
+    out.push({ kind: "presu", title: `Presupuesto de ${nom}`, body: P ? `Ya tienes “${P.nombre}”. Revisa tus fijos y escenarios antes del cierre y confirma o cámbialo.` : `Revisa tus fijos, arma tus escenarios y elige el presupuesto de ${nom} antes del cierre de mes.`, url: SITE + "?tab=proyeccion" });
   }
   // Noche: diario / semana / mes (uno solo por noche)
   if (forzar === "pm" || forzar === "sem" || forzar === "mes" || (!forzar && due(r.pm))) {
