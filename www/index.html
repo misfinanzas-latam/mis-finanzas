@@ -675,6 +675,7 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
 .hn tr.hi td{font-weight:700}.hn tr.ht2 td{font-weight:700;background:rgb(127 127 127/.08)}
 .hn tr.hr td{font-weight:800;padding-top:12px}.hn tr.hf td{font-weight:800;font-size:17px;border-top:2px solid var(--ink);border-bottom:0;padding-top:10px}
 .hn tr.hh td[colspan]{text-align:left}.hn tr.hh td:nth-child(2){text-align:right}
+.hn4{font-size:12.5px}.hn4 td{text-align:right;padding-left:6px}.hn4 td:first-child{text-align:left;padding-left:0}.hn4 tr.hh td{text-align:right}.hn4 tr.hh td:first-child{text-align:left}
 .hsum{background:color-mix(in srgb,var(--g1) 14%,transparent)}
 </style></head><body>
 <div class="app">
@@ -1042,8 +1043,8 @@ function hojaNueva(ms){const L=hojaSerie(ms),m0=todayStr().slice(0,7);
   let h=L.map(mes).join("");
   if(L.length>1){const tI=L.reduce((t,H)=>t+H.tI,0),tE=L.reduce((t,H)=>t+H.tE,0),f=L[L.length-1];
     h+=`<div class="hm hsum"><div class="hmT"><b>Resumen</b><span>${MES3(L[0].m)} – ${MES3(f.m)} ${f.m.slice(0,4)}</span></div><table class="hn">
-    <tr class="hh"><td>Mes</td><td>Ing − Egr</td><td>Cierre</td></tr>${L.map(H=>`<tr><td><b style="text-transform:capitalize">${MES[+H.m.slice(5)-1]}</b></td><td class="${H.res<0?"neg":"pos"}">${fmt(H.res)}</td><td>${fmt(H.fin)}</td></tr>`).join("")}
-    <tr class="hi"><td>Saldo inicial</td><td></td><td>${fmt(L[0].ini)}</td></tr><tr><td>+ Ingresos</td><td></td><td class="pos">${fmt(tI)}</td></tr><tr><td>− Egresos</td><td></td><td class="neg">−${fmt(tE)}</td></tr>${Math.abs(L.reduce((t,H)=>t+H.aj,0))>.004?`<tr><td>± Ajustes</td><td></td><td>${fmt(L.reduce((t,H)=>t+H.aj,0))}</td></tr>`:""}
+    </table><table class="hn hn4"><tr class="hh"><td>Mes</td><td>Ingresos</td><td>Egresos</td><td>Cierre</td></tr>${L.map(H=>`<tr><td><b style="text-transform:capitalize">${MES[+H.m.slice(5)-1]}</b></td><td class="pos">${fmt(H.tI)}</td><td class="neg">−${fmt(H.tE)}</td><td>${fmt(H.fin)}</td></tr>`).join("")}<tr class="ht2"><td>Total</td><td class="pos">${fmt(tI)}</td><td class="neg">−${fmt(tE)}</td><td>${fmt(f.fin)}</td></tr></table><table class="hn" style="margin-top:8px">
+    <tr class="hi"><td>Saldo inicial</td><td></td><td>${fmt(L[0].ini)}</td></tr><tr><td>+ Total de ingresos</td><td></td><td class="pos">${fmt(tI)}</td></tr><tr><td>− Total de egresos</td><td></td><td class="neg">−${fmt(tE)}</td></tr>${Math.abs(L.reduce((t,H)=>t+H.aj,0))>.004?`<tr><td>± Ajustes</td><td></td><td>${fmt(L.reduce((t,H)=>t+H.aj,0))}</td></tr>`:""}
     <tr class="hf"><td>Saldo final</td><td></td><td class="${f.fin<0?"neg":""}">${fmt(f.fin)}</td></tr></table></div>`}
   return h+`<div class="row2"><button class="btn sm" data-act="hoja-copy" data-id="${ms[0]}|${ms[ms.length-1]}">${ic("copy")}Copiar hoja</button></div>`}
 function hojaTexto(ms){const L=hojaSerie(ms),f=v=>fmtR(v).replace("$","").padStart(11),O=[];
