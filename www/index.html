@@ -667,6 +667,15 @@ nav.tabs button{min-height:54px!important;font-size:10.5px!important}
 .pst{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;margin:6px 0 4px}.pst td{padding:7px 0;border-bottom:1px solid var(--line)}.pst td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .pst tr.tt td{font-weight:700;background:rgb(127 127 127/.07)}.pst tr.gt td{font-weight:800;font-size:16px;border-top:2px solid var(--ink);border-bottom:0}
 .mxc{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgb(127 127 127/.07);font-size:13px}.mxc b{width:100%}.mxc span{display:flex;gap:6px;align-items:baseline}.mxc strong{font-variant-numeric:tabular-nums}
+.hm{margin:6px 0 16px;padding:12px 12px 4px;border-radius:16px;background:rgb(127 127 127/.06)}
+.hmT b{text-transform:capitalize}.hmT{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}.hmT b{font-size:24px;letter-spacing:-.02em}.hmT span{font-size:16px;color:var(--mut);font-weight:600}.hmT em{margin-left:auto;font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);background:var(--card);padding:3px 8px;border-radius:999px}
+.hn{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}.hn td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}.hn td:last-child{text-align:right;white-space:nowrap;padding-left:8px}.hn td.hs{width:16px;color:var(--grn);text-align:center;font-size:12px}
+.hn .hd{display:inline-block;min-width:44px;color:var(--mut);font-size:12px;margin-right:6px}
+.hn tr.hh td{padding-top:14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);border-bottom:2px solid var(--ink)}
+.hn tr.hi td{font-weight:700}.hn tr.ht2 td{font-weight:700;background:rgb(127 127 127/.08)}
+.hn tr.hr td{font-weight:800;padding-top:12px}.hn tr.hf td{font-weight:800;font-size:17px;border-top:2px solid var(--ink);border-bottom:0;padding-top:10px}
+.hn tr.hh td[colspan]{text-align:left}.hn tr.hh td:nth-child(2){text-align:right}
+.hsum{background:color-mix(in srgb,var(--g1) 14%,transparent)}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1002,6 +1011,45 @@ function hoja(m){
   H.extIn=a.inc.filter(out).reduce((t,x)=>t+num(x.monto),0);H.extOut=a.g.filter(out).reduce((t,x)=>t+num(x.monto),0);
   H.real=H.tA;H.proy=H.real+(H.tI-H.rI)-(H.tF-H.pF);H.gast=H.pF+H.tV;return H;
 }
+// ---------- hoja nueva (mes por mes, simple)
+function hojaSerie(ms){const m0=todayStr().slice(0,7),inc=new Set(S.cuentas.filter(c=>c.incluir!==false).map(c=>c.id)),tA=S.cuentas.filter(c=>c.incluir!==false).reduce((t,c)=>t+ctaSaldo(c),0);
+  const counted=x=>{const c=S.cuentas.find(k=>k.id===x.cuenta);return c&&inc.has(c.id)&&(c.ts?(x.ts||0)>c.ts:x.fecha>=(c.fecha||""))};
+  const effFrom=m=>S.items.filter(x=>x.fecha>=m+"-01"&&counted(x)).reduce((t,x)=>t+sgn(x)*num(x.monto),0);
+  const out=[];let prev=null;
+  ms.forEach(m=>{const H={m,I:[],E:[],aj:0};
+    if(m<=m0){H.ini=tA-effFrom(m);const it=S.items.filter(x=>x.fecha.slice(0,7)===m);
+      it.filter(x=>x.tipo==="ingreso").forEach(x=>H.I.push({d:x.fecha,n:srcName(x),m:num(x.monto),ok:1}));
+      it.filter(x=>x.tipo!=="ingreso"&&x.tipo!=="ajuste").forEach(x=>H.E.push({d:x.fecha,n:x.lugar||x.cat||"Gasto",m:num(x.monto),ok:1,c:x.cat}));
+      H.aj=it.filter(x=>x.tipo==="ajuste"&&counted(x)).reduce((t,x)=>t+sgn(x)*num(x.monto),0);
+      if(m===m0){const P=(S.cfg.presup||{})[m];
+        if(P){const rI=H.I.reduce((t,x)=>t+x.m,0),rE=H.E.reduce((t,x)=>t+x.m,0);if(P.ing-rI>.004)H.I.push({n:"Por recibir según presupuesto",m:P.ing-rI});if(P.gas-rE>.004)H.E.push({n:"Por gastar según presupuesto",m:P.gas-rE})}
+        else{ingMes(m).filter(o=>!o.rec).forEach(o=>H.I.push({d:o.venc,n:o.f.nombre,m:num(o.f.monto)}));fijosMes(m).filter(o=>!o.pago).forEach(o=>H.E.push({d:o.venc,n:o.f.nombre,m:num(o.f.monto)}))}}}
+    else{H.ini=prev?prev.fin:tA;const P=(S.cfg.presup||{})[m],dd=l=>+l.d?m+"-"+String(Math.min(+l.d,dim(m))).padStart(2,"0"):"";
+      if(P){(P.lines||[]).forEach(l=>(l.t==="i"?H.I:H.E).push({d:dd(l),n:l.n,m:num(l.m)}));H.pres=P.nombre}
+      else{ingMes(m).forEach(o=>H.I.push({d:o.venc,n:o.f.nombre,m:num(o.f.monto)}));fijosMes(m).forEach(o=>H.E.push({d:o.venc,n:o.f.nombre,m:num(o.f.monto)}))}}
+    const srt=a=>a.sort((x,y)=>(x.d||"9").localeCompare(y.d||"9"));srt(H.I);srt(H.E);
+    H.tI=H.I.reduce((t,x)=>t+x.m,0);H.tE=H.E.reduce((t,x)=>t+x.m,0);H.res=H.tI-H.tE;H.fin=H.ini+H.res+H.aj;out.push(H);prev=H});
+  return out}
+function hojaNueva(ms){const L=hojaSerie(ms),m0=todayStr().slice(0,7);
+  const row=x=>`<tr><td>${x.d?`<span class="hd">${dShort(x.d)}</span>`:""}${esc(x.n)}</td><td class="hs">${x.ok?"✓":""}</td><td>${fmt(x.m)}</td></tr>`;
+  const mes=H=>`<div class="hm"><div class="hmT"><b>${MES[+H.m.slice(5)-1]}</b><span>${H.m.slice(0,4)}</span><em>${H.m<m0?"cerrado":H.m===m0?"en curso":H.pres?"presupuesto: "+esc(H.pres):"proyectado"}</em></div>
+   <table class="hn"><tr class="hi"><td>${H.m<=m0?"Saldo al inicio del mes":"Saldo inicial (cierre anterior)"}</td><td></td><td>${fmt(H.ini)}</td></tr>
+   <tr class="hh"><td colspan="3">Ingresos</td></tr>${H.I.length?H.I.map(row).join(""):`<tr><td colspan="3" class="note">Sin ingresos</td></tr>`}<tr class="ht2"><td>Total ingresos</td><td></td><td class="pos">${fmt(H.tI)}</td></tr>
+   <tr class="hh"><td colspan="3">Egresos</td></tr>${H.E.length?H.E.map(row).join(""):`<tr><td colspan="3" class="note">Sin egresos</td></tr>`}<tr class="ht2"><td>Total egresos</td><td></td><td class="neg">−${fmt(H.tE)}</td></tr>
+   ${Math.abs(H.aj)>.004?`<tr><td>Ajustes (justificaciones)</td><td></td><td>${H.aj<0?"−":"+"}${fmt(Math.abs(H.aj))}</td></tr>`:""}
+   <tr class="hr"><td>Ingresos − egresos</td><td></td><td class="${H.res<0?"neg":"pos"}">${fmt(H.res)}</td></tr>
+   <tr class="hf"><td>Saldo al cierre de ${MES[+H.m.slice(5)-1].toLowerCase()}</td><td></td><td class="${H.fin<0?"neg":""}">${fmt(H.fin)}</td></tr></table></div>`;
+  let h=L.map(mes).join("");
+  if(L.length>1){const tI=L.reduce((t,H)=>t+H.tI,0),tE=L.reduce((t,H)=>t+H.tE,0),f=L[L.length-1];
+    h+=`<div class="hm hsum"><div class="hmT"><b>Resumen</b><span>${MES3(L[0].m)} – ${MES3(f.m)} ${f.m.slice(0,4)}</span></div><table class="hn">
+    <tr class="hh"><td>Mes</td><td>Ing − Egr</td><td>Cierre</td></tr>${L.map(H=>`<tr><td><b style="text-transform:capitalize">${MES[+H.m.slice(5)-1]}</b></td><td class="${H.res<0?"neg":"pos"}">${fmt(H.res)}</td><td>${fmt(H.fin)}</td></tr>`).join("")}
+    <tr class="hi"><td>Saldo inicial</td><td></td><td>${fmt(L[0].ini)}</td></tr><tr><td>+ Ingresos</td><td></td><td class="pos">${fmt(tI)}</td></tr><tr><td>− Egresos</td><td></td><td class="neg">−${fmt(tE)}</td></tr>${Math.abs(L.reduce((t,H)=>t+H.aj,0))>.004?`<tr><td>± Ajustes</td><td></td><td>${fmt(L.reduce((t,H)=>t+H.aj,0))}</td></tr>`:""}
+    <tr class="hf"><td>Saldo final</td><td></td><td class="${f.fin<0?"neg":""}">${fmt(f.fin)}</td></tr></table></div>`}
+  return h+`<div class="row2"><button class="btn sm" data-act="hoja-copy" data-id="${ms[0]}|${ms[ms.length-1]}">${ic("copy")}Copiar hoja</button></div>`}
+function hojaTexto(ms){const L=hojaSerie(ms),f=v=>fmtR(v).replace("$","").padStart(11),O=[];
+  L.forEach(H=>{O.push("","=== "+MES[+H.m.slice(5)-1].toUpperCase()+" "+H.m.slice(0,4)+" ===",f(H.ini)+"  Saldo inicial","INGRESOS");H.I.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort(x.d)+" ":"")+x.n));O.push(f(H.tI)+"  TOTAL INGRESOS","EGRESOS");H.E.forEach(x=>O.push(f(x.m)+"  "+(x.d?dShort(x.d)+" ":"")+x.n));O.push(f(H.tE)+"  TOTAL EGRESOS");if(Math.abs(H.aj)>.004)O.push(f(H.aj)+"  Ajustes");O.push(f(H.res)+"  INGRESOS - EGRESOS",f(H.fin)+"  SALDO AL CIERRE")});
+  if(L.length>1)O.push("","=== RESUMEN ===",f(L[0].ini)+"  Saldo inicial",f(L.reduce((t,H)=>t+H.tI,0))+"  + Ingresos",f(L.reduce((t,H)=>t+H.tE,0))+"  - Egresos",f(L[L.length-1].fin)+"  SALDO FINAL");
+  return O.join("\n").trim()}
 function hojaHTML(m,H){
   const st=x=>x.ok?`<td class="st ok">✓</td>`:x.late?`<td class="st late">vencido</td>`:`<td class="st">pendiente</td>`;
   const r=(x,showSt)=>`<tr><td>${esc(x.n)}<small>${x.d?dShort(x.d)+" · ":""}${esc(x.fr||"")}</small></td>${showSt?st(x):"<td></td>"}<td>${fmt(x.m)}</td></tr>`;
@@ -1338,7 +1386,7 @@ function render0(){ensureCash();
   $("lgIng").textContent=fmt(H.rI);$("lgAh").textContent=fmt(H.tA);$("lgGas").textContent=fmt(H.gast);
   {const RRh=RG(),ms=[];for(let m=RRh.a;m<=RRh.b&&ms.length<24;m=shift(m,1))ms.push(m);
    $("hojaT").textContent="Hoja de "+(ms.length>1?RGlabel(RRh):MES[+ms[0].slice(5)-1]+" "+ms[0].slice(0,4));$("hojaIc").innerHTML=ic("table");
-   $("hojaB").innerHTML=ms.length>1?ms.map(m=>`<h4 class="hojam">${mLabel(m)}</h4>`+hojaHTML(m,hoja(m))).join(""):hojaHTML(ms[0],hoja(ms[0]))}
+   $("hojaB").innerHTML=hojaNueva(ms)}
   $("qa").innerHTML=`<button data-act="add-g">${bubI("minus","#e11d48")}Gasto</button><button data-act="add-i">${bubI("plus","#16a34a")}Ingreso</button><button data-act="fijo-new">${bubI("cal","#7c5cff")}Gasto fijo</button><button data-act="trf">${bubI("swap","#0ea5e9")}Transferir</button>`;
   const P=H.plan;
   $("routeBox").innerHTML=P?(()=>{const g=H.gast,u=P.gas?g/P.gas:0;return `<button class="mini${u>1?" bad":""}" data-act="m-tab" data-id="resumen"><span class="mic" style="--c:${u>1?"#e11d48":"#7c5cff"}" data-ic="trend"></span><span><b>Presupuesto</b><em>${u>1?"Te pasaste "+fmt0(g-P.gas):"Quedan "+fmt0(P.gas-g)}</em></span></button>`})()
@@ -1844,7 +1892,7 @@ const ACT={
   "esc-unarch":id=>{const e=S.escs.find(x=>x.id===id);if(!e)return;delete e.arch;delete e.archF;e.creado=todayStr();saveMeta("escs");closePanel();render();toast("Escenario restaurado")},
   "presup-off":(m,b)=>{if(!confirmBtn(b,"Toca otra vez para quitarlo"))return;if(S.cfg.presup)delete S.cfg.presup[m];saveMeta("cfg");toast("Presupuesto quitado")},
   "go-proy":()=>show("proyeccion"),
-  "hoja-copy":async id=>{const m=id||month;try{await navigator.clipboard.writeText(hojaText(m,hoja(m)));toast("Hoja copiada: pégala en Notas o WhatsApp")}catch(e){toast("No se pudo copiar")}},
+  "hoja-copy":async id=>{const [a,b]=(id||month+"|"+month).split("|"),ms=[];for(let m=a;m<=(b||a);m=shift(m,1))ms.push(m);try{await navigator.clipboard.writeText(hojaTexto(ms));toast("Hoja copiada: pégala en Notas o WhatsApp")}catch(e){toast("No se pudo copiar")}},
   "inc-rec":k=>{const [id,venc]=k.split("|"),f=S.fuentes.find(x=>x.id===id);if(!f)return;const td=todayStr();
     openSheet({tipo:"ingreso",cuenta:f.cuenta||"",monto:f.monto,lugar:f.nombre,cat:f.tipo,fuente:f.id,fecha:venc<=td?venc:td,nota:freqL(f)+" · "+dShort(venc)});pendFijo={venc};$("fTitle").textContent="Recibir: "+f.nombre},
   "ln-add":t=>{draft.lines.push({id:nid("l"),t,n:"",m:0,f:1});const y=$("panelBody").scrollTop;escEditor();$("panelBody").scrollTop=y;const ins=$("panelBody").querySelectorAll(`.ln input[data-k=n]`);const last=[...ins].filter(x=>draft.lines[+x.dataset.i].t===t).pop();if(last)last.focus()},
