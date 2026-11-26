@@ -730,6 +730,9 @@ input.bad{color:#e5484d!important}.ln input.bad{border-color:#e5484d!important}
 .dop em{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);font:700 13px/1 "Hanken Grotesk",system-ui,sans-serif;font-style:normal;color:#fff;white-space:nowrap;text-shadow:0 1px 3px rgb(0 0 0/.65);pointer-events:none}
 .dop:active{filter:brightness(.9)}
 body.zedit .dial{display:none!important}
+/* botón + translúcido (vidrio): deja ver el contenido y mantiene el contraste */
+.fab{background:linear-gradient(135deg,color-mix(in srgb,color-mix(in srgb,var(--g2) 68%,#000) 64%,transparent),color-mix(in srgb,color-mix(in srgb,var(--g2) 84%,#000) 64%,transparent))!important;-webkit-backdrop-filter:blur(14px) saturate(1.7);backdrop-filter:blur(14px) saturate(1.7);box-shadow:inset 0 1px 0 rgb(255 255 255/.35),0 0 0 2.5px rgb(255 255 255/.8),0 0 0 4px rgb(0 0 0/.2),0 10px 24px rgb(0 0 0/.22)!important}
+.fab .dic svg{filter:drop-shadow(0 1px 1.5px rgb(0 0 0/.45))}
 .sbq{display:none}
 .sbb{display:none}
 /* ===== Computadora: barra lateral, ancho completo y tableros en columnas (el celular no cambia) ===== */
