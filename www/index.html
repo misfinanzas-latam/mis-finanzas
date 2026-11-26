@@ -701,6 +701,63 @@ nav.tabs button[aria-current=true] svg.i .f{fill-opacity:.3}
 @media(max-width:380px){.fx .it>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}.fx .it>.pay .i{width:19px;height:19px}}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}}
 :root[data-theme=dark] .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}
+.sbb{display:none}
+/* ===== Computadora: barra lateral, ancho completo y tableros en columnas (el celular no cambia) ===== */
+@media (min-width:900px) and (min-height:560px){
+:root{--sbw:248px;--cw:780px}
+body{padding-left:var(--sbw)}
+.app{max-width:var(--cw)!important;padding:14px 28px 56px!important}
+.top{margin:-14px -28px 8px!important;padding-left:28px!important;padding-right:28px!important}
+nav.tabs{left:12px!important;top:12px!important;bottom:12px!important;right:auto!important;transform:translateZ(0)!important;width:calc(var(--sbw) - 24px)!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column;align-items:stretch;gap:4px;padding:80px 12px 92px!important;border-radius:26px!important;overflow:hidden}
+.sbb{position:absolute;top:22px;left:16px;right:12px;display:flex!important;align-items:center;gap:10px;font:800 18px/1 "Hanken Grotesk",system-ui,sans-serif;letter-spacing:-.01em;color:var(--ink);pointer-events:none;z-index:1}
+.sbb i{width:36px;height:36px;flex:none;border-radius:11px;position:relative;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 6px 14px color-mix(in srgb,var(--g2) 40%,transparent)}
+.sbb i::after{content:"";position:absolute;inset:7px;background:var(--gk);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h3'/%3E%3C/svg%3E") center/contain no-repeat}
+nav.tabs button{min-height:46px!important;flex:none;flex-direction:row!important;justify-content:flex-start!important;gap:8px!important;padding:0 14px 0 6px!important;font-size:15px!important;border-radius:15px!important}
+nav.tabs button:active{transform:scale(.98)}
+.fab:not([hidden]){display:flex!important}
+.fab{left:24px!important;right:auto!important;bottom:24px!important;width:calc(var(--sbw) - 48px)!important;height:50px!important;border-radius:16px!important;align-items:center;justify-content:center;gap:10px;font:700 15px "Hanken Grotesk",system-ui,sans-serif;box-shadow:0 0 0 2px #fff,0 0 0 3px rgb(0 0 0/.25),0 10px 22px rgb(0 0 0/.25)!important}
+.fab::after{content:"Escanear ticket"}
+.fab svg{width:22px;height:22px}
+body.zedit .fab{display:none!important}
+.toast,.zdone,.upd{left:calc(50% + var(--sbw)/2)!important}
+.toast,.zdone{bottom:28px!important}
+#umenu{left:calc(var(--sbw) + max(0px,(100vw - var(--sbw) - var(--cw))/2) + 28px)!important}
+#pmenu{right:calc(max(0px,(100vw - var(--sbw) - var(--cw))/2) + 28px)!important}
+.sh{align-items:center!important;padding:24px}
+.pan{max-width:600px!important;border-radius:24px!important;max-height:min(88vh,940px)!important;box-shadow:0 30px 80px rgb(0 0 0/.35)}
+}
+@media (min-width:900px) and (min-height:560px) and (hover:hover){
+nav.tabs button:not([aria-current=true]):hover{background:rgb(127 127 127/.13)}
+.btn:not(:disabled):hover,.mini:hover,.pyb:hover,.lga:hover{transform:translateY(-1px)}
+.zone>summary:hover{background:color-mix(in srgb,var(--zc) 7%,transparent)}
+}
+@media (min-width:1100px) and (min-height:560px){
+:root{--cw:1180px}
+#zlIni,#zlRes,#zlFij{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;row-gap:16px;align-items:start;grid-auto-flow:row dense}
+#zlIni>.zi,#zlRes>.zi,#zlFij>.zi{grid-column:1/-1;min-width:0}
+#zlIni>.zi:is([data-k=presu],[data-k=qa],[data-k=inc],[data-k=pag]),#zlRes>.zi:is([data-k=cats],[data-k=incs],[data-k=rec],[data-k=daily]),#zlFij>.zi{grid-column:auto}
+#zlRes>.zi:is([data-k=cats],[data-k=incs],[data-k=rec],[data-k=daily]){align-self:stretch;display:flex;flex-direction:column}
+#zlRes>.zi:is([data-k=cats],[data-k=incs],[data-k=rec],[data-k=daily])>.zc{flex:1}
+body.zedit :is(#zlIni,#zlRes,#zlFij){grid-template-columns:minmax(0,1fr)}
+body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
+#zlIni>.zi:is([data-k=presu],[data-k=qa]){align-self:stretch;display:flex;flex-direction:column}
+#zlIni>.zi:is([data-k=presu],[data-k=qa])>.zc{flex:1;display:flex;flex-direction:column}
+#zlIni>.zi[data-k=presu] .minis{margin:0;flex:1}#zlIni>.zi[data-k=qa] .qa{flex:1}
+.pzw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;align-items:start}
+.pzl>.hojam:first-child{margin-top:8px}
+#hojaB:has(>.hsum){display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));column-gap:16px;align-items:start}
+#hojaB:not(:has(>.hsum))>*{max-width:820px;margin-left:auto;margin-right:auto}
+#escList>.empty:first-child{margin-top:0}
+#zlIni .ledger{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;grid-template-areas:"top trio" "spark free" "acc acc";align-items:end;padding:24px 26px 18px}
+#zlIni .ledger>.lgtop{grid-area:top}#zlIni .ledger>.spark{grid-area:spark;margin:0}#zlIni .ledger>.trio{grid-area:trio}#zlIni .ledger>.free3{grid-area:free;margin:0}#zlIni .ledger>.lgacc{grid-area:acc;grid-template-columns:repeat(4,minmax(0,1fr))!important;margin-top:16px}#zlIni .ledger>.eq{display:none}
+#zlIni .ledger>.free3[hidden]+.lgacc{margin-top:16px}
+#kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+#hojaB>:not(.hm),#hojaB>.hsum{grid-column:1/-1}
+#tab-cuentas:not([hidden]){display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:18px;align-items:start}
+#tab-proyeccion:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:start}
+#tab-proyeccion>.pyh{margin:0}
+}
+@media (min-width:1600px) and (min-height:560px){:root{--cw:1320px}}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -801,6 +858,7 @@ nav.tabs button[aria-current=true] svg.i .f{fill-opacity:.3}
 <div class="zdone" id="zDone" hidden><span>Arrastra <i class="zgi"></i> para ordenar</span><button data-act="zedit-off">Listo</button></div>
 <label class="fab" id="fab" for="photo" aria-label="Escanear ticket" hidden><span class="dic" data-ic="camera"></span></label>
 <nav class="tabs" id="tabs">
+  <span class="sbb" aria-hidden="true"><i></i>Mis Finanzas</span>
   <button data-tab="inicio">Inicio</button>
   <button data-tab="fijos">Fijos</button>
   <button data-tab="resumen">Resumen</button>
@@ -1407,7 +1465,7 @@ function renderMov(aR){aR=aR||(isRange()?agg(RG()):agg(month));const q=norm($("q
   let h="",last="";const DT={};xs.forEach(x=>{if(x.tipo!=="ingreso"&&x.tipo!=="ajuste")DT[x.fecha]=(DT[x.fecha]||0)+num(x.monto)});
   xs.slice(0,histN).forEach(x=>{if(x.fecha!==last){h+=(last?"</ul>":"")+`<p class="day"><span><b>${+x.fecha.slice(8)}</b>${MES[+x.fecha.slice(5,7)-1]}${x.fecha.slice(0,4)!==todayStr().slice(0,4)?" "+x.fecha.slice(0,4):""}</span>${DT[x.fecha]?`<em>−${fmt(DT[x.fecha])}</em>`:""}</p><ul class="list">`;last=x.fecha}h+=row(x)});
   $("movList").innerHTML=xs.length?h+"</ul>"+(xs.length>histN?`<button class="btn full" data-act="hist-more" style="margin-top:10px">Ver ${Math.min(100,xs.length-histN)} más (${xs.length-histN} restantes)</button>`:""):`<p class="empty">${q?"Nada coincide con la búsqueda.":"Sin movimientos en "+RGtext(RG())+"."}</p>`}
-function render(){MEMO=new Map();try{render0()}finally{MEMO=null}zInit()}
+function render(){MEMO=new Map();try{render0();drawDaily()}finally{MEMO=null}zInit()}
 let cashOK=false;setTimeout(()=>{if(!sb){cashOK=true;if(typeof render==="function")render()}},0);
 const cashAcc=()=>S.cuentas.find(c=>c.sys);
 function ensureCash(){if(S!==R||!cashOK||!R.cfg.onboarded||cashAcc())return;
@@ -1455,7 +1513,7 @@ function render0(){ensureCash();
   const sdC=(m,r)=>m>=todayStr().slice(0,7)?(()=>{const c=cierreDe(m);return `<span class="sd${c<0?" neg":" pos"}">${fmt(c)}<small>proyectado</small></span>`})():`<span class="sd${r<0?" neg":r>0?" pos":""}">${fmt(r)}<small>ingresos − gastos</small></span>`;
   $("perPlan").innerHTML=isRange()?`<div class="mxm"><h3>Mes por mes</h3><div class="mxr hd"><span>Mes</span><span>Ingresos</span><span>Gastos</span><span>Saldo al cierre</span></div>${PL.map(o=>`<div class="mxr"><span><b class="mo">${MES3(o.m)} ${o.m.slice(2,4)}</b></span>${cell(o.iR,o.iP,"ci",mxI)}${cell(o.gR,o.gP,"cg",mxG)}${sdC(o.m,o.iR-o.gR)}</div>`).join("")}<div class="mxr tt"><span><b class="mo">Total</b></span>${cell(a2.ing,iPt,"ci",mxI)}${cell(a2.gas,gPt,"cg",mxG)}${sdC(RR.b,a2.ing-a2.gas)}</div><p class="note" style="margin:8px 0 0">Arriba lo real; abajo el plan. Saldo al cierre = saldo de hoy + lo que falta recibir − lo que falta pagar, mes a mes según su presupuesto o tus fijos.</p></div>`:"";
   {const m0=todayStr().slice(0,7),ms=[];for(let m=RR.a;m<=RR.b;m=shift(m,1))ms.push(m);if(!isRange()&&month===m0)ms.push(shift(m0,1));
-   $("presuZ").innerHTML=ms.filter(m=>(S.cfg.presup||{})[m]).map(m=>{const P=S.cfg.presup[m];return `<details class="zone" data-z="pz${m}" data-def="1" style="--zc:#7c5cff">${zsum("trend","Presupuesto",MES[+m.slice(5)-1].replace(/^./,c=>c.toUpperCase())+" · "+esc(P.nombre),fmt(P.ing-P.gas))}<div class="zb">${presuSum(m)}${presuLines(m)}</div></details>`}).join("");
+   $("presuZ").innerHTML=ms.filter(m=>(S.cfg.presup||{})[m]).map(m=>{const P=S.cfg.presup[m];return `<details class="zone" data-z="pz${m}" data-def="1" style="--zc:#7c5cff">${zsum("trend","Presupuesto",MES[+m.slice(5)-1].replace(/^./,c=>c.toUpperCase())+" · "+esc(P.nombre),fmt(P.ing-P.gas))}<div class="zb"><div class="pzw">${presuSum(m)}<div class="pzl">${presuLines(m)}</div></div></div></details>`}).join("");
    $("presuZ").querySelectorAll("details.zone").forEach(d=>{const k="mf.z."+d.dataset.z;try{const v=localStorage.getItem(k);if(v!==null)d.open=v==="1"}catch(e){}})}
   const tips=insights(RR);
   $("tips").innerHTML=tips.length?tips.map(t=>`<div class="tip">${bubI("bulb","#ca8a04")}<div><b>${esc(t.t)}</b><p>${esc(t.d)}</p>${t.s>0?`<mark>Ahorro posible: ${fmt(t.s)}/mes</mark>`:""}</div></div>`).join(""):`<p class="empty">Registra gastos de ${RGtext(RR)} para ver sugerencias.</p>`;
@@ -1637,6 +1695,7 @@ $("busyCancel").onclick=()=>{scanTok++;$("busy").hidden=true;ocrProg=null;$("fMo
 function openPanel(html){$("panelBody").innerHTML=html;$("panel").hidden=false}
 function closePanel(){$("panel").hidden=true;$("panelBody").innerHTML="";draft=null}
 $("panel").onclick=e=>{if(e.target.id==="panel")closePanel()};
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("panel").hidden)closePanel();else if(!$("sheet").hidden)closeSheet()});
 const CXL={cat:"cxCats",tipoF:"cxTiposF",tipoC:"cxTiposC"};
 const listOf=k=>({cat:CATS,tipoF:TIPOSF,tipoC:TIPOSC}[k]).concat(S.cfg[CXL[k]]||[]);
 function cxSave(k,t){const key=CXL[k];if(!key||!t||isDemo())return;if(listOf(k).some(x=>norm(x)===norm(t)))return;(S.cfg[key]=S.cfg[key]||[]).push(t);setTimeout(()=>saveMeta("cfg"),0)}
