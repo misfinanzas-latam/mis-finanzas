@@ -1,5 +1,6 @@
 // Recordatorios con notificaciones del sistema (Web Push).
-// pg_cron la llama cada 15 min (sin sesión). Con sesión del usuario: {accion:"prueba"} manda una de prueba.
+// pg_cron la llama cada 15 min con su clave secreta. Con sesión del usuario: {accion:"prueba"} manda una de prueba.
+// Por privacidad, los montos solo aparecen si el usuario activó "Mostrar montos en las notificaciones".
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { sendPush } from "./webpush.ts";
 
@@ -39,7 +40,8 @@ async function datos(uid: string) {
 }
 
 function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnType<typeof local>, forzar = "") {
-  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true, arq: true, arqDia: 6, arqHora: "10:00", presu: true, presuHora: "09:00" }, d.cfg.rec || {});
+  const r = Object.assign({ on: true, min: 3, am: "07:00", pm: "21:00", sem: true, mes: true, dia: true, arq: true, arqDia: 6, arqHora: "10:00", presu: true, presuHora: "09:00", montos: false }, d.cfg.rec || {});
+  const M = r.montos === true; // mostrar montos en la pantalla bloqueada
   const out: { kind: string; title: string; body: string; url: string }[] = [];
   if (!r.on && !forzar) return out;
   const due = (t: string) => forzar || (L.hm >= toMin(t) && L.hm < toMin(t) + 60);
@@ -56,8 +58,8 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
       const sug = Math.max(10, Math.ceil((prom * 7 - Math.max(s, 0)) / 5) * 5);
       const otras = d.cuentas.filter((c: Any) => c.id !== b.id).map((c: Any) => ({ c, s: saldo(c, d.items) })).sort((a: Any, z: Any) => z.s - a.s);
       const src = otras.find((o: Any) => o.s >= sug) || otras[0];
-      out.push({ kind: "am", title: `Tu ${b.nombre || "efectivo"} tiene ${fmt(s)}`,
-        body: src ? `¿Pasar ${fmt0(sug)} de ${src.c.nombre || src.c.banco}? Gastas ~${fmt(prom)} al día en efectivo.` : `Gastas ~${fmt(prom)} al día en efectivo. Te sugerimos tener ${fmt0(sug)}.`,
+      out.push({ kind: "am", title: M ? `Tu ${b.nombre || "efectivo"} tiene ${fmt(s)}` : `Revisa tu ${b.nombre || "efectivo"}`,
+        body: !M ? (src ? `Está por debajo de tu mínimo. Toca para pasar dinero desde ${src.c.nombre || src.c.banco}.` : "Está por debajo de tu mínimo. Toca para revisarlo.") : src ? `¿Pasar ${fmt0(sug)} de ${src.c.nombre || src.c.banco}? Gastas ~${fmt(prom)} al día en efectivo.` : `Gastas ~${fmt(prom)} al día en efectivo. Te sugerimos tener ${fmt0(sug)}.`,
         url: SITE + "?trf=" + encodeURIComponent((src ? src.c.id : "") + "|" + b.id + "|" + sug) });
     }
   }
@@ -65,7 +67,7 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
   const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   if ((forzar === "arq") || (!forzar && r.arq && DOW[+r.arqDia] === L.dow && due(r.arqHora))) {
     const tot = d.cuentas.reduce((t: number, c: Any) => t + saldo(c, d.items), 0);
-    out.push({ kind: "arq", title: "Arqueo semanal", body: `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.`, url: SITE + "?act=cons" });
+    out.push({ kind: "arq", title: "Arqueo semanal", body: M ? `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.` : "Cuenta tu efectivo y revisa tus bancos. Toca para consolidar.", url: SITE + "?act=cons" });
   }
   // Día 30 (o último día si el mes es más corto): armar presupuesto del mes siguiente
   const dd = +L.day.slice(8);
@@ -81,13 +83,13 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
     const sum = (a: string, z: string) => { const xs = d.items.filter((x) => x.fecha >= a && x.fecha <= z); return { g: xs.filter(esGasto).reduce((t, x) => t + num(x.monto), 0), i: xs.filter((x) => x.tipo === "ingreso").reduce((t, x) => t + num(x.monto), 0), n: xs.filter((x) => x.tipo !== "ajuste").length }; };
     if ((L.last && r.mes) || forzar === "mes") {
       const m = sum(L.day.slice(0, 8) + "01", L.day);
-      out.push({ kind: "mes", title: `Cierre de ${MES[L.month - 1]}`, body: `Gastaste ${fmt0(m.g)} · entró ${fmt0(m.i)}. Revisa tus cuentas antes de empezar el mes.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
+      out.push({ kind: "mes", title: `Cierre de ${MES[L.month - 1]}`, body: `${M ? `Gastaste ${fmt0(m.g)} · entró ${fmt0(m.i)}. ` : ""}Revisa tus cuentas antes de empezar el mes.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
     } else if ((L.dow === "Sun" && r.sem) || forzar === "sem") {
       const w = sum(shiftDay(L.day, -6), L.day);
-      out.push({ kind: "sem", title: "Cierre de la semana", body: `Gastaste ${fmt0(w.g)} en ${w.n} movimiento(s). Toca para ordenar tus cuentas.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
+      out.push({ kind: "sem", title: "Cierre de la semana", body: `${M ? `Gastaste ${fmt0(w.g)} en ${w.n} movimiento(s).` : `${w.n} movimiento(s) esta semana.`} Toca para ordenar tus cuentas.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
     } else if (r.dia || forzar === "pm") {
       const t = sum(L.day, L.day);
-      out.push({ kind: "pm", title: "Ordena tus cuentas de hoy", body: `${t.n ? `Hoy: ${t.n} movimiento(s), gastaste ${fmt0(t.g)}.` : "Hoy no registraste movimientos."} ¿Falta algo?${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=movimientos" });
+      out.push({ kind: "pm", title: "Ordena tus cuentas de hoy", body: `${t.n ? `Hoy: ${t.n} movimiento(s)${M ? `, gastaste ${fmt0(t.g)}` : ""}.` : "Hoy no registraste movimientos."} ¿Falta algo?${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=movimientos" });
     }
   }
   return out;
@@ -95,7 +97,7 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  const { data: sec } = await admin.from("app_secrets").select("name,value").in("name", ["vapid_public", "vapid_private"]);
+  const { data: sec } = await admin.from("app_secrets").select("name,value").in("name", ["vapid_public", "vapid_private", "cron_key"]);
   const K = Object.fromEntries((sec || []).map((x: Any) => [x.name, x.value]));
   if (!K.vapid_public || !K.vapid_private) return json({ ok: false, error: "Sin llaves" }, 500);
   const jwt = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
@@ -103,6 +105,12 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch (_e) { body = {}; }
   if (body.accion === "llave") return json({ ok: true, key: K.vapid_public });
   if (jwt.split(".").length === 3) { const { data } = await admin.auth.getUser(jwt); if (data?.user) only = data.user.id; }
+  if (!only) {
+    const k = req.headers.get("x-cron-key") || "", c = String(K.cron_key || "");
+    let d = k.length === c.length && c ? 0 : 1;
+    for (let i = 0; i < k.length && i < c.length; i++) d |= k.charCodeAt(i) ^ c.charCodeAt(i);
+    if (d !== 0) return json({ ok: false, error: "No autorizado" }, 401);
+  }
   let q = admin.from("push_subs").select("*");
   if (only) q = q.eq("user_id", only);
   const { data: subs } = await q;

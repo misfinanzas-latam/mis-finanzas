@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self' https://dxjyxmlknhjokkbatqla.supabase.co wss://dxjyxmlknhjokkbatqla.supabase.co data: blob:; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' blob: mediastream:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<style id="ack">body{display:none!important}</style>
+<script>/* No se muestra si otra página la mete en un marco (evita clics engañosos) */if(window.self===window.top)document.getElementById("ack").remove()</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f5ee">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -577,6 +581,13 @@ section{padding-left:0}
 .top{padding-top:calc(22px + env(safe-area-inset-top))!important}
 #umenu{top:calc(84px + env(safe-area-inset-top))!important}#pmenu{top:calc(80px + env(safe-area-inset-top))!important}
 .qa{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}.qa button{font-size:13px!important;padding-left:2px!important;padding-right:2px!important;min-width:0}
+.otp{display:block;width:100%;height:60px;font:600 30px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.38em;text-indent:.38em;text-align:center;border:1.5px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font-variant-numeric:tabular-nums}
+.otp:focus{outline:none;border-color:var(--g2,#7c5cff);box-shadow:0 0 0 4px color-mix(in srgb,var(--g2,#7c5cff) 22%,transparent)}
+.otp.sm{height:54px;font-size:26px;margin:0}
+a.btn{text-decoration:none}
+.qrbox{display:grid;place-items:center;margin:4px auto 0;width:204px;height:204px;border-radius:18px;background:#fff;border:1px solid var(--line)}
+.qrbox img{width:180px;height:180px;image-rendering:pixelated}
+.mono{font:600 13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;word-break:break-all;user-select:all;-webkit-user-select:all;color:var(--ink)}
 .rchk{display:grid;gap:8px;margin:4px 0 14px}.rchk label{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}.rchk input{width:22px;height:22px;accent-color:var(--g2);flex:none}
 .bolsab{border-color:color-mix(in srgb,#059669 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#10b981 12%,var(--card)),var(--card) 70%)!important}.bolsab .clipi .i{color:#fff}
 .scango{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--tint) 96%,transparent);display:grid;align-content:center;gap:16px;padding:24px}
@@ -962,6 +973,14 @@ body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
   <div class="pad" id="pad"></div>
   <button class="btn full biob" id="bioBtn" data-act="bio-go" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 9v1M15 9v1M12 9v4h-1M9 16c1.5 1 4.5 1 6 0"/></svg>Usar Face ID o huella</button>
 </div></div>
+<div class="ovl" id="mfa" hidden><div class="lin">
+  <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 5.8v5.6c0 4.6 3.1 8.2 7.5 9.6 4.4-1.4 7.5-5 7.5-9.6V5.8z"/><path d="m8.8 12.2 2.2 2.2 4.4-4.6"/></svg>
+  <h2 style="margin:10px 0 2px">Código de verificación</h2><p class="note" style="margin:0 0 16px">Abre tu app de códigos y escribe los 6 números.</p>
+  <form id="mfaForm" autocomplete="off"><input id="mfaCode" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Código de 6 números">
+  <p id="mfaMsg" class="neg" style="min-height:22px;margin:8px 0 6px;font-size:14px"></p>
+  <button class="btn yel full" id="mfaBtn">Verificar</button></form>
+  <p style="margin:12px 0 0"><button class="lnk" data-act="mfa-out">Salir</button></p>
+</div></div>
 <div class="upd" id="upd" hidden><div><b>Hay una versión nueva</b><span id="updV"></span></div><button class="btn sm" data-act="upd-go">Actualizar</button><button class="ib" data-act="upd-x" aria-label="Después">×</button></div>
 <div class="toast" id="toast" hidden><span id="toastTx"></span><button id="toastBtn" hidden></button></div>
 
@@ -973,7 +992,7 @@ const BANCOS=["Banco Agrícola","Banco Cuscatlán","Davivienda","BAC Credomatic"
 const TIPOSC=["Ahorro","Cuenta corriente","Tarjeta de crédito","Depósito a plazo","Efectivo","Inversión","Otro"];
 const FREQ={mensual:["Mensual",1],quincenal:["Quincenal",2],semanal:["Semanal",4.33],variable:["Variable",1],unica:["Una sola vez",0]};
 const COLS=["var(--ink)","#e0b800","#2f6fdf","#d0461b","#1d8a4a","#8a8a84"];
-const IC={camera:'<path class="f" d="M3.5 9.5A1.5 1.5 0 0 1 5 8h2.3l1.4-2.1a1.6 1.6 0 0 1 1.3-.7h4a1.6 1.6 0 0 1 1.3.7L16.7 8H19a1.5 1.5 0 0 1 1.5 1.5v8.8a1.7 1.7 0 0 1-1.7 1.7H5.2a1.7 1.7 0 0 1-1.7-1.7z"/><circle cx="12" cy="13.6" r="3.4"/><circle class="fo" cx="12" cy="13.6" r="1.5"/><circle class="s" cx="17.3" cy="10.7" r=".8"/>',swap:'<path d="M4 8h14.5M15 4.5 18.5 8 15 11.5M20 16H5.5M9 12.5 5.5 16 9 19.5"/>',eye:'<path class="f" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2"/><circle class="s" cx="12" cy="12" r="1.3"/>',eyeoff:'<path class="f" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><path d="M9.8 9.8a3.2 3.2 0 0 0 4.4 4.4M3.5 3.5l17 17"/>',bell:'<path class="f" d="M6.2 15.8V11a5.8 5.8 0 0 1 11.6 0v4.8l1.6 2.2H4.6z"/><path d="M10 20.3a2.1 2.1 0 0 0 4 0M12 3.2v2"/>',inbox:'<path class="f" d="M4.2 6.3A1.6 1.6 0 0 1 5.7 5h12.6a1.6 1.6 0 0 1 1.5 1.3L21.5 13v5.4a1.6 1.6 0 0 1-1.6 1.6H4.1a1.6 1.6 0 0 1-1.6-1.6V13z"/><path d="M2.5 13H8l1.5 2.6h5L16 13h5.5M12 7.5v4M10.2 9.8 12 11.6l1.8-1.8"/>',edit:'<path class="f" d="M4 20l1-4.2L15.6 5.2a2 2 0 0 1 2.8 0l.4.4a2 2 0 0 1 0 2.8L8.2 19z"/><path d="M13.8 7l3.2 3.2M13 20h7"/>',cart:'<path class="f" d="M6.2 6.5h14.3l-1.6 7.2a1.6 1.6 0 0 1-1.6 1.3H8.6a1.6 1.6 0 0 1-1.6-1.3z"/><path d="M2.5 3.5h2.2a1 1 0 0 1 1 .8L7.8 15M10 10.5h7"/><circle cx="9.5" cy="19.3" r="1.5"/><circle cx="17" cy="19.3" r="1.5"/>',food:'<path d="M3.5 3.5v5a1.8 1.8 0 0 0 3.6 0v-5M5.3 3.5V21M19.5 21V3.5c-1.8.9-2.8 3-2.8 6v3.2h2.8"/><circle class="f" cx="11.9" cy="12.5" r="3.6"/><circle cx="11.9" cy="12.5" r="1.5"/>',fuel:'<path class="f" d="M4.5 20.5V5A1.5 1.5 0 0 1 6 3.5h6.5A1.5 1.5 0 0 1 14 5v15.5z"/><path d="M3 20.5h12.5M14 9h1.8a1.7 1.7 0 0 1 1.7 1.7v4.6a1.25 1.25 0 0 0 2.5 0V8.2l-2.6-2.7"/><rect class="fo" x="6.8" y="6" width="4.9" height="3.6" rx=".7"/>',car:'<path class="f" d="M4 12.5l1.6-4.6a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.6v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M5 11h14M6 18.5V20M18 18.5V20"/><circle class="s" cx="7.6" cy="14.6" r="1.1"/><circle class="s" cx="16.4" cy="14.6" r="1.1"/><path d="M10.5 15h3"/>',bolt:'<path class="f" d="M13.2 2.8 5 13.5h6.2l-.6 7.7L19 10.4h-6.3z"/>',heart:'<path class="f" d="M12 20.2S4 15.5 3 10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 9 3.3C20 15.5 12 20.2 12 20.2z"/><path d="M6.6 12.4h2.5l1.4-2.4 2.2 4.6 1.4-2.2h3.3"/>',book:'<path class="f" d="M12 6.5C10.3 5.2 7.8 4.5 4.5 4.5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1c3.2 0 5.7.6 7.5 2 1.8-1.4 4.3-2 7.5-2a1 1 0 0 0 1-1v-12a1 1 0 0 0-1-1c-3.3 0-5.8.7-7.5 2z"/><path d="M12 6.5v14"/>',grad:'<path class="f" d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6v4.2c1.4 1.3 3.3 2 5.5 2s4.1-.7 5.5-2v-4.2M21.5 9.5v5"/><circle class="s" cx="21.5" cy="15.6" r="1"/>',home:'<path class="fo" d="M5.2 10 12 4.4 18.8 10v10H5.2z"/><path d="M3 11.2 12 4l9 7.2M5.2 9.8V19a1 1 0 0 0 1 1h11.6a1 1 0 0 0 1-1V9.8M10 20v-4.8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20"/>',sofa:'<path class="fo" d="M5.5 11.5V8.2A2.2 2.2 0 0 1 7.7 6h8.6a2.2 2.2 0 0 1 2.2 2.2v3.3z"/><path d="M5.5 11V8.2A2.2 2.2 0 0 1 7.7 6h8.6a2.2 2.2 0 0 1 2.2 2.2V11"/><path class="f" d="M3.5 11.8a1.8 1.8 0 0 1 3.5.4v1.3h10v-1.3a1.8 1.8 0 0 1 3.5-.4V17a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 17z"/><path d="M6 18.5V20M18 18.5V20"/>',shirt:'<path class="f" d="M8.5 3.5 12 5.2l3.5-1.7 5 3.2-2.3 3.8-2.2-1v11H8V9.5l-2.2 1-2.3-3.8z"/><path d="M10 4.4a2 2 0 0 0 4 0"/>',star:'<path class="f" d="m12 3.2 2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.6l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',ticket:'<path class="f" d="M3.5 8A1.5 1.5 0 0 1 5 6.5h14A1.5 1.5 0 0 1 20.5 8v2a2 2 0 0 0 0 4v2a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 16v-2a2 2 0 0 0 0-4z"/><path d="M14.5 7v1.5M14.5 11.2v1.6M14.5 15.5V17"/><path class="fo" d="m9.2 9.6.8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.5.8.3-1.7-1.2-1.2 1.7-.2z"/>',card:'<rect class="f" x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 15h3.5M13 15h1.5"/>',dots:'<circle class="f" cx="12" cy="12" r="9"/><circle class="s" cx="7.8" cy="12" r="1.3"/><circle class="s" cx="12" cy="12" r="1.3"/><circle class="s" cx="16.2" cy="12" r="1.3"/>',money:'<rect class="f" x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M2.5 9a3 3 0 0 0 3-3M18.5 6a3 3 0 0 0 3 3M21.5 15a3 3 0 0 0-3 3M5.5 18a3 3 0 0 0-3-3"/>',send:'<path class="f" d="M21.5 2.5 2.9 10.3a.6.6 0 0 0 0 1.1l6.9 3 3 6.9a.6.6 0 0 0 1.1 0z"/><path d="M21.5 2.5 9.8 14.4"/>',brief:'<rect class="f" x="3" y="7" width="18" height="13" rx="2"/><path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h7.5M13.5 12.5H21"/><rect x="10.5" y="11" width="3" height="3" rx=".6"/>',store:'<path class="f" d="M3.5 9 5 4.5h14L20.5 9a2.83 2.83 0 0 1-5.67 0 2.83 2.83 0 0 1-5.66 0A2.83 2.83 0 0 1 3.5 9z"/><path d="M5 12.2V20h14v-7.8M9.5 20v-4.5h5V20M9.2 4.5 8.7 9M14.8 4.5l.5 4.5"/>',key:'<circle class="f" cx="8" cy="15.5" r="4.5"/><circle cx="8" cy="15.5" r="1.3"/><path d="m11.3 12.2 8.7-8.7M16.5 7l2.5 2.5M14.3 9.2l1.8 1.8"/>',user:'<circle class="f" cx="12" cy="8" r="4"/><path class="f" d="M4.5 20.5a7.5 7.5 0 0 1 15 0z"/>',cal:'<rect class="f" x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.8v3.4M16 2.8v3.4"/><circle class="s" cx="8" cy="13.6" r="1"/><circle class="s" cx="12" cy="13.6" r="1"/><circle class="s" cx="16" cy="13.6" r="1"/><circle class="s" cx="8" cy="17.2" r="1"/><circle class="s" cx="12" cy="17.2" r="1"/>',check:'<path class="b" d="m5 12.5 4.5 4.5L19 7.5"/>',plus:'<path class="b" d="M12 5v14M5 12h14"/>',minus:'<path class="b" d="M5 12h14"/>',bank:'<path class="f" d="M3 9.5 12 4l9 5.5z"/><path d="M5.5 9.5v8M9.8 9.5v8M14.2 9.5v8M18.5 9.5v8M3.5 17.5h17M2.5 20.5h19"/><circle class="s" cx="12" cy="7.3" r=".9"/>',piggy:'<path class="f" d="M19 9.5c1 .7 1.5 1.6 1.5 2.5h1v3h-1.6a7 7 0 0 1-2.4 2.4V20h-3v-1.5h-4V20h-3v-2.8A6.5 6.5 0 0 1 4 12c0-3.6 3.6-6.5 8-6.5 1.5 0 2.9.3 4 .9L18.5 5v4.5z"/><circle class="s" cx="15.6" cy="10.6" r=".9"/><path d="M9.5 8.3h3.5"/>',down:'<path class="b" d="M12 4.5v15M5.5 13 12 19.5 18.5 13"/>',up:'<path class="b" d="M12 19.5v-15M5.5 11 12 4.5 18.5 11"/>',table:'<rect class="f" x="3" y="3.5" width="18" height="17" rx="2.5"/><path class="fo" d="M3 9V6a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 6v3z"/><path d="M3 9h18M3 14.5h18M9.5 9v11.5"/>',copy:'<rect class="f" x="8" y="8" width="12.5" height="12.5" rx="2.2"/><path d="M16 8V5.5a2 2 0 0 0-2-2H5.5a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2H8"/>',alert:'<path class="f" d="M10.3 4.1a2 2 0 0 1 3.4 0l7.6 13.2a2 2 0 0 1-1.7 3H4.4a2 2 0 0 1-1.7-3z"/><path d="M12 9.5v4"/><circle class="s" cx="12" cy="16.7" r="1.05"/>',info:'<circle class="f" cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle class="s" cx="12" cy="7.9" r="1.05"/>',bulb:'<path class="f" d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2v.5h5V16c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3M12 6.5a2.6 2.6 0 0 0-2.6 2.6"/>',pin:'<path class="f" d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',chart:'<rect class="f" x="4" y="11" width="3.6" height="8.5" rx="1"/><rect class="f" x="10.2" y="4.5" width="3.6" height="15" rx="1"/><rect class="f" x="16.4" y="13.5" width="3.6" height="6" rx="1"/><path d="M2.5 21h19"/>',lock:'<rect class="f" x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5v-3a4 4 0 0 1 8 0v3M12 16v2"/><circle class="s" cx="12" cy="15" r="1.3"/>',trend:'<path class="fo" d="M3 17l6-6 4 4 8-8v13H3z"/><path d="M3 17l6-6 4 4 8-8M15.5 7H21v5.5"/>',wallet:'<path class="fo" d="M3.5 8.5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-14a2 2 0 0 1-2-2z"/><path d="M17 8.5v-3H5.5a2 2 0 0 0 0 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-14a2 2 0 0 1-2-2v-11"/><path d="M20.5 12.5h-3a1.5 1.5 0 0 0 0 3h3"/><circle class="s" cx="17.6" cy="14" r=".85"/>',clock:'<circle class="f" cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',spark:'<path class="f" d="M11 3c.6 3.9 2.1 5.4 6 6-3.9.6-5.4 2.1-6 6-.6-3.9-2.1-5.4-6-6 3.9-.6 5.4-2.1 6-6z"/><path class="f" d="M18.5 14.5c.3 1.7.8 2.2 2.5 2.5-1.7.3-2.2.8-2.5 2.5-.3-1.7-.8-2.2-2.5-2.5 1.7-.3 2.2-.8 2.5-2.5z"/>',repeat:'<path d="M17 3l3 3-3 3M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20M7 21l-3-3 3-3M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4"/>',gear:'<path class="f" d="M10.3 3.5h3.4l.5 2.3 1.6.9 2.2-.8 1.7 2.9-1.7 1.6v1.9l1.7 1.6-1.7 2.9-2.2-.8-1.6.9-.5 2.3h-3.4l-.5-2.3-1.6-.9-2.2.8-1.7-2.9 1.7-1.6v-1.9L4.3 8.8 6 5.9l2.2.8 1.6-.9z"/><circle cx="12" cy="12" r="2.6"/>',trash:'<path class="f" d="M5.5 7h13l-1 12.2a1.5 1.5 0 0 1-1.5 1.3H8a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M3.5 7h17M9 7V4.8A1.3 1.3 0 0 1 10.3 3.5h3.4A1.3 1.3 0 0 1 15 4.8V7M10 11v6M14 11v6"/>'};IC.cam=IC.camera;
+const IC={camera:'<path class="f" d="M3.5 9.5A1.5 1.5 0 0 1 5 8h2.3l1.4-2.1a1.6 1.6 0 0 1 1.3-.7h4a1.6 1.6 0 0 1 1.3.7L16.7 8H19a1.5 1.5 0 0 1 1.5 1.5v8.8a1.7 1.7 0 0 1-1.7 1.7H5.2a1.7 1.7 0 0 1-1.7-1.7z"/><circle cx="12" cy="13.6" r="3.4"/><circle class="fo" cx="12" cy="13.6" r="1.5"/><circle class="s" cx="17.3" cy="10.7" r=".8"/>',swap:'<path d="M4 8h14.5M15 4.5 18.5 8 15 11.5M20 16H5.5M9 12.5 5.5 16 9 19.5"/>',eye:'<path class="f" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2"/><circle class="s" cx="12" cy="12" r="1.3"/>',eyeoff:'<path class="f" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><path d="M9.8 9.8a3.2 3.2 0 0 0 4.4 4.4M3.5 3.5l17 17"/>',bell:'<path class="f" d="M6.2 15.8V11a5.8 5.8 0 0 1 11.6 0v4.8l1.6 2.2H4.6z"/><path d="M10 20.3a2.1 2.1 0 0 0 4 0M12 3.2v2"/>',inbox:'<path class="f" d="M4.2 6.3A1.6 1.6 0 0 1 5.7 5h12.6a1.6 1.6 0 0 1 1.5 1.3L21.5 13v5.4a1.6 1.6 0 0 1-1.6 1.6H4.1a1.6 1.6 0 0 1-1.6-1.6V13z"/><path d="M2.5 13H8l1.5 2.6h5L16 13h5.5M12 7.5v4M10.2 9.8 12 11.6l1.8-1.8"/>',edit:'<path class="f" d="M4 20l1-4.2L15.6 5.2a2 2 0 0 1 2.8 0l.4.4a2 2 0 0 1 0 2.8L8.2 19z"/><path d="M13.8 7l3.2 3.2M13 20h7"/>',cart:'<path class="f" d="M6.2 6.5h14.3l-1.6 7.2a1.6 1.6 0 0 1-1.6 1.3H8.6a1.6 1.6 0 0 1-1.6-1.3z"/><path d="M2.5 3.5h2.2a1 1 0 0 1 1 .8L7.8 15M10 10.5h7"/><circle cx="9.5" cy="19.3" r="1.5"/><circle cx="17" cy="19.3" r="1.5"/>',food:'<path d="M3.5 3.5v5a1.8 1.8 0 0 0 3.6 0v-5M5.3 3.5V21M19.5 21V3.5c-1.8.9-2.8 3-2.8 6v3.2h2.8"/><circle class="f" cx="11.9" cy="12.5" r="3.6"/><circle cx="11.9" cy="12.5" r="1.5"/>',fuel:'<path class="f" d="M4.5 20.5V5A1.5 1.5 0 0 1 6 3.5h6.5A1.5 1.5 0 0 1 14 5v15.5z"/><path d="M3 20.5h12.5M14 9h1.8a1.7 1.7 0 0 1 1.7 1.7v4.6a1.25 1.25 0 0 0 2.5 0V8.2l-2.6-2.7"/><rect class="fo" x="6.8" y="6" width="4.9" height="3.6" rx=".7"/>',car:'<path class="f" d="M4 12.5l1.6-4.6a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.6v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M5 11h14M6 18.5V20M18 18.5V20"/><circle class="s" cx="7.6" cy="14.6" r="1.1"/><circle class="s" cx="16.4" cy="14.6" r="1.1"/><path d="M10.5 15h3"/>',bolt:'<path class="f" d="M13.2 2.8 5 13.5h6.2l-.6 7.7L19 10.4h-6.3z"/>',heart:'<path class="f" d="M12 20.2S4 15.5 3 10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 9 3.3C20 15.5 12 20.2 12 20.2z"/><path d="M6.6 12.4h2.5l1.4-2.4 2.2 4.6 1.4-2.2h3.3"/>',book:'<path class="f" d="M12 6.5C10.3 5.2 7.8 4.5 4.5 4.5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1c3.2 0 5.7.6 7.5 2 1.8-1.4 4.3-2 7.5-2a1 1 0 0 0 1-1v-12a1 1 0 0 0-1-1c-3.3 0-5.8.7-7.5 2z"/><path d="M12 6.5v14"/>',grad:'<path class="f" d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6v4.2c1.4 1.3 3.3 2 5.5 2s4.1-.7 5.5-2v-4.2M21.5 9.5v5"/><circle class="s" cx="21.5" cy="15.6" r="1"/>',home:'<path class="fo" d="M5.2 10 12 4.4 18.8 10v10H5.2z"/><path d="M3 11.2 12 4l9 7.2M5.2 9.8V19a1 1 0 0 0 1 1h11.6a1 1 0 0 0 1-1V9.8M10 20v-4.8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20"/>',sofa:'<path class="fo" d="M5.5 11.5V8.2A2.2 2.2 0 0 1 7.7 6h8.6a2.2 2.2 0 0 1 2.2 2.2v3.3z"/><path d="M5.5 11V8.2A2.2 2.2 0 0 1 7.7 6h8.6a2.2 2.2 0 0 1 2.2 2.2V11"/><path class="f" d="M3.5 11.8a1.8 1.8 0 0 1 3.5.4v1.3h10v-1.3a1.8 1.8 0 0 1 3.5-.4V17a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 17z"/><path d="M6 18.5V20M18 18.5V20"/>',shirt:'<path class="f" d="M8.5 3.5 12 5.2l3.5-1.7 5 3.2-2.3 3.8-2.2-1v11H8V9.5l-2.2 1-2.3-3.8z"/><path d="M10 4.4a2 2 0 0 0 4 0"/>',star:'<path class="f" d="m12 3.2 2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.6l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',ticket:'<path class="f" d="M3.5 8A1.5 1.5 0 0 1 5 6.5h14A1.5 1.5 0 0 1 20.5 8v2a2 2 0 0 0 0 4v2a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 16v-2a2 2 0 0 0 0-4z"/><path d="M14.5 7v1.5M14.5 11.2v1.6M14.5 15.5V17"/><path class="fo" d="m9.2 9.6.8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.5.8.3-1.7-1.2-1.2 1.7-.2z"/>',card:'<rect class="f" x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 15h3.5M13 15h1.5"/>',dots:'<circle class="f" cx="12" cy="12" r="9"/><circle class="s" cx="7.8" cy="12" r="1.3"/><circle class="s" cx="12" cy="12" r="1.3"/><circle class="s" cx="16.2" cy="12" r="1.3"/>',money:'<rect class="f" x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M2.5 9a3 3 0 0 0 3-3M18.5 6a3 3 0 0 0 3 3M21.5 15a3 3 0 0 0-3 3M5.5 18a3 3 0 0 0-3-3"/>',send:'<path class="f" d="M21.5 2.5 2.9 10.3a.6.6 0 0 0 0 1.1l6.9 3 3 6.9a.6.6 0 0 0 1.1 0z"/><path d="M21.5 2.5 9.8 14.4"/>',brief:'<rect class="f" x="3" y="7" width="18" height="13" rx="2"/><path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h7.5M13.5 12.5H21"/><rect x="10.5" y="11" width="3" height="3" rx=".6"/>',store:'<path class="f" d="M3.5 9 5 4.5h14L20.5 9a2.83 2.83 0 0 1-5.67 0 2.83 2.83 0 0 1-5.66 0A2.83 2.83 0 0 1 3.5 9z"/><path d="M5 12.2V20h14v-7.8M9.5 20v-4.5h5V20M9.2 4.5 8.7 9M14.8 4.5l.5 4.5"/>',key:'<circle class="f" cx="8" cy="15.5" r="4.5"/><circle cx="8" cy="15.5" r="1.3"/><path d="m11.3 12.2 8.7-8.7M16.5 7l2.5 2.5M14.3 9.2l1.8 1.8"/>',user:'<circle class="f" cx="12" cy="8" r="4"/><path class="f" d="M4.5 20.5a7.5 7.5 0 0 1 15 0z"/>',cal:'<rect class="f" x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.8v3.4M16 2.8v3.4"/><circle class="s" cx="8" cy="13.6" r="1"/><circle class="s" cx="12" cy="13.6" r="1"/><circle class="s" cx="16" cy="13.6" r="1"/><circle class="s" cx="8" cy="17.2" r="1"/><circle class="s" cx="12" cy="17.2" r="1"/>',check:'<path class="b" d="m5 12.5 4.5 4.5L19 7.5"/>',plus:'<path class="b" d="M12 5v14M5 12h14"/>',minus:'<path class="b" d="M5 12h14"/>',bank:'<path class="f" d="M3 9.5 12 4l9 5.5z"/><path d="M5.5 9.5v8M9.8 9.5v8M14.2 9.5v8M18.5 9.5v8M3.5 17.5h17M2.5 20.5h19"/><circle class="s" cx="12" cy="7.3" r=".9"/>',piggy:'<path class="f" d="M19 9.5c1 .7 1.5 1.6 1.5 2.5h1v3h-1.6a7 7 0 0 1-2.4 2.4V20h-3v-1.5h-4V20h-3v-2.8A6.5 6.5 0 0 1 4 12c0-3.6 3.6-6.5 8-6.5 1.5 0 2.9.3 4 .9L18.5 5v4.5z"/><circle class="s" cx="15.6" cy="10.6" r=".9"/><path d="M9.5 8.3h3.5"/>',down:'<path class="b" d="M12 4.5v15M5.5 13 12 19.5 18.5 13"/>',up:'<path class="b" d="M12 19.5v-15M5.5 11 12 4.5 18.5 11"/>',table:'<rect class="f" x="3" y="3.5" width="18" height="17" rx="2.5"/><path class="fo" d="M3 9V6a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 6v3z"/><path d="M3 9h18M3 14.5h18M9.5 9v11.5"/>',copy:'<rect class="f" x="8" y="8" width="12.5" height="12.5" rx="2.2"/><path d="M16 8V5.5a2 2 0 0 0-2-2H5.5a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2H8"/>',alert:'<path class="f" d="M10.3 4.1a2 2 0 0 1 3.4 0l7.6 13.2a2 2 0 0 1-1.7 3H4.4a2 2 0 0 1-1.7-3z"/><path d="M12 9.5v4"/><circle class="s" cx="12" cy="16.7" r="1.05"/>',info:'<circle class="f" cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle class="s" cx="12" cy="7.9" r="1.05"/>',bulb:'<path class="f" d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2v.5h5V16c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3M12 6.5a2.6 2.6 0 0 0-2.6 2.6"/>',pin:'<path class="f" d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',chart:'<rect class="f" x="4" y="11" width="3.6" height="8.5" rx="1"/><rect class="f" x="10.2" y="4.5" width="3.6" height="15" rx="1"/><rect class="f" x="16.4" y="13.5" width="3.6" height="6" rx="1"/><path d="M2.5 21h19"/>',lock:'<rect class="f" x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5v-3a4 4 0 0 1 8 0v3M12 16v2"/><circle class="s" cx="12" cy="15" r="1.3"/>',trend:'<path class="fo" d="M3 17l6-6 4 4 8-8v13H3z"/><path d="M3 17l6-6 4 4 8-8M15.5 7H21v5.5"/>',wallet:'<path class="fo" d="M3.5 8.5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-14a2 2 0 0 1-2-2z"/><path d="M17 8.5v-3H5.5a2 2 0 0 0 0 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-14a2 2 0 0 1-2-2v-11"/><path d="M20.5 12.5h-3a1.5 1.5 0 0 0 0 3h3"/><circle class="s" cx="17.6" cy="14" r=".85"/>',clock:'<circle class="f" cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',spark:'<path class="f" d="M11 3c.6 3.9 2.1 5.4 6 6-3.9.6-5.4 2.1-6 6-.6-3.9-2.1-5.4-6-6 3.9-.6 5.4-2.1 6-6z"/><path class="f" d="M18.5 14.5c.3 1.7.8 2.2 2.5 2.5-1.7.3-2.2.8-2.5 2.5-.3-1.7-.8-2.2-2.5-2.5 1.7-.3 2.2-.8 2.5-2.5z"/>',repeat:'<path d="M17 3l3 3-3 3M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20M7 21l-3-3 3-3M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4"/>',gear:'<path class="f" d="M10.3 3.5h3.4l.5 2.3 1.6.9 2.2-.8 1.7 2.9-1.7 1.6v1.9l1.7 1.6-1.7 2.9-2.2-.8-1.6.9-.5 2.3h-3.4l-.5-2.3-1.6-.9-2.2.8-1.7-2.9 1.7-1.6v-1.9L4.3 8.8 6 5.9l2.2.8 1.6-.9z"/><circle cx="12" cy="12" r="2.6"/>',trash:'<path class="f" d="M5.5 7h13l-1 12.2a1.5 1.5 0 0 1-1.5 1.3H8a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M3.5 7h17M9 7V4.8A1.3 1.3 0 0 1 10.3 3.5h3.4A1.3 1.3 0 0 1 15 4.8V7M10 11v6M14 11v6"/>'};IC.cam=IC.camera;IC.shield='<path class="f" d="M12 3 4.5 5.8v5.6c0 4.6 3.1 8.2 7.5 9.6 4.4-1.4 7.5-5 7.5-9.6V5.8z"/><path d="m8.8 12.2 2.2 2.2 4.4-4.6"/>';IC.devices='<rect class="f" x="2.5" y="4.5" width="13" height="10" rx="1.6"/><path d="M6 19h6M9 14.5V19"/><rect class="f" x="15.5" y="9" width="6" height="11" rx="1.4"/><circle class="s" cx="18.5" cy="17.6" r=".7"/>';
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||IC.dots}</svg>`;
 const CMAP={"Vivienda":["home","#7c5cff"],"Supermercado":["cart","#16a34a"],"Restaurantes y comida":["food","#f97316"],"Combustible":["fuel","#e11d48"],"Transporte":["car","#0ea5e9"],"Servicios (luz, agua, tel.)":["bolt","#ca8a04"],"Salud y farmacia":["heart","#ef4444"],"Educación":["grad","#6366f1"],"Hogar":["sofa","#a16207"],"Ropa y cuidado personal":["shirt","#db2777"],"Entretenimiento":["ticket","#8b5cf6"],"Tarjetas y préstamos":["card","#475569"],"Otros":["dots","#64748b"],"Salario":["money","#16a34a"],"Trabajo independiente":["brief","#0d9488"],"Remesa":["send","#2563eb"],"Negocio":["store","#ea580c"],"Alquiler":["key","#7c3aed"],"Pensión":["user","#0891b2"],"Otros ingresos":["plus","#16a34a"]};
 const catI=c=>CMAP[c]||["dots","#64748b"];
@@ -1354,10 +1373,11 @@ function umenuHTML(){
   ${mi("set-pin","lock",S.cfg.pinHash?"PIN activado · cambiar o quitar":"Crear PIN de acceso")}
   ${S.cfg.pinHash&&!isDemo()&&bioOK()?mi("bio","lock",bioId()?"Face ID / huella · activado":"Entrar con Face ID o huella"):""}
   ${S.cfg.pinHash&&!isDemo()?mi("lock-now","lock","Bloquear ahora"):""}
+  ${userMail&&sb&&!isDemo()?mi("mfa","shield",mfaOn?"Verificación en dos pasos · activada":"Verificación en dos pasos"):""}
   ${isDemo()?mi("demo-off","dots","Salir del ejemplo"):mi("demo-on","dots","Ver con datos de ejemplo")}
   <a class="mi" role="menuitem" href="privacy.html" target="_blank" rel="noopener">${ic("info")}<span>Política de privacidad</span></a>
   <div class="ms"></div>
-  ${userMail?mi("sign-out","up","Cerrar sesión"):""}
+  ${userMail?mi("sign-out","up","Cerrar sesión")+mi("sign-out-all","devices","Cerrar sesión en todos los equipos"):""}
   ${mi("wipe","alert","Borrar todos mis datos","neg")}
   ${userMail?mi("del-account","alert","Eliminar mi cuenta","neg"):""}
   <p class="mv" style="line-height:1.4;margin:6px 0 0">${sb?"Tus datos se guardan en tu cuenta privada: solo tu sesión puede leerlos o cambiarlos.":"Modo local: tus datos se guardan solo en este teléfono."} El PIN protege la pantalla si alguien toma tu teléfono.</p>
@@ -1396,7 +1416,7 @@ function trfPanel(from){if(S.cuentas.length<2){toast("Necesitas al menos 2 cuent
 
 // ---------- recordatorios
 const VAPID="BBXe1s3GZW-pNkqu8kTFHoTclY5dRa_24tT440axK-yaAJVfKtAL2hLKxSW2e5MSPpBgj1-eCG4XV67CzMwLp6c";
-const REC=()=>Object.assign({on:true,min:3,am:"07:00",pm:"21:00",dia:true,sem:true,mes:true,arq:true,arqDia:6,arqHora:"10:00",presu:true,presuHora:"09:00"},S.cfg.rec||{});
+const REC=()=>Object.assign({on:true,min:3,am:"07:00",pm:"21:00",dia:true,sem:true,mes:true,arq:true,arqDia:6,arqHora:"10:00",presu:true,presuHora:"09:00",montos:false},S.cfg.rec||{});
 const bolsa=()=>{const r=S.cfg.rec||{};return S.cuentas.find(c=>c.id===r.bolsa)||cashAcc()||S.cuentas.find(c=>/cartera|bolsa|billetera/i.test((c.nombre||"")+" "+(c.banco||"")))||S.cuentas.find(c=>isCash(c))};
 function sugBolsa(){const b=bolsa();if(!b)return null;const s=ctaSaldo(b),td=todayStr(),d0=new Date(td+"T12:00");d0.setDate(d0.getDate()-30);const desde=d0.toISOString().slice(0,10);
   const g=S.items.filter(x=>x.cuenta===b.id&&x.tipo!=="ingreso"&&x.tipo!=="ajuste"&&x.fecha>=desde&&x.fecha<=td),first=g.reduce((m,x)=>x.fecha<m?x.fecha:m,td),dias=Math.max(7,Math.round((Date.parse(td)-Date.parse(first))/864e5)+1),prom=g.reduce((t,x)=>t+num(x.monto),0)/dias,sug=Math.max(10,Math.ceil((prom*7-Math.max(s,0))/5)*5);
@@ -1419,7 +1439,8 @@ function recPanel(){const r=REC(),b=bolsa(),ios=isIOS()&&!isStandalone(),perm=("
   <label class="f">Hora del cierre<input id="rPm" type="time" value="${r.pm}"></label>
   <div class="rchk"><label><input type="checkbox" id="rDia"${r.dia?" checked":""}><span>Cada día: ordena tus cuentas</span></label>
   <label><input type="checkbox" id="rSem"${r.sem?" checked":""}><span>Domingo: cierre de la semana</span></label>
-  <label><input type="checkbox" id="rMes"${r.mes?" checked":""}><span>Último día: cierre del mes</span></label></div>
+  <label><input type="checkbox" id="rMes"${r.mes?" checked":""}><span>Último día: cierre del mes</span></label>
+  <label><input type="checkbox" id="rMon"${r.montos?" checked":""}><span>Mostrar montos en las notificaciones</span></label></div>
   <div class="g2"><button class="btn full" data-act="rec-test"${r.push?"":" disabled"}>Probar</button><button class="btn solid full" data-act="rec-save">${ic("check")}Guardar</button></div>`)}
 function bolsaBanner(){const r=REC(),x=sugBolsa();if(!x||!(x.s<num(r.min)))return "";
   return `<button class="negb bolsab" data-act="bolsa-go"><span class="clipi" style="background:linear-gradient(135deg,#34d399,#059669)">${ic("wallet")}</span><span><b>${esc(x.b.nombre||"Tu efectivo")} tiene ${fmt(x.s)}</b><em>${x.src?`¿Pasar ${fmt0(x.sug)} de ${esc(x.src.nombre||x.src.banco)}?`:`Te sugerimos tener ${fmt0(x.sug)}`}${x.prom>0?` · gastas ~${fmt(x.prom)}/día`:""}</em></span><i>›</i></button>`}
@@ -1921,21 +1942,38 @@ async function bioOn(){if(!bioOK()){toast("Este teléfono o navegador no lo perm
     localStorage.setItem(BIOK(),b64e(c.rawId));toast("Listo: ya puedes entrar con Face ID o huella")}catch(e){toast(e&&e.name==="NotAllowedError"?"Cancelado":"No se pudo activar")}}
 let bioBusy=false;
 async function bioUnlock(auto){const id=bioId();if(!id||bioBusy||unlocked)return;bioBusy=true;
-  try{await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:b64d(id)}],userVerification:"required",timeout:60000}});pinFails=0;unlocked=true;$("lock").hidden=true;pinBuf=""}
+  try{await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:b64d(id)}],userVerification:"required",timeout:60000}});pinFset({n:0,t:0});unlocked=true;$("lock").hidden=true;pinBuf=""}
   catch(e){if(!auto)$("lkMsg").textContent="No se reconoció. Usa tu PIN."}finally{bioBusy=false}}
 function drawDots(){$("dots").innerHTML=Array.from({length:R.cfg.pinLen||4},(_,i)=>`<i class="${i<pinBuf.length?"on":""}"></i>`).join("")}
 $("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button data-act="pin" data-id="${n}">${n}</button>`).join("")+`<button class="k2" data-act="pin-help">¿Olvidaste?</button><button data-act="pin" data-id="0">0</button><button class="k2" data-act="pin" data-id="del" aria-label="Borrar">⌫</button>`;
+// PIN v2: PBKDF2 (150 000 vueltas). Los PIN antiguos (SHA-256) se convierten solos al acertar.
+const PIN_IT=150000;
+async function pinHash2(p,salt,it){const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveBits"]);
+  const b=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(salt+":"+(uid||"local")),iterations:it||PIN_IT},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function pinOk(p){
+  if(R.cfg.pinV===2)return (await pinHash2(p,R.cfg.salt||"",R.cfg.pinIt))===R.cfg.pinHash;
+  const ok=(await sha((R.cfg.salt||"")+":"+(uid||"local")+":"+p))===R.cfg.pinHash;
+  if(ok){await setPin(p);saveMeta("cfg")}
+  return ok}
+// Intentos fallidos: se guardan en el teléfono (recargar no los borra). 5 → 30 s, 6 → 1 min, 7 → 5 min, 8 → 15 min, 9 → 1 h; 10 → cierra la sesión.
+const PFK=()=>"mf.pinf."+(uid||"local"),pinF=()=>lsGet(PFK(),{n:0,t:0}),pinFset=x=>lsSet(PFK(),x);
+const wTxt=ms=>{const s=Math.ceil(ms/1000);return s<60?s+" s":s<3600?Math.ceil(s/60)+" min":Math.ceil(s/3600)+" h"};
+let pinBusy=false;
 async function pinKeyPress(k){
-  if(Date.now()<pinWait){$("lkMsg").textContent="Espera "+Math.ceil((pinWait-Date.now())/1000)+" s";return}
+  const f=pinF();if(Date.now()<f.t){$("lkMsg").textContent="Demasiados intentos. Espera "+wTxt(f.t-Date.now());return}
+  if(pinBusy)return;
   if(k==="del"){pinBuf=pinBuf.slice(0,-1);drawDots();return}
   if(pinBuf.length>=(R.cfg.pinLen||4))return;
   pinBuf+=k;drawDots();
   if(pinBuf.length===(R.cfg.pinLen||4)){
-    const ok=(await sha((R.cfg.salt||"")+":"+(uid||"local")+":"+pinBuf))===R.cfg.pinHash;
-    if(ok){pinFails=0;unlocked=true;$("lock").hidden=true;pinBuf="";return}
-    pinFails++;pinBuf="";const d=$("dots");d.classList.remove("bad");void d.offsetWidth;d.classList.add("bad");
-    if(pinFails>=5){pinWait=Date.now()+30000;pinFails=0;$("lkMsg").textContent="Demasiados intentos. Espera 30 s."}else $("lkMsg").textContent="PIN incorrecto";
-    setTimeout(drawDots,350);
+    const p=pinBuf;pinBusy=true;let ok=false;try{ok=await pinOk(p)}finally{pinBusy=false;pinBuf=""}
+    if(ok){pinFset({n:0,t:0});unlocked=true;$("lock").hidden=true;return}
+    f.n++;const d=$("dots");d.classList.remove("bad");void d.offsetWidth;d.classList.add("bad");
+    if(f.n>=10&&sb&&uid){pinFset({n:0,t:0});lsSet("mf.pinreset."+uid,1);$("lkMsg").textContent="Por seguridad cerramos tu sesión. Entra con tu contraseña.";
+      setTimeout(async()=>{try{await sb.auth.signOut({scope:"local"})}catch(e){}lsDel(CK());location.reload()},1600);return}
+    if(f.n>=5){const w=[30,60,300,900,3600][Math.min(f.n-5,4)]*1000;f.t=Date.now()+w;$("lkMsg").textContent="Demasiados intentos. Espera "+wTxt(w)}
+    else $("lkMsg").textContent="PIN incorrecto";
+    pinFset(f);setTimeout(drawDots,350);
   }
 }
 function pinForm(){openPanel(`<h3>${S.cfg.pinHash?"Cambiar PIN":"Crear PIN"}</h3>
@@ -1944,7 +1982,8 @@ function pinForm(){openPanel(`<h3>${S.cfg.pinHash?"Cambiar PIN":"Crear PIN"}</h3
   <p class="neg note" id="pErr"></p>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="pin-save">Guardar PIN</button></div>
   ${S.cfg.pinHash?`<button class="btn danger full" style="margin-top:10px" data-act="pin-off">Quitar PIN</button>`:""}`)}
-async function setPin(p){if(!R.cfg.salt)R.cfg.salt=nid("s");R.cfg.pinHash=await sha(R.cfg.salt+":"+(uid||"local")+":"+p);R.cfg.pinLen=p.length}
+async function setPin(p){R.cfg.salt=nid("s")+nid("s");R.cfg.pinV=2;R.cfg.pinIt=PIN_IT;R.cfg.pinHash=await pinHash2(p,R.cfg.salt,PIN_IT);R.cfg.pinLen=p.length}
+const pinDel=()=>{["pinHash","pinLen","pinV","pinIt"].forEach(k=>delete R.cfg[k])};
 document.addEventListener("visibilitychange",()=>{if(document.hidden)hiddenAt=Date.now();else if(R.cfg.pinHash&&unlocked&&!isDemo()&&Date.now()-hiddenAt>120000)showLock()});
 
 // ---------- onboarding
@@ -2111,10 +2150,14 @@ const ACT={
   "name-save":()=>{S.cfg.nombre=v("nm");closePanel();saveMeta("cfg")},
   "set-pin":()=>{if(isDemo()){toast("Sal del ejemplo para configurar tu PIN");return}pinForm()},
   "pin-save":async()=>{const a=v("p1"),b=v("p2");if(!/^\d{4,6}$/.test(a)){$("pErr").textContent="Usa de 4 a 6 números";return}if(a!==b){$("pErr").textContent="Los PIN no coinciden";return}await setPin(a);closePanel();saveMeta("cfg");toast("PIN guardado")},
-  "pin-off":(_,b)=>{if(!confirmBtn(b,"Toca otra vez para quitar el PIN"))return;delete R.cfg.pinHash;delete R.cfg.pinLen;closePanel();saveMeta("cfg");toast("PIN desactivado")},
+  "pin-off":(_,b)=>{if(!confirmBtn(b,"Toca otra vez para quitar el PIN"))return;pinDel();closePanel();saveMeta("cfg");toast("PIN desactivado")},
   "lock-now":()=>showLock(),
   pin:k=>pinKeyPress(k),
-  "pin-help":(_,b)=>{if(!confirmBtn(b,"Toca otra vez")){$("lkMsg").textContent="Toca otra vez para restablecer: se quita el PIN y creas uno nuevo.";return}delete R.cfg.pinHash;delete R.cfg.pinLen;saveMeta("cfg");unlocked=true;$("lock").hidden=true;pinForm()},
+  "pin-help":(_,b)=>{
+    if(sb&&uid&&userMail){if(!confirmBtn(b,"Toca otra vez")){$("lkMsg").textContent="Para crear otro PIN entra de nuevo con tu contraseña. Toca otra vez para salir.";return}
+      lsSet("mf.pinreset."+uid,1);(async()=>{try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()})();return}
+    // Modo local (sin cuenta): no hay contraseña con qué comprobar
+    if(!confirmBtn(b,"Toca otra vez")){$("lkMsg").textContent="Toca otra vez para restablecer: se quita el PIN y creas uno nuevo.";return}pinDel();saveMeta("cfg");unlocked=true;$("lock").hidden=true;pinForm()},
   wipe:(_,b)=>{if(isDemo()){toast("Estás viendo el ejemplo");return}if(!confirmBtn(b,"Toca otra vez: se borra todo, sin deshacer"))return;wipeAll()},
   "ob-demo":()=>{$("ob").hidden=true;ACT["demo-on"]()},
   "ob-back":()=>{ob.step=Math.max(0,ob.step-1);obRender()},
@@ -2230,7 +2273,7 @@ function makeCol(){
         const r=b===null?await sb.from("docs").delete().eq("user_id",uid).eq("id",id):await sb.from("docs").upsert({user_id:uid,id,body:b,updated_at:new Date().toISOString()});
         if(r.error)throw r.error;if(queue[id]===b){delete queue[id];lsSet(QK(),queue)}}
       setStatus("Guardado en tu cuenta · privado");
-    }catch(e){setStatus("Sin conexión: se guardará cuando vuelva el internet")}
+    }catch(e){setStatus("Sin conexión: se guardará cuando vuelva el internet");if(e&&e.code==="42501")mfaCheck()}
     flushing=false;if(again){again=false;flush()}
   }
   window.addEventListener("online",flush);
@@ -2238,6 +2281,7 @@ function makeCol(){
   return{flush,doc:id=>({set:b=>put(id,clone(b)),delete:()=>put(id,null)}),
     onSnapshot(next,err){
       const load=async()=>{const rows=[];for(let f=0;;f+=1000){const {data,error}=await sb.from("docs").select("id,body").eq("user_id",uid).range(f,f+999);if(error){err&&err(error);return}rows.push(...data);if(data.length<1000)break}
+        if(!rows.length&&await mfaCheck())return;
         const m=new Map(rows.map(r=>[r.id,r.body]));Object.entries(queue).forEach(([k,b])=>b===null?m.delete(k):m.set(k,b));
         next({docs:[...m].map(([id,b])=>({id,data:()=>b})),metadata:{fromCache:false,hasPendingWrites:false}})};
       load();
@@ -2461,13 +2505,64 @@ $("auForm").onsubmit=async e=>{e.preventDefault();const mail=$("auMail").value.t
     else{const {data,error}=await sb.auth.signInWithPassword({email:mail,password:pw});if(error)throw error;await enterSession(data.user)}
   }catch(err){$("auMsg").textContent=auErr(err)}
   btn.disabled=false};
+// ---------- verificación en dos pasos (códigos de 6 números, TOTP)
+let mfaOn=false,mfaPending=null,mfaEnr=null;
+async function mfaLevel(){try{const {data}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();return data||{}}catch(e){return {}}}
+async function needMfa(){const l=await mfaLevel();mfaOn=l.nextLevel==="aal2";return l.nextLevel==="aal2"&&l.currentLevel!=="aal2"}
+function showMfa(user){if(user)mfaPending=user;if(!$("mfa").hidden)return;["boot","auth","lock","ob"].forEach(i=>{const e=$(i);if(e)e.hidden=true});closePanel();closeUmenu();
+  $("mfaMsg").textContent="";$("mfaCode").value="";$("mfa").hidden=false;setTimeout(()=>$("mfaCode").focus(),150)}
+async function mfaFactor(){const {data,error}=await sb.auth.mfa.listFactors();if(error)throw error;return ((data&&data.totp)||[])[0]||null}
+// Si la verificación se activó en otro equipo, esta sesión deja de ver los datos: pedir el código en vez de mostrar la app vacía.
+let mfaChk=null;
+function mfaCheck(){if(!sb||!uid)return Promise.resolve(false);if(!$("mfa").hidden)return Promise.resolve(true);
+  return mfaChk||(mfaChk=(async()=>{try{const {data,error}=await sb.rpc("mfa_ok");if(!error&&data===false){showMfa(null);return true}}catch(e){}return false})().finally(()=>{mfaChk=null}))}
+document.addEventListener("input",e=>{const t=e.target;if(!t.classList||!t.classList.contains("otp"))return;const d=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==d)t.value=d;
+  if(t.id==="mfaCode"){$("mfaMsg").textContent="";if(d.length===6)$("mfaBtn").click()}},true);
+$("mfaForm").onsubmit=async e=>{e.preventDefault();const code=$("mfaCode").value.replace(/\D/g,""),btn=$("mfaBtn");
+  if(code.length!==6){$("mfaMsg").textContent="Escribe los 6 números";return}if(btn.disabled)return;btn.disabled=true;
+  try{const f=await mfaFactor();if(!f)throw new Error("sin factor");const {error}=await sb.auth.mfa.challengeAndVerify({factorId:f.id,code});if(error)throw error;
+    mfaOn=true;const u=mfaPending;mfaPending=null;
+    if(uid){location.reload();return}$("mfa").hidden=true;$("mfaCode").value="";if(u)await enterSession(u)}
+  catch(err){$("mfaMsg").textContent=/fetch|network|load failed/i.test((err&&err.message)||"")?"Sin conexión a internet.":"Código incorrecto o vencido. Usa el código nuevo.";$("mfaCode").value="";$("mfaCode").focus()}
+  btn.disabled=false};
+async function mfaPanel(){
+  if(!sb||!uid){toast("Entra con tu cuenta para activarla");return}
+  openPanel(`<h3>Verificación en dos pasos</h3><p class="note">Cargando…</p>`);
+  let f=null;try{f=await mfaFactor()}catch(e){openPanel(`<h3>Verificación en dos pasos</h3><p class="note">Sin conexión. Intenta de nuevo.</p><button class="btn full" data-act="close">Cerrar</button>`);return}
+  mfaOn=!!f;
+  if(f)openPanel(`<h3>Verificación en dos pasos</h3>
+    <div class="alok" style="margin:0 0 14px">${ic("check")}<b>Activada</b><span>Al entrar en un equipo nuevo te pedimos el código de tu app.</span></div>
+    <p class="note" style="margin:0 0 8px">Para desactivarla, escribe tu código</p><input id="mfaOffC" class="otp sm" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Código de 6 números">
+    <p class="neg note" id="mfaErr"></p>
+    <div class="g2"><button class="btn full" data-act="close">Cerrar</button><button class="btn danger full" data-act="mfa-off" data-id="${esc(f.id)}">Desactivar</button></div>`);
+  else openPanel(`<h3>Verificación en dos pasos</h3>
+    <p class="note" style="margin-top:-6px">Además de tu contraseña, al entrar en un equipo nuevo te pediremos un código de 6 números de una app como Google Authenticator, Microsoft Authenticator o Contraseñas del iPhone.</p>
+    <button class="btn solid full" data-act="mfa-new">${ic("shield")}Activar</button>`)}
+function mfaEnrPanel(){const t=(mfaEnr&&mfaEnr.totp)||{},sec=String(t.secret||"").replace(/(.{4})/g,"$1 ").trim();
+  const svg=String(t.qr_code||"").replace(/^data:image\/svg\+xml;[^,]*,/,""),qr=svg.startsWith("<svg")?"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg):String(t.qr_code||"");
+  openPanel(`<h3>Activar verificación</h3>
+  <p class="note" style="margin-top:-6px"><b>1.</b> Escanea el código con tu app de códigos.</p>
+  <div class="qrbox"><img src="${esc(qr)}" alt="Código QR para tu app de códigos"></div>
+  <div class="g2" style="margin:12px 0 6px"><a class="btn full" href="${esc(/^otpauth:/.test(t.uri||"")?t.uri:"#")}">${ic("key")}Abrir app</a><button class="btn full" data-act="mfa-copy">${ic("copy")}Copiar clave</button></div>
+  <p class="note" style="font-size:13px;margin:0 0 12px">Clave: <span class="mono">${esc(sec)}</span><br>Guárdala en un lugar seguro: si cambias de teléfono, con ella recuperas tus códigos.</p>
+  <p class="note" style="margin:0 0 8px"><b>2.</b> Escribe el código de 6 números</p><input id="mfaNewC" class="otp sm" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Código de 6 números">
+  <p class="neg note" id="mfaErr"></p>
+  <div class="g2"><button class="btn full" data-act="mfa-cancel">Cancelar</button><button class="btn solid full" data-act="mfa-ok">${ic("check")}Verificar</button></div>`)}
+function outAllPanel(){openPanel(`<h3>Cerrar sesión en todos los equipos</h3>
+  <p class="note" style="margin-top:-6px">Sales aquí y en todos tus teléfonos y computadoras. Úsalo si perdiste un teléfono o crees que alguien entró a tu cuenta. En los otros equipos puede tardar hasta 1 hora.</p>
+  <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn danger full" data-act="out-all">Cerrar en todos</button></div>`)}
+let entering=0;
 async function enterSession(user){
+  if(uid===user.id&&col)return;
+  if(entering)return;entering=1;let gate=false;
+  try{gate=await needMfa()}finally{entering=0}
+  if(gate){showMfa(user);return}
   if(uid===user.id&&col)return;
   uid=user.id;userMail=user.email||"";$("auth").hidden=true;$("boot").hidden=false;ready=false;setStatus("Sincronizando…");
   Object.assign(R,blank(),lsGet(CK(),{}));if(!isDemo())S=R;render();
   const local=lsGet(KEY,null);
   col=makeCol();let first=true;
-  const t=setTimeout(()=>{setStatus("Sin conexión: usando los datos guardados en el teléfono");start();render()},8000);
+  const t=setTimeout(()=>{if(!$("mfa").hidden)return;setStatus("Sin conexión: usando los datos guardados en el teléfono");start();render()},8000);
   col.onSnapshot(async snap=>{
     clearTimeout(t);applyDocs(snap.docs);
     if(first){first=false;
@@ -2476,6 +2571,7 @@ async function enterSession(user){
         ["cfg"].concat(METAS).forEach(n=>writeDoc(n,n==="cfg"?R.cfg:{list:R[n]}));R.items.forEach(x=>writeDoc(x.id,x));
       }
       lsDel(KEY);lsDel("fin.items");
+      if(lsGet("mf.pinreset."+uid,0)){lsDel("mf.pinreset."+uid);lsDel(PFK());if(R.cfg.pinHash){pinDel();writeDoc("cfg",R.cfg)}setTimeout(()=>{pinForm();toast("Crea tu PIN nuevo")},900)}
       if(!Object.keys(lsGet(QK(),{})).length)setStatus("Guardado en tu cuenta · privado");else col.flush();
       cashOK=true;
     }
@@ -2483,10 +2579,11 @@ async function enterSession(user){
     if(!inboxSub){inboxSub=true;pullInbox();sb.channel("inbox-"+uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"inbox",filter:"user_id=eq."+uid},()=>setTimeout(pullInbox,400)).subscribe();document.addEventListener("visibilitychange",()=>{if(!document.hidden)pullInbox()})}
   },e=>{clearTimeout(t);setStatus("Sin conexión: usando los datos guardados en el teléfono");start();render()});
 }
-async function signOut(){
+async function signOut(all){
   const q=Object.keys(lsGet(QK(),{})).length;
   if(q&&!confirm("Hay "+q+" cambio(s) sin subir por falta de internet. Si sales ahora se pierden. ¿Salir de todos modos?"))return;
-  try{await sb.auth.signOut()}catch(e){}
+  try{await sb.auth.signOut({scope:all?"global":"local"})}catch(e){}
+  if(all)try{sessionStorage.setItem("mf.out","all")}catch(e){}
   lsDel(CK());lsDel(QK());location.reload();
 }
 function newPassPanel(){openPanel(`<h3>Crea tu contraseña nueva</h3><label class="f">Contraseña nueva<input id="np1" type="password" minlength="8" autocomplete="new-password"></label><p class="neg note" id="npErr"></p><div class="g2"><button class="btn full" data-act="close">Después</button><button class="btn solid full" data-act="np-save">Guardar</button></div>`)}
@@ -2543,7 +2640,7 @@ Object.assign(ACT,{
   "rec-on":async()=>{if(await pushOn()){toast("¡Recordatorios activados!");recPanel()}},
   "rec-test":async()=>{try{await sb.functions.invoke("recordatorios",{body:{accion:"prueba",tipo:"pm"}});toast("Enviada: revisa tus notificaciones")}catch(e){toast("No se pudo enviar")}},
   "rec-save":()=>{let bid=v("rB");if(bid==="__new"){const c={id:nid("c"),banco:"Efectivo",tipo:"Efectivo",nombre:"Cartera",num:"",saldo:0,fecha:todayStr(),ts:Date.now(),incluir:true};S.cuentas.push(c);saveMeta("cuentas");bid=c.id}
-    S.cfg.rec=Object.assign(REC(),{bolsa:bid||"",min:num(v("rMin"))||0,am:v("rAm")||"07:00",pm:v("rPm")||"21:00",dia:$("rDia").checked,sem:$("rSem").checked,mes:$("rMes").checked});saveMeta("cfg");closePanel();toast("Recordatorios guardados")},
+    S.cfg.rec=Object.assign(REC(),{bolsa:bid||"",min:num(v("rMin"))||0,am:v("rAm")||"07:00",pm:v("rPm")||"21:00",dia:$("rDia").checked,sem:$("rSem").checked,mes:$("rMes").checked,montos:$("rMon").checked});saveMeta("cfg");closePanel();toast("Recordatorios guardados")},
   "bolsa-go":()=>{const x=sugBolsa();if(!x)return;trfPanel(x.src?x.src.id:"");setTimeout(()=>{if($("tA"))$("tA").value=x.b.id;if($("tM"))$("tM").value=x.sug},60)},
   trf:id=>trfPanel(id||""),
   "trf-save":()=>{const a=v("tDe"),b=v("tA"),m=num(v("tM")),f=v("tF")||todayStr(),n=v("tN").trim();if(a===b){toast("Elige dos cuentas distintas");return}if(!(m>0)){toast("Escribe el monto");$("tM").focus();return}
@@ -2568,8 +2665,27 @@ Object.assign(ACT,{
   "au-forgot":()=>{$("auMsg").textContent="Escribe tu correo y te enviamos un enlace.";auSet("forgot")},
   "au-demo":()=>{$("auth").hidden=true;ready=true;ACT["demo-on"]()},
   "sign-out":()=>signOut(),
+  "sign-out-all":()=>{closeUmenu();outAllPanel()},
+  "out-all":()=>signOut(true),
+  "mfa-out":async()=>{try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()},
+  mfa:()=>{closeUmenu();mfaPanel()},
+  "mfa-new":async(_,b)=>{b.disabled=true;
+    try{const {data:l}=await sb.auth.mfa.listFactors();for(const f of ((l&&l.all)||[]).filter(f=>f.factor_type==="totp"&&f.status!=="verified"))await sb.auth.mfa.unenroll({factorId:f.id});
+      const {data,error}=await sb.auth.mfa.enroll({factorType:"totp",issuer:"Mis Finanzas",friendlyName:"Mis Finanzas "+new Date().toISOString().slice(0,16).replace("T"," ")});if(error)throw error;
+      mfaEnr=data;mfaEnrPanel()}catch(e){b.disabled=false;toast("No se pudo iniciar. Intenta de nuevo.")}},
+  "mfa-copy":async()=>{try{await navigator.clipboard.writeText(mfaEnr.totp.secret);toast("Clave copiada")}catch(e){toast("No se pudo copiar")}},
+  "mfa-cancel":()=>{if(mfaEnr){sb.auth.mfa.unenroll({factorId:mfaEnr.id}).catch(()=>{});mfaEnr=null}closePanel()},
+  "mfa-ok":async(_,b)=>{const code=v("mfaNewC").replace(/\D/g,"");if(code.length!==6){$("mfaErr").textContent="Escribe los 6 números";return}if(!mfaEnr)return;b.disabled=true;
+    const {error}=await sb.auth.mfa.challengeAndVerify({factorId:mfaEnr.id,code});
+    if(error){b.disabled=false;$("mfaErr").textContent="Código incorrecto o vencido. Usa el código nuevo.";$("mfaNewC").value="";$("mfaNewC").focus();return}
+    mfaEnr=null;mfaOn=true;closePanel();toast("Verificación en dos pasos activada");confetti()},
+  "mfa-off":async(id,b)=>{const code=v("mfaOffC").replace(/\D/g,"");if(code.length!==6){$("mfaErr").textContent="Escribe el código de 6 números de tu app";return}b.disabled=true;
+    let {error}=await sb.auth.mfa.challengeAndVerify({factorId:id,code});
+    if(!error)({error}=await sb.auth.mfa.unenroll({factorId:id}));
+    if(error){b.disabled=false;$("mfaErr").textContent=/code|invalid|expired/i.test(error.message||"")?"Código incorrecto o vencido.":"No se pudo desactivar. Intenta de nuevo.";return}
+    mfaOn=false;closePanel();toast("Verificación en dos pasos desactivada")},
   "np-save":async()=>{const p=v("np1");if(p.length<8){$("npErr").textContent="Mínimo 8 caracteres";return}const {error}=await sb.auth.updateUser({password:p});if(error){$("npErr").textContent=auErr(error);return}closePanel();toast("Contraseña actualizada")},
-  "del-account":(_,b)=>{if(!confirmBtn(b,"Toca otra vez: se borra tu cuenta y todo"))return;(async()=>{const {error}=await sb.rpc("delete_my_account");if(error){toast("No se pudo eliminar: "+error.message);return}lsDel(CK());lsDel(QK());try{await sb.auth.signOut()}catch(e){}location.reload()})()}
+  "del-account":(_,b)=>{if(!confirmBtn(b,"Toca otra vez: se borra tu cuenta y todo"))return;(async()=>{const {error}=await sb.rpc("delete_my_account");if(error){if(/mfa_required/.test(error.message||"")){mfaCheck();return}toast("No se pudo eliminar: "+error.message);return}lsDel(CK());lsDel(QK());try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()})()}
 });
 const _demoOff=ACT["demo-off"];ACT["demo-off"]=()=>{if(sb&&!uid){S=R;D=null;render();showAuth();return}_demoOff()};
 
@@ -2613,7 +2729,8 @@ show(["inicio","movimientos","resumen","proyeccion","fijos","cuentas"].includes(
   sb.auth.onAuthStateChange((ev,session)=>{
     if(ev==="PASSWORD_RECOVERY"){setTimeout(newPassPanel,300)}
     if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION")&&session&&session.user&&uid!==session.user.id)enterSession(session.user);
-    if(ev==="INITIAL_SESSION"&&!session)showAuth();
+    if(ev==="INITIAL_SESSION"&&!session){let m="";try{if(sessionStorage.getItem("mf.out")==="all"){m="Cerraste sesión en todos tus equipos.";sessionStorage.removeItem("mf.out")}}catch(e){}showAuth(m)}
+    if(ev==="TOKEN_REFRESHED"&&uid)setTimeout(async()=>{if($("mfa").hidden&&await needMfa())showMfa(null)},0);
   });
 })();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});

@@ -11,6 +11,21 @@ const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, GET, OPTIONS" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "Content-Type": "application/json" } });
 const back = (q: string) => Response.redirect(SITE + "?gmail=" + q, 302);
+// Seguridad: el permiso de Gmail se guarda cifrado (AES-GCM) con una llave que solo existe en el servidor de funciones.
+const te = new TextEncoder();
+let TK: CryptoKey | null = null;
+async function llave() {
+  if (TK) return TK;
+  const base = await crypto.subtle.importKey("raw", te.encode(CSEC), "HKDF", false, ["deriveKey"]);
+  TK = await crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: te.encode("mis-finanzas"), info: te.encode("gmail-refresh-token-v1") }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  return TK;
+}
+const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+async function sellar(t: string) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const c = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await llave(), te.encode(t)));
+  return "v1:" + b64(iv) + ":" + b64(c);
+}
 const b64u = (u: Uint8Array) => btoa(String.fromCharCode(...u)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 async function sign(t: string) {
@@ -27,6 +42,11 @@ Deno.serve(async (req) => {
     const jwt = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     const { data, error } = await admin.auth.getUser(jwt);
     if (error || !data.user) return json({ ok: false, error: "Inicia sesión" }, 401);
+    // Con verificación en dos pasos activada, conectar Gmail exige haber puesto el código.
+    let aal = "";
+    try { aal = JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).aal || ""; } catch (_e) { aal = ""; }
+    const mfa = (data.user.factors || []).some((f: { status: string }) => f.status === "verified");
+    if (mfa && aal !== "aal2") return json({ ok: false, error: "Confirma tu código de verificación" }, 403);
     const p = b64u(new TextEncoder().encode(JSON.stringify({ u: data.user.id, e: Date.now() + 15 * 60e3 })));
     const state = p + "." + (await sign(p));
     const g = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -61,7 +81,7 @@ Deno.serve(async (req) => {
   // Lo que ya está en el correo no se importa: solo lo nuevo desde ahora.
   const ls = await (await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100&q=" + encodeURIComponent("newer_than:3d"), { headers: { Authorization: "Bearer " + tk.access_token } })).json();
   const seen = (ls.messages || []).map((m: { id: string }) => m.id);
-  const { error } = await admin.from("gmail_links").upsert({ user_id: u, email: prof.emailAddress || null, refresh_token: tk.refresh_token, seen, last_check: new Date().toISOString(), last_error: null });
+  const { error } = await admin.from("gmail_links").upsert({ user_id: u, email: prof.emailAddress || null, refresh_token: await sellar(tk.refresh_token), seen, last_check: new Date().toISOString(), last_error: null });
   if (error) return back("error");
   await admin.from("inbox").insert({ user_id: u, source: "gmail", text: "MF-CONEXION gmail" });
   return back("ok");
