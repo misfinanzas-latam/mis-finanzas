@@ -594,6 +594,19 @@ a.btn{text-decoration:none}
 .qrbox{display:grid;place-items:center;margin:4px auto 0;width:204px;height:204px;border-radius:18px;background:#fff;border:1px solid var(--line)}
 .qrbox img{width:180px;height:180px;image-rendering:pixelated}
 .mono{font:600 13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;word-break:break-all;user-select:all;-webkit-user-select:all;color:var(--ink)}
+.adh{display:flex;align-items:center;justify-content:space-between;gap:10px}.adh h3{margin:0}
+.akpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.akpi>div{display:grid;gap:2px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line);min-width:0}
+.akpi span{font-size:12px;font-weight:600;color:var(--mut)}.akpi b{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}.akpi em{font-style:normal;font-size:12px;color:var(--mut)}
+.ah{margin:18px 0 8px;font-size:14px}
+.abars{display:flex;align-items:flex-end;gap:3px;height:84px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.abars i{flex:1;min-width:0;height:max(3px,var(--h));border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--g1,#ffe600),var(--g2,#f5b400))}
+.abx{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin:4px 4px 0}
+.afn{display:grid;gap:10px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.afr{display:grid;grid-template-columns:minmax(0,1fr) 64px 52px;align-items:center;gap:10px;font-size:14px}
+.afr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.afr i{height:8px;border-radius:99px;background:var(--pl);overflow:hidden}.afr u{display:block;height:100%;border-radius:99px;background:var(--g2,#f5b400)}
+.afr b{font-size:13px;font-weight:600;color:var(--mut);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .rchk{display:grid;gap:8px;margin:4px 0 14px}.rchk label{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}.rchk input{width:22px;height:22px;accent-color:var(--g2);flex:none}
 .bolsab{border-color:color-mix(in srgb,#059669 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#10b981 12%,var(--card)),var(--card) 70%)!important}.bolsab .clipi .i{color:#fff}
 .scango{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--tint) 96%,transparent);display:grid;align-content:center;gap:16px;padding:24px}
@@ -1382,6 +1395,7 @@ function umenuHTML(){
   ${userMail&&sb&&!isDemo()?mi("mfa","shield",mfaOn?"Verificación en dos pasos · activada":"Verificación en dos pasos"):""}
   ${isDemo()?mi("demo-off","dots","Salir del ejemplo"):mi("demo-on","dots","Ver con datos de ejemplo")}
   <a class="mi" role="menuitem" href="privacy.html" target="_blank" rel="noopener">${ic("info")}<span>Política de privacidad</span></a>
+  ${esAdmin&&!isDemo()?`<div class="ms"></div><div class="mv">Administración</div>${mi("admin","chart","Panel de la app")}`:""}
   <div class="ms"></div>
   ${userMail?mi("sign-out","up","Cerrar sesión")+mi("sign-out-all","devices","Cerrar sesión en todos los equipos"):""}
   ${mi("wipe","alert","Borrar todos mis datos","neg")}
@@ -1660,7 +1674,8 @@ $("form").onsubmit=e=>{
   const it={id:editing||nid("g"),cuenta:v("fCta"),tipo:fTipo,monto:Math.round(m*100)/100,lugar:$("fLugar").value.trim(),fecha:$("fFecha").value||todayStr(),cat:v("fCat")||"Otros",nota:$("fNota").value.trim(),fuente:fTipo==="ingreso"?$("fFuente").value:"",ts:old&&old.ts||Date.now(),fijo:pendFijo?(pendFijo.fijo||""):(old&&old.fijo)||"",venc:pendFijo?pendFijo.venc:(old&&old.venc)||"",dte:scanCtx?scanCtx.dte:(old&&old.dte)||""};
   if(scanCtx&&scanCtx.key&&fTipo==="gasto"&&(it.lugar!==scanCtx.lugar||it.cat!==scanCtx.cat)&&!isDemo()){const rl=S.reglas||(S.reglas=[]),r=rl.find(x=>x.k===scanCtx.key);if(r){r.lugar=it.lugar;r.cat=it.cat}else rl.push({k:scanCtx.key,lugar:it.lugar,cat:it.cat});if(rl.length>300)rl.shift();saveMeta("reglas")}
   if(!it.lugar&&it.fuente)it.lugar=srcName(it);
-  if(pendCtx){it.origen="alerta";finishPend(it)}
+  if(old&&old.origen)it.origen=old.origen;
+  if(pendCtx){it.origen="alerta";finishPend(it)}else if(scanCtx&&!old)it.origen="ticket";
   const wasEdit=!!editing;closeSheet();putItem(it);
   if(it.fecha.slice(0,7)!==month){month=it.fecha.slice(0,7);render()}
   toast(wasEdit?"Cambios guardados":"Guardado: "+fmt(it.monto));if(!wasEdit&&it.tipo==="ingreso")confetti(30);
@@ -2516,6 +2531,29 @@ $("auForm").onsubmit=async e=>{e.preventDefault();const mail=$("auMail").value.t
     else{const {data,error}=await sb.auth.signInWithPassword({email:mail,password:pw});if(error)throw error;await enterSession(data.user)}
   }catch(err){$("auMsg").textContent=auErr(err)}
   btn.disabled=false};
+// ---------- panel de la app (solo administradores; solo números generales, nunca datos de una persona)
+let esAdmin=false;
+async function adminPanel(){
+  if(!sb||!uid)return;
+  openPanel(`<h3>Panel de la app</h3><p class="note">Cargando…</p>`);
+  let s=null;try{const {data,error}=await sb.rpc("admin_stats");if(error)throw error;s=data||{}}
+  catch(e){const t=(e&&(e.message||e.code))||"";openPanel(`<h3>Panel de la app</h3><p class="note">${/forbidden|42501/.test(t)?"Esta cuenta no tiene acceso o falta tu código de verificación.":"Sin conexión. Intenta de nuevo."}</p><button class="btn full" data-act="close">Cerrar</button>`);return}
+  const n=k=>Math.max(0,+s[k]||0),T=n("cuentas"),M=n("movimientos"),ser=s.serie||[],mx=Math.max(1,...ser.map(x=>+x.m||0));
+  const hora=s.generado?new Date(s.generado).toLocaleTimeString("es-SV",{hour:"numeric",minute:"2-digit"}):"";
+  const kp=(l,v,sub)=>`<div><span>${l}</span><b>${v}</b><em>${sub}</em></div>`;
+  const row=(l,v,t)=>`<div class="afr"><span>${l}</span><i><u style="width:${t?Math.round(v/t*100):0}%"></u></i><b>${v} de ${t}</b></div>`;
+  const FX=[["Completaron la bienvenida","bienvenida"],["Usan PIN","f_pin"],["Notificaciones activas","f_notificaciones"],["Gmail conectado","f_gmail"],["Alertas por SMS o atajo","f_alertas"],["Verificación en dos pasos","f_dos_pasos"]];
+  openPanel(`<div class="adh"><h3>Panel de la app</h3><button class="ib" data-act="admin" aria-label="Actualizar">${ic("repeat")}</button></div>
+  <p class="note" style="margin:-4px 0 12px">Solo números generales${hora?" · "+hora:""}</p>
+  <div class="akpi">${kp("Cuentas",T,`+${n("nuevas_7d")} esta semana`)}${kp("Activas hoy",n("activas_1d"),`${n("activas_7d")} en 7 días`)}${kp("Registraron algo",n("registraron_7d"),"en 7 días")}${kp("Movimientos",M,`+${n("mov_7d")} esta semana`)}</div>
+  <h4 class="ah">Movimientos por día</h4>
+  <div class="abars" role="img" aria-label="Movimientos registrados por día, últimos 30 días">${ser.map(x=>`<i style="--h:${Math.round((+x.m||0)/mx*100)}%" title="${dShort(x.d)}: ${+x.m||0} movimiento(s) · ${+x.p||0} persona(s)"></i>`).join("")}</div>
+  <div class="abx"><span>${ser.length?dShort(ser[0].d):""}</span><span>Hoy</span></div>
+  <h4 class="ah">Cómo registran</h4>
+  <div class="afn">${row("A mano",Math.max(0,M-n("por_alerta")-n("por_ticket")),M)}${row("Foto del ticket",n("por_ticket"),M)}${row("Alertas del banco",n("por_alerta"),M)}</div>
+  <h4 class="ah">Funciones que usan</h4>
+  <div class="afn">${FX.map(([l,k])=>row(l,n(k),T)).join("")}</div>
+  <p class="note" style="margin:12px 0 0">No muestra montos, nombres ni datos de nadie.</p>`)}
 // ---------- verificación en dos pasos (códigos de 6 números, TOTP)
 let mfaOn=false,mfaPending=null,mfaEnr=null;
 async function mfaLevel(){try{const {data}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();return data||{}}catch(e){return {}}}
@@ -2584,6 +2622,7 @@ async function enterSession(user){
       lsDel(KEY);lsDel("fin.items");
       if(lsGet("mf.pinreset."+uid,0)){lsDel("mf.pinreset."+uid);lsDel(PFK());if(R.cfg.pinHash){pinDel();writeDoc("cfg",R.cfg)}setTimeout(()=>{pinForm();toast("Crea tu PIN nuevo")},900)}
       if(!Object.keys(lsGet(QK(),{})).length)setStatus("Guardado en tu cuenta · privado");else col.flush();
+      sb.rpc("es_admin").then(({data})=>{esAdmin=data===true}).catch(()=>{});
       cashOK=true;
     }
     cacheSave();start();render();
@@ -2679,6 +2718,7 @@ Object.assign(ACT,{
   "au-demo":()=>{$("auth").hidden=true;ready=true;ACT["demo-on"]()},
   "sign-out":()=>signOut(),
   "sign-out-all":()=>{closeUmenu();outAllPanel()},
+  admin:()=>{closeUmenu();adminPanel()},
   "out-all":()=>signOut(true),
   "mfa-out":async()=>{try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()},
   mfa:()=>{closeUmenu();mfaPanel()},
