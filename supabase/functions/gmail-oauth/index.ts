@@ -5,7 +5,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
 const CSEC = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
-const SITE = Deno.env.get("SITE_URL") || "https://wvillanuevau.github.io/mis-finanzas/";
+const SITE = "https://misfinanzas-latam.github.io/mis-finanzas/";
 const SELF = Deno.env.get("SUPABASE_URL") + "/functions/v1/gmail-oauth";
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, GET, OPTIONS" };
