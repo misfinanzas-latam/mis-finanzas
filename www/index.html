@@ -833,21 +833,38 @@ body.zedit :is(#zlIni,#zlRes,#zlFij)>.zi{grid-column:1/-1}
 }
 @media (min-width:1600px) and (min-height:560px){:root{--cw:1320px}}
 
-/* ---- Liquid Glass: lente que marca la pestaña activa ---- */
-nav.tabs .tlens{position:absolute;left:0;top:0;width:var(--lw,0);height:var(--lh,0);transform:translate(var(--lx,0),var(--ly,0));border-radius:22px;z-index:0;pointer-events:none;
-  background:linear-gradient(180deg,rgb(255 255 255/.97),rgb(255 255 255/.68));border:1px solid rgb(255 255 255/.95);
-  box-shadow:0 8px 20px rgb(0 0 0/.16),0 1px 3px rgb(0 0 0/.12),inset 0 1px 0 #fff,inset 0 -9px 14px color-mix(in srgb,var(--g1,#ffe600) 40%,transparent);
+/* ---- Liquid Glass: lente que marca la pestaña activa (se desliza con el dedo, como en iPhone) ---- */
+nav.tabs{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+nav.tabs button[data-tab=inicio]{--tc:#2563eb}nav.tabs button[data-tab=fijos]{--tc:#7c3aed}nav.tabs button[data-tab=resumen]{--tc:#ea580c}nav.tabs button[data-tab=cuentas]{--tc:#0d9488}nav.tabs button[data-tab=proyeccion]{--tc:#16a34a}
+nav.tabs .tlens{position:absolute;left:0;top:0;width:var(--lw,0);height:var(--lh,0);border-radius:999px;z-index:0;pointer-events:none;
+  transform:translate(var(--lx,0),var(--ly,0)) scale(var(--sc,1)) scaleX(var(--sx,1));
+  background:linear-gradient(180deg,rgb(255 255 255/.97),rgb(255 255 255/.66));border:1px solid rgb(255 255 255/.95);
+  box-shadow:0 8px 20px rgb(0 0 0/.16),0 1px 3px rgb(0 0 0/.12),inset 0 1px 0 #fff,inset 0 -10px 16px color-mix(in srgb,var(--ltc,#ffe600) 24%,transparent);
   -webkit-backdrop-filter:blur(8px) saturate(180%);backdrop-filter:blur(8px) saturate(180%)}
 nav.tabs .tlens::after{content:"";position:absolute;inset:1px;border-radius:inherit;background:radial-gradient(90% 60% at 30% 0%,rgb(255 255 255/.95),transparent 62%);opacity:.75}
-nav.tabs.lr .tlens{transition:transform .5s cubic-bezier(.34,1.42,.48,1),width .5s cubic-bezier(.34,1.42,.48,1),height .45s ease}
-nav.tabs button[aria-current=true]{background:transparent!important;box-shadow:none!important;color:var(--ink)!important;font-weight:800!important}
-nav.tabs button:not([aria-current=true]){color:color-mix(in srgb,var(--ink) 56%,transparent)!important}
-nav.tabs button[aria-current=true] svg.i .f{fill:var(--g2,#f5b400)!important;fill-opacity:.95!important}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) nav.tabs .tlens{background:linear-gradient(180deg,rgb(255 255 255/.30),rgb(255 255 255/.12));border-color:rgb(255 255 255/.40);box-shadow:0 8px 22px rgb(0 0 0/.55),inset 0 1px 0 rgb(255 255 255/.55),inset 0 -9px 14px color-mix(in srgb,var(--g1,#ffe600) 22%,transparent)}
+nav.tabs.lr .tlens{transition:transform .5s cubic-bezier(.34,1.42,.48,1),width .5s cubic-bezier(.34,1.42,.48,1),height .45s ease,box-shadow .3s,background .3s}
+nav.tabs.drag .tlens{--sc:1.13;transition:transform .14s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background .3s;
+  background:linear-gradient(180deg,rgb(255 255 255/.6),rgb(255 255 255/.26));
+  box-shadow:0 12px 28px rgb(0 0 0/.2),inset 0 1px 0 #fff,inset 0 0 0 1px rgb(255 255 255/.85),inset 0 -12px 20px color-mix(in srgb,var(--ltc,#ffe600) 34%,transparent)}
+nav.tabs button{-webkit-tap-highlight-color:transparent}
+nav.tabs button[aria-current=true]{background:transparent!important;box-shadow:none!important;color:var(--tc)!important;font-weight:800!important}
+nav.tabs button[aria-current=true] svg,nav.tabs button.hov svg{color:var(--tc)!important}
+nav.tabs.drag button[aria-current=true]:not(.hov) svg{color:inherit!important}
+nav.tabs button:not([aria-current=true]){color:color-mix(in srgb,var(--ink) 34%,transparent)!important}
+nav.tabs button[aria-current=true] svg.i .f,nav.tabs button.hov svg.i .f{fill:currentColor!important;fill-opacity:.3!important}
+nav.tabs button:not([aria-current=true]) svg.i .f{fill-opacity:.08!important}
+nav.tabs svg.i{transition:transform .22s cubic-bezier(.34,1.5,.5,1)}
+nav.tabs button.hov{color:var(--tc)!important}nav.tabs button.hov svg.i{transform:scale(1.18)}
+nav.tabs.drag button[aria-current=true]:not(.hov){color:color-mix(in srgb,var(--ink) 40%,transparent)!important}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) nav.tabs button[data-tab=inicio]{--tc:#60a5fa}:root:not([data-theme=light]) nav.tabs button[data-tab=fijos]{--tc:#a78bfa}:root:not([data-theme=light]) nav.tabs button[data-tab=resumen]{--tc:#fb923c}:root:not([data-theme=light]) nav.tabs button[data-tab=cuentas]{--tc:#2dd4bf}:root:not([data-theme=light]) nav.tabs button[data-tab=proyeccion]{--tc:#4ade80}
+ :root:not([data-theme=light]) nav.tabs .tlens{background:linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/.12));border-color:rgb(255 255 255/.4);box-shadow:0 8px 22px rgb(0 0 0/.55),inset 0 1px 0 rgb(255 255 255/.55),inset 0 -10px 16px color-mix(in srgb,var(--ltc,#ffe600) 26%,transparent)}
+ :root:not([data-theme=light]) nav.tabs.drag .tlens{background:linear-gradient(180deg,rgb(255 255 255/.2),rgb(255 255 255/.07));border-color:rgb(255 255 255/.55)}
  :root:not([data-theme=light]) nav.tabs .tlens::after{opacity:.22}}
-:root[data-theme=dark] nav.tabs .tlens{background:linear-gradient(180deg,rgb(255 255 255/.30),rgb(255 255 255/.12));border-color:rgb(255 255 255/.40);box-shadow:0 8px 22px rgb(0 0 0/.55),inset 0 1px 0 rgb(255 255 255/.55),inset 0 -9px 14px color-mix(in srgb,var(--g1,#ffe600) 22%,transparent)}
+:root[data-theme=dark] nav.tabs button[data-tab=inicio]{--tc:#60a5fa}:root[data-theme=dark] nav.tabs button[data-tab=fijos]{--tc:#a78bfa}:root[data-theme=dark] nav.tabs button[data-tab=resumen]{--tc:#fb923c}:root[data-theme=dark] nav.tabs button[data-tab=cuentas]{--tc:#2dd4bf}:root[data-theme=dark] nav.tabs button[data-tab=proyeccion]{--tc:#4ade80}
+:root[data-theme=dark] nav.tabs .tlens{background:linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/.12));border-color:rgb(255 255 255/.4);box-shadow:0 8px 22px rgb(0 0 0/.55),inset 0 1px 0 rgb(255 255 255/.55),inset 0 -10px 16px color-mix(in srgb,var(--ltc,#ffe600) 26%,transparent)}
+:root[data-theme=dark] nav.tabs.drag .tlens{background:linear-gradient(180deg,rgb(255 255 255/.2),rgb(255 255 255/.07));border-color:rgb(255 255 255/.55)}
 :root[data-theme=dark] nav.tabs .tlens::after{opacity:.22}
-@media(prefers-reduced-motion:reduce){nav.tabs.lr .tlens{transition:none}}
+@media(prefers-reduced-motion:reduce){nav.tabs.lr .tlens,nav.tabs.drag .tlens{transition:none}}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1663,9 +1680,27 @@ function render0(){ensureCash();
 
 // Lente de vidrio que se desliza a la pestaña activa (estilo Liquid Glass)
 function tabLens(){const n=$("tabs");if(!n)return;const b=n.querySelector('button[aria-current="true"]'),l=n.querySelector(".tlens");if(!l)return;if(!b||!b.offsetWidth){l.hidden=true;return}
-  l.style.setProperty("--lx",b.offsetLeft+"px");l.style.setProperty("--ly",b.offsetTop+"px");l.style.setProperty("--lw",b.offsetWidth+"px");l.style.setProperty("--lh",b.offsetHeight+"px");l.hidden=false;
+  l.style.setProperty("--lx",b.offsetLeft+"px");l.style.setProperty("--ly",b.offsetTop+"px");l.style.setProperty("--lw",b.offsetWidth+"px");l.style.setProperty("--lh",b.offsetHeight+"px");
+  n.style.setProperty("--ltc",getComputedStyle(b).getPropertyValue("--tc").trim()||"#ffe600");l.hidden=false;
   if(!n.classList.contains("lr"))requestAnimationFrame(()=>requestAnimationFrame(()=>n.classList.add("lr")))}
 {let rq=0;addEventListener("resize",()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(tabLens)});if(document.fonts)document.fonts.ready.then(()=>tabLens())}
+// Deslizar el dedo sobre la barra: el lente lo sigue y, al soltar, abre esa pestaña (como en iPhone)
+{const n=$("tabs");let dg=null,skip=0;
+ const desk=()=>matchMedia("(min-width:900px) and (min-height:560px)").matches;
+ const at=x=>{let best=null,bd=1e9;n.querySelectorAll("button[data-tab]").forEach(b=>{const r=b.getBoundingClientRect(),d=Math.abs(x-(r.left+r.width/2));if(d<bd){bd=d;best=b}});return best};
+ const mv=e=>{if(!dg||e.pointerId!==dg.id)return;const l=n.querySelector(".tlens"),nr=n.getBoundingClientRect(),lw=l.offsetWidth;
+   if(Math.abs(e.clientX-dg.x0)>6)dg.moved=true;
+   const x=Math.max(4,Math.min(nr.width-4-lw,e.clientX-nr.left-lw/2)),v=dg.lx==null?0:x-dg.lx;dg.lx=x;
+   l.style.setProperty("--lx",x+"px");l.style.setProperty("--sx",(1+Math.min(.22,Math.abs(v)*.015)).toFixed(3));
+   const b=at(e.clientX);if(b!==dg.hov){if(dg.hov)dg.hov.classList.remove("hov");dg.hov=b;if(b){b.classList.add("hov");n.style.setProperty("--ltc",getComputedStyle(b).getPropertyValue("--tc").trim());if(dg.moved&&navigator.vibrate)try{navigator.vibrate(6)}catch(_){}}}};
+ n.addEventListener("pointerdown",e=>{if(desk()||(e.pointerType==="mouse"&&e.button!==0))return;const l=n.querySelector(".tlens");if(!l||l.hidden)return;
+   dg={id:e.pointerId,x0:e.clientX,moved:false,lx:null,hov:null};try{n.setPointerCapture(e.pointerId)}catch(_){}n.classList.add("drag");mv(e)});
+ n.addEventListener("pointermove",mv);
+ const end=(e,cancel)=>{if(!dg||e.pointerId!==dg.id)return;const d=dg;dg=null;n.classList.remove("drag");const l=n.querySelector(".tlens");l.style.setProperty("--sx","1");if(d.hov)d.hov.classList.remove("hov");
+   const b=at(e.clientX),far=e.clientY<n.getBoundingClientRect().top-120;
+   if(!cancel&&!far&&b){skip=performance.now();if(b.getAttribute("aria-current")!=="true")show(b.dataset.tab);else tabLens()}else tabLens()};
+ n.addEventListener("pointerup",e=>end(e,false));n.addEventListener("pointercancel",e=>end(e,true));
+ n.addEventListener("click",e=>{if(performance.now()-skip<450){e.stopPropagation();e.preventDefault()}},true)}
 function show(t){if(t==="movimientos"){t="cuentas";const z=$("histZ");if(z)z.open=true}
   if(t!=="resumen"){const m0=todayStr().slice(0,7);if(month!==m0||pRange){month=m0;pRange=null;render()}}if(document.body&&document.body.classList.contains("zedit"))zEdit(false);
   tab=t;$("fab").hidden=false;$("sbq").hidden=false;dialSet(false);{const sec=$("tab-"+t);if(sec){sec.classList.remove("anim");void sec.offsetWidth;sec.classList.add("anim");setTimeout(()=>sec.classList.remove("anim"),800)}}document.querySelectorAll("section").forEach(s=>s.hidden=s.id!=="tab-"+t);
