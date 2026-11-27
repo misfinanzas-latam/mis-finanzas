@@ -177,6 +177,11 @@ label.f input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
 .fxh h2{margin:0;font-size:18px}
 .fx .it{cursor:default;min-height:58px}.fx li:last-child .it{border:0}
 .pay{min-height:38px;padding:0 14px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;gap:5px;font:600 14px "Hanken Grotesk",sans-serif;cursor:pointer;flex:none}
+.pacts{display:flex;align-items:center;gap:8px;flex:none}
+.pdx{flex:none;width:38px;height:38px;padding:0;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--red) 30%,var(--line));background:color-mix(in srgb,var(--red) 7%,var(--card));color:var(--red);display:grid;place-items:center;cursor:pointer}
+.pdx .i{width:18px;height:18px}.pdx:active{transform:scale(.94)}
+.pdxw{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 10px;border-radius:14px;background:color-mix(in srgb,var(--red) 9%,var(--card));color:var(--red)}
+.pdxw .i{width:24px;height:24px;flex:none}.pdxw span{display:grid;gap:2px;min-width:0;color:var(--ink);font-size:14px}.pdxw b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .paid{min-height:38px;padding:0 10px;border:0;background:none;color:var(--grn);font:600 14px "Hanken Grotesk",sans-serif;cursor:pointer;flex:none;white-space:nowrap}
 .hoja{margin-top:14px;background:var(--card);box-shadow:var(--sh);border-radius:18px;padding:0 14px}
 .hoja summary{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;cursor:pointer;list-style:none;font-size:17px}
@@ -397,6 +402,7 @@ html.priv .big,html.priv .trio strong,html.priv .free3 b,html.priv .it .am,html.
 .fx .it{display:grid;grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:10px;row-gap:4px;align-items:center;padding:10px 0}
 .fx .it>.bub{grid-row:1/3}.fx .it>.tx{grid-column:2;grid-row:1/3}.fx .it>.am{grid-column:3;grid-row:1;max-width:none;font-size:15px;justify-self:end}
 .fx .it>.pay,.fx .it>.paid{grid-column:3;grid-row:2;justify-self:end;min-height:34px}
+.fx .it>.pacts{grid-column:3;grid-row:2;justify-self:end}.fx .it>.pacts>.pay{min-height:34px}.fx .it>.pacts>.pdx{width:34px;height:34px}
 .g2{align-items:start}
 label.f .cxf input{width:40px!important}label.f .cxf select{font-size:14px!important;padding:0 2px!important}
 .it .am small{white-space:normal}
@@ -709,7 +715,7 @@ nav.tabs button[aria-current=true] svg.i .f{fill-opacity:.3}
 #incBox .it>.am,#fixBox .it>.am{grid-column:3;grid-row:1;justify-self:end;max-width:none}
 #incBox .it>.pay,#incBox .it>.paid,#fixBox .it>.pay,#fixBox .it>.paid{grid-column:3;grid-row:2;justify-self:end;min-height:34px}
 @media(max-width:380px){#incBox .it>.pay,#fixBox .it>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}#incBox .it>.pay .i,#fixBox .it>.pay .i{width:19px;height:19px}}
-@media(max-width:380px){.fx .it>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}.fx .it>.pay .i{width:19px;height:19px}}
+@media(max-width:380px){.fx .it>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}.fx .it>.pay .i{width:19px;height:19px}.fx .it>.pacts>.pay{font-size:0!important;width:40px;min-height:40px!important;height:40px;padding:0!important;justify-content:center;border-radius:50%;gap:0}.fx .it>.pacts>.pay .i{width:19px;height:19px}.fx .it>.pacts>.pdx{width:40px;height:40px}}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}}
 :root[data-theme=dark] .bub{color:color-mix(in srgb,var(--c) 62%,#fff)}
 /* ===== Campos con formato: montos tipo cajero y fechas dd/mm/aaaa ===== */
@@ -1645,7 +1651,7 @@ document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>setTipo(b.data
 $("fFuente").onchange=()=>{const f=S.fuentes.find(f=>f.id===$("fFuente").value);if(!f)return;if(f.cuenta)$("fCta").value=f.cuenta;if(!$("fLugar").value)$("fLugar").value=f.nombre;$("fCat").value=f.tipo;if(!$("fMonto").value&&num(f.monto))$("fMonto").value=num(f.monto).toFixed(2)};
 $("fCancel").onclick=closeSheet;
 $("sheet").onclick=e=>{if(e.target.id==="sheet")closeSheet()};
-$("fDel").onclick=()=>{if(pendCtx){const id=pendCtx.id;closeSheet();S.pend=S.pend.filter(x=>x.id!==id);if(S===R)R.pend=S.pend;saveMeta("pend");toast("Alerta descartada");return}const id=editing;closeSheet();delItem(id)};
+$("fDel").onclick=()=>{if(pendCtx){const id=pendCtx.id;closeSheet();pendDiscard(id);return}const id=editing;closeSheet();delItem(id)};
 $("form").onsubmit=e=>{
   e.preventDefault();
   const m=num($("fMonto").value);if(!(m>0)){$("fMonto").focus();toast("Escribe un monto válido");return}
@@ -2350,12 +2356,17 @@ async function pullInbox(){
   }catch(e){}pulling=false;
 }
 function pendRow(p){const c=S.cuentas.find(x=>x.id===p.cuenta);const ing=p.tipo==="ingreso";
-  return `<li><div class="it">${bub(p.cat||"Otros")}<span class="tx"><b>${esc(p.comercio||(ing?"Ingreso a tu cuenta":"Comercio sin leer"))}</b><span>${chip("pend",p.source==="sms"?"SMS":p.source==="correo"?"Correo":"Pegada")} ${p.ult4?"···"+esc(p.ult4):""} · ${dShort(p.fecha)}${c?"":" · sin cuenta"}</span></span><span class="am ${ing?"pos":""}">${p.monto!=null?(ing?"+":"")+fmt(p.monto):"¿monto?"}</span><button class="pay" data-act="pend-rev" data-id="${p.id}">${ic("edit")}Revisar</button></div></li>`}
+  return `<li><div class="it">${bub(p.cat||"Otros")}<span class="tx"><b>${esc(p.comercio||(ing?"Ingreso a tu cuenta":"Comercio sin leer"))}</b><span>${chip("pend",p.source==="sms"?"SMS":p.source==="correo"||p.source==="gmail"?"Correo":"Pegada")} ${p.ult4?"···"+esc(p.ult4):""} · ${dShort(p.fecha)}${c?"":" · sin cuenta"}</span></span><span class="am ${ing?"pos":""}">${p.monto!=null?(ing?"+":"")+fmt(p.monto):"¿monto?"}</span><span class="pacts"><button class="pay" data-act="pend-rev" data-id="${p.id}">${ic("edit")}Revisar</button><button class="pdx" data-act="pend-x" data-id="${p.id}" aria-label="Descartar alerta" title="Descartar">${ic("trash")}</button></span></div></li>`}
+function pendDiscard(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
+  openPanel(`<h3>¿Descartar esta alerta?</h3>
+  <div class="pdxw">${ic("alert")}<span><b>${esc(p.comercio||(p.tipo==="ingreso"?"Ingreso a tu cuenta":"Comercio sin leer"))}</b>${p.monto!=null?fmt(p.monto)+" · ":""}${dShort(p.fecha)}</span></div>
+  <p class="note">No se guardará como movimiento y <b>no se puede deshacer</b>.</p>
+  <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn danger full" data-act="pend-x-ok" data-id="${esc(id)}">${ic("trash")}Descartar</button></div>`)}
 function openPend(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
   openSheet({tipo:p.tipo,monto:p.monto,lugar:p.comercio,fecha:p.fecha,cat:p.cat||undefined,cuenta:p.cuenta,nota:""});
   pendCtx={id:p.id};const c=S.cuentas.find(x=>x.id===p.cuenta);
   $("fTitle").textContent="Revisar alerta del banco";$("fDel").hidden=false;$("fDel").textContent="Descartar alerta";
-  $("scanInfo").innerHTML=`<b>${p.source==="sms"?"Llegó por SMS":p.source==="correo"?"Llegó por correo":"Alerta pegada"}${p.ult4?" · "+(p.tipoNum==="cuenta"?"cuenta":"tarjeta")+" ···"+esc(p.ult4):""}${p.medio?" ("+p.medio+")":""}</b>
+  $("scanInfo").innerHTML=`<b>${p.source==="sms"?"Llegó por SMS":p.source==="correo"||p.source==="gmail"?"Llegó por correo":"Alerta pegada"}${p.ult4?" · "+(p.tipoNum==="cuenta"?"cuenta":"tarjeta")+" ···"+esc(p.ult4):""}${p.medio?" ("+p.medio+")":""}</b>
     ${p.monto==null?`<span class="miss">No se leyó el monto: escríbelo abajo.</span><br>`:""}
     ${p.ult4&&!c?`<span class="miss">Esta ${p.tipoNum==="cuenta"?"cuenta":"tarjeta"} ···${esc(p.ult4)} no está ligada a ninguna de tus cuentas. Elige abajo de qué cuenta salió.</span><br><label class="ck" style="margin:4px 0 0"><input type="checkbox" id="pLink" checked> Recordar ···${esc(p.ult4)} en la cuenta que elija</label>`:""}
     ${p.saldo!=null?`<label class="ck" style="margin:4px 0 0"><input type="checkbox" id="pSaldo"${c?" checked":""}> La alerta dice saldo disponible ${fmt(p.saldo)}: actualizar esa cuenta</label>`:""}
@@ -2600,6 +2611,8 @@ Object.assign(ACT,{
   foto:()=>{if(isDemo()){toast("Sal del ejemplo para poner tu foto");return}$("fotoIn").click()},
   "foto-x":()=>{delete S.cfg.foto;saveMeta("cfg");toast("Foto quitada")},
   "pend-rev":id=>openPend(id),
+  "pend-x":id=>pendDiscard(id),
+  "pend-x-ok":id=>{closePanel();if(!S.pend.some(x=>x.id===id))return;S.pend=S.pend.filter(x=>x.id!==id);if(S===R)R.pend=S.pend;saveMeta("pend");toast("Alerta descartada")},
   "paste-alert":()=>pastePanel(),
   clip:async()=>{let t="";try{t=(await navigator.clipboard.readText()||"").trim()}catch(e){}
     if(t.length<8||!/\d/.test(t)){pastePanel();if(!t)toast("Primero copia el mensaje del banco");return}
