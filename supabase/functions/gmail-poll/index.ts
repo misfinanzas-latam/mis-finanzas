@@ -1,5 +1,5 @@
 // Revisa cada 5 minutos el Gmail de quienes lo conectaron y manda a su bandeja
-// las alertas de compra de sus bancos. Solo lectura; no marca ni borra nada.
+// las alertas de compras y depósitos de sus bancos. Solo lectura; no marca ni borra nada.
 // Sin JWT: la llama pg_cron con su clave secreta. Cada cuenta se revisa como máximo una vez cada 4 minutos.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -49,7 +49,7 @@ const BANCOS: Record<string, string> = {
   "Promerica": "promerica", "Banco Hipotecario": "bancohipotecario", "Banco Atlántida": "bancoatlantida", "Banco Azul": "bancoazul",
   "Banco Industrial": "bi.com.sv", "Fedecrédito": "fedecredito",
 };
-const PALABRAS = "{compra transaccion transacción consumo cargo retiro debito débito abono pago autorizada aprobada}";
+const PALABRAS = "{compra transaccion transacción consumo cargo retiro debito débito abono pago autorizada aprobada deposito depósito acreditado acreditada acreditamos recibiste recibida recibido transferencia remesa planilla}";
 
 const dec = (d: string) => { try { return new TextDecoder().decode(Uint8Array.from(atob(d.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0))); } catch (_e) { return ""; } };
 // deno-lint-ignore no-explicit-any

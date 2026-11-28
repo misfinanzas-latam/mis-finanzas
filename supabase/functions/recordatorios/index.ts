@@ -46,6 +46,21 @@ export function tcPendiente(c: Any, items: Any[], hoy: string) {
   return { due, pend: Math.max(0, Math.round((dc - pg) * 100) / 100), dias: Math.round((Date.parse(due) - Date.parse(hoy)) / 864e5) };
 }
 
+// Gastos fijos: misma regla de fechas que la app (occ)
+const dimS = (m: string) => new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 0)).getUTCDate();
+const mdiffS = (a: string, b: string) => (+b.slice(0, 4) - +a.slice(0, 4)) * 12 + (+b.slice(5, 7) - +a.slice(5, 7));
+export function occS(f: Any, m: string): string[] {
+  if (f.activo === false || !f.inicio || f.freq === "variable" || m < f.inicio.slice(0, 7) || (f.fin && m > f.fin.slice(0, 7))) return [];
+  if (f.freq === "unica") return f.inicio.slice(0, 7) === m ? [f.inicio] : [];
+  const ini = f.inicio, d0 = +ini.slice(8), n = dimS(m), cl = (d: number) => m + "-" + p2(Math.min(d, n)), out: string[] = [];
+  const cm = f.freq === "custom" && f.cu === "meses", K: Any = { mensual: 1, bimestral: 2, trimestral: 3, semestral: 6, anual: 12 }, k = cm ? Math.max(1, +f.cn || 1) : K[f.freq];
+  const sd = f.freq === "semanal" ? 7 : f.freq === "custom" && !cm ? (f.cu === "semanas" ? 7 : 1) * Math.max(1, +f.cn || 1) : 0;
+  if (k) { if (mdiffS(ini, m) % k === 0) out.push(cl(d0)); }
+  else if (f.freq === "quincenal") { const a = d0 > 15 ? d0 - 15 : d0; out.push(cl(a), cl(a + 15)); }
+  else if (sd) { const t0 = Date.parse(ini + "T12:00:00Z"); for (let d = 1; d <= n; d++) { const df = Math.round((Date.parse(m + "-" + p2(d) + "T12:00:00Z") - t0) / 864e5); if (df >= 0 && df % sd === 0) out.push(m + "-" + p2(d)); } }
+  return out.filter((x) => x >= ini && (!f.fin || x <= f.fin));
+}
+
 export function bolsaDe(cfg: Any, cuentas: Any[]) {
   const r = cfg.rec || {};
   return cuentas.find((c) => c.id === r.bolsa) || cuentas.find((c) => c.sys) || cuentas.find((c) => /cartera|bolsa|billetera/i.test((c.nombre || "") + " " + (c.banco || ""))) || cuentas.find((c) => /efectivo/i.test((c.tipo || "") + (c.banco || "")));
@@ -55,7 +70,7 @@ async function datos(uid: string) {
   const { data } = await admin.from("docs").select("id,body").eq("user_id", uid);
   const D: Record<string, Any> = {}; const items: Any[] = [];
   for (const r of data || []) { if (["cfg", "cuentas", "fuentes", "fijos", "escs", "reglas", "pend"].includes(r.id)) D[r.id] = r.body; else if (r.body && r.body.fecha) items.push(r.body); }
-  return { cfg: D.cfg || {}, cuentas: (D.cuentas && D.cuentas.list) || [], pend: (D.pend && D.pend.list) || [], items };
+  return { cfg: D.cfg || {}, cuentas: (D.cuentas && D.cuentas.list) || [], fijos: (D.fijos && D.fijos.list) || [], pend: (D.pend && D.pend.list) || [], items };
 }
 
 function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnType<typeof local>, forzar = "") {
@@ -91,6 +106,16 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
       const [, mm, dd] = t.due.split("-");
       out.push({ kind: "tc" + c.id, title: `Pago de ${nom} ${cuando}`, body: M ? `Paga ${fmt(t.pend)} antes del ${+dd}/${+mm} para no pagar intereses.` : `Vence el ${+dd}/${+mm}. Toca para registrar el pago.`,
         url: SITE + "?trf=" + encodeURIComponent("|" + c.id + "|" + t.pend.toFixed(2)) });
+    }
+  }
+  // Gastos fijos y suscripciones con aviso: un día antes del cobro
+  if (forzar === "fx" || (!forzar && due(r.am))) {
+    const man = shiftDay(L.day, 1);
+    for (const f of d.fijos.filter((f: Any) => f.aviso && f.activo !== false)) {
+      if (!occS(f, man.slice(0, 7)).includes(man) && forzar !== "fx") continue;
+      if (d.items.some((x) => x.fijo === f.id && x.venc === man)) continue;
+      const c = f.cuenta && d.cuentas.find((x: Any) => x.id === f.cuenta);
+      out.push({ kind: "fx" + f.id, title: `Mañana: ${f.nombre || "un pago fijo"}`, body: M ? `Te cobran ${fmt(num(f.monto))}.${c ? ` Revisa que tengas saldo en ${c.nombre || c.banco}.` : ""}` : `Mañana te cobran ${f.sus ? "esta suscripción" : "este pago"}. Toca para verlo.`, url: SITE + "?tab=fijos" });
     }
   }
   // Arqueo semanal

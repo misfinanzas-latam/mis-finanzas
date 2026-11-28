@@ -945,6 +945,12 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
 .spc button{width:26px;height:26px;border-radius:50%;border:0;background:rgb(0 0 0/.08);color:inherit;font-size:16px;line-height:1;cursor:pointer;padding:0}
 .spadd{display:flex;gap:8px;margin:0 0 6px}.spadd input{flex:1;min-width:0;height:42px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font-size:16px;background:var(--card);color:var(--ink)}
 .sprs{font-size:14px;color:var(--mut);margin:4px 2px 12px}.sprs b{color:var(--ink)}
+
+/* ---- Suscripciones ---- */
+#suList .suh{list-style:none;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;padding:12px 4px 4px}
+#suList .suh svg{width:16px;height:16px}
+#suList .sug{list-style:none;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
+.sugb{display:flex;justify-content:flex-end;gap:8px;padding:0 2px}.sugb .btn{min-height:36px}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1040,6 +1046,10 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
     <div class="zb"><ul class="list" id="srcList"></ul>
     <button class="btn full" style="margin-top:10px" data-act="src-new">+ Agregar ingreso fijo</button></div>
     </details>
+    <details class="zone" data-z="su" data-k="su" id="suZ" style="--zc:#e11d48" hidden>
+    <summary><span class="zic" data-ic="repeat"></span><span class="zt"><b>Suscripciones</b><em id="suSub"></em></span><strong class="ztot" id="suTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
+    <div class="zb"><ul class="list" id="suList"></ul></div>
+    </details>
     <details class="zone" data-z="ga" data-k="ga" style="--zc:#7c5cff">
     <summary><span class="zic" data-ic="cal"></span><span class="zt"><b>Mis gastos fijos</b><em><span id="gCnt"></span></em></span><strong class="ztot" id="gTot"></strong><span class="zchev" aria-hidden="true"></span></summary>
     <div class="zb"><ul class="list" id="fixList"></ul>
@@ -1081,7 +1091,7 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
     <label class="f" id="fFuenteRow" hidden>¿Quién te lo da?<select id="fFuente"></select></label>
     <label class="f">Monto<input class="amt" id="fMonto" data-money required><span class="fmonw" id="fMonW"><b id="fMonV">USD</b><select id="fMon" aria-label="Moneda"></select></span></label>
     <div class="fconv" id="fConv" hidden></div>
-    <label class="f">Comercio o lugar<input id="fLugar" placeholder="Ej. Super Selectos Escalón" required></label>
+    <label class="f"><span id="fLugarT">Comercio o lugar</span><input id="fLugar" placeholder="Ej. Super Selectos Escalón" required></label>
     <div class="g2"><label class="f">Fecha<input id="fFecha" data-date required></label>
     <label class="f">Categoría<select id="fCat" data-cx="cat"></select></label></div>
     <label class="f" id="fCtaL"><span id="fCtaT">Se pagó desde</span><select id="fCta" data-cx="cta"></select></label>
@@ -1775,7 +1785,7 @@ function render0(){ensureCash();
   // cuentas
   $("ahTot").textContent=fmt(S.cuentas.reduce((t,c)=>t+ctaSaldo(c),0));
   $("accList").innerHTML=S.cuentas.length?S.cuentas.map(c=>{const sa=ctaSaldo(c),dif=Math.abs(sa-num(c.saldo))>.004,G=isCash(c)?["#34d399","#047857"]:BKG[[...(c.banco||"").toLowerCase()].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%BKG.length];return `<li data-k="${c.id}"><button class="bk" data-act="acc-edit" data-id="${c.id}" style="--b1:${G[0]};--b2:${G[1]}"><span class="bk1"><span class="bkic">${ic(isCash(c)?"wallet":isTC(c)?"card":"bank")}</span><b>${esc(c.sys?c.nombre:c.banco)}</b><em>${c.sys?"Principal":c.num?"•••• "+esc(c.num):esc(c.tipo||"")}</em></span><span class="bk2"><span>${esc(c.sys?"Lo que andas contigo":c.nombre||c.tipo)}</span><strong>${fmt(sa)}</strong></span><span class="bk3"><i class="${c.incluir!==false?"on":""}">${c.incluir!==false?(isTC(c)?"Resta del disponible":"Suma al disponible"):"No suma"}</i>${(c.tarjetas||[]).length?`<i>${ic("card")} ${c.tarjetas.map(t=>"··"+esc(t.d)).join(" ")}</i>`:isCash(c)||isTC(c)?"":`<i>${ic("card")} + Ligar tarjeta</i>`}${isTC(c)?tcChips(c):sa<-.004?`<i class="jneg" data-act="just" data-id="${c.id}">Justificar −${fmt(-sa)}</i>`:""}${dif?`<small>base ${fmt(num(c.saldo))} al ${c.fecha?dShort(c.fecha):"inicio"}</small>`:""}</span></button></li>`}).join(""):`<li class="empty">Agrega tus cuentas de ahorro, depósitos o efectivo guardado.</li>`;
-  renderMetas();renderDeudas();
+  renderMetas();renderDeudas();renderSubs();
   const yr=month.slice(0,4);
   $("fTot").textContent=fmt(S.fuentes.reduce((s,f)=>s+fMonthly(f),0));
   $("srcList").innerHTML=S.fuentes.length?grp(S.fuentes,f=>{const got=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,7)===month)),yt=sum(S.items.filter(x=>x.tipo==="ingreso"&&x.fuente===f.id&&x.fecha.slice(0,4)===yr));return `<li><button class="it" data-act="src-edit" data-id="${f.id}">${bub(f.tipo)}<span class="tx"><b>${esc(f.nombre)}${f.activo===false?" (pausado)":""}</b><span>${esc(f.tipo)} · ${f.freq==="variable"?"sin fecha fija":freqL(f)+" · "+esc(fDesc(f))}</span></span><span class="am">${fmt(num(f.monto))}<small>${got?"recibido "+fmt0(got):"por pago"}</small></span></button></li>`}):`<li class="empty">Agrega quién te da dinero: tu salario, remesas, trabajos o negocios.</li>`;
@@ -1784,7 +1794,7 @@ function render0(){ensureCash();
   const fm=fijosMes(month),pend=fm.filter(o=>!o.pago),pendT=pend.reduce((s,o)=>s+num(o.f.monto),0),fmT=fm.reduce((s,o)=>s+(o.pago?num(o.pago.monto):num(o.f.monto)),0),paidT=fmT-pendT,td=todayStr();
   if(!S.pend)S.pend=[];const PP=S.pend.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
   const NG=negCtas();$("negBox").innerHTML=difBanner()+bolsaBanner()+tcBanner()+NG.map(c=>`<button class="negb" data-act="just" data-id="${c.id}">${ic("alert")}<span><b>${esc(c.nombre||c.banco)} está en −${fmt(-ctaSaldo(c))}</b><em>Toca para justificar de dónde salió ese dinero</em></span><i>›</i></button>`).join("");
-  $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${fmt(PP.reduce((t,p)=>t+(p.tipo==="gasto"?num(p.monto):0),0))} en gastos</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
+  $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${[PP.some(p=>p.tipo!=="ingreso")?fmt(PP.reduce((t,p)=>t+(p.tipo!=="ingreso"?num(p.monto):0),0))+" en gastos":"",PP.some(p=>p.tipo==="ingreso")?"+"+fmt(PP.reduce((t,p)=>t+(p.tipo==="ingreso"?num(p.monto):0),0))+" en depósitos":""].filter(Boolean).join(" · ")}</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
   $("incBox").innerHTML=S.fuentes.length?`<details class="zone" data-z="inc" data-def="1" style="--zc:#16a34a">${zsum("down","Ingresos","Recibido "+fmt0(H.rI),fmt(H.tI))}<div class="zb"><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}" aria-label="Recibir">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div></details>`:"";
@@ -1838,6 +1848,7 @@ function setTipo(t){
   fTipo=t;document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t));
   const cur=$("fCat").value,o=listOf(t==="ingreso"?"tipoF":"cat");$("fCat").dataset.cx=t==="ingreso"?"tipoF":"cat";$("fCat").innerHTML=opts(o,cur);cxAll();
   $("fFuenteRow").hidden=t!=="ingreso";$("fCtaT").textContent=t==="ingreso"?"Se depositó en":"Se pagó desde";
+  $("fLugarT").textContent=t==="ingreso"?"¿De quién o de qué?":"Comercio o lugar";$("fLugar").placeholder=t==="ingreso"?"Ej. Pago de cliente, remesa de mamá":"Ej. Super Selectos Escalón";
   $("fLugar").placeholder=t==="ingreso"?"Ej. Quincena noviembre":"Ej. Super Selectos Escalón";
 }
 function openSheet(x,img){
@@ -2068,6 +2079,29 @@ function metaMov(id,sg){const m=(S.metas||[]).find(x=>x.id===id);if(!m)return;co
   <label class="f">Nota (opcional)<input id="mmN" maxlength="60" placeholder="${sg>0?"Ej. Quincena":"Ej. Lo necesité"}"></label>
   <div class="g2"><button class="btn full" data-act="meta-view" data-id="${esc(id)}">Cancelar</button><button class="btn solid full" data-act="meta-mov-ok" data-id="${esc(id)}|${sg}">${ic("check")}Guardar</button></div>`);
   setTimeout(()=>{const e=$("mmM");if(e)e.focus()},80)}
+
+// ---------- suscripciones: las que ya son gastos fijos y las que detectamos en tus gastos
+const SUBK=/netflix|spotify|disney|hbo|\bmax\b|prime video|amazon prime|youtube|apple|icloud|google one|chatgpt|openai|claude|anthropic|microsoft|office 365|xbox|playstation|psn|nintendo|adobe|canva|crunchyroll|paramount|deezer|tidal|dropbox|notion|duolingo|gym|gimnasio|smart fit|claro|tigo|movistar|digicel|internet|cable|patreon|twitch|audible|kindle|uber one|rappi pro|pedidosya plus/;
+const addD=(d,n)=>{const t=new Date(d+"T12:00:00");t.setDate(t.getDate()+n);return t.getFullYear()+"-"+pad(t.getMonth()+1)+"-"+pad(t.getDate())};
+const addM=(d,k)=>{const m=shift(d.slice(0,7),k);return m+"-"+pad(Math.min(+d.slice(8),dim(m)))};
+const subKey=s=>norm(s).replace(/[0-9]+/g," ").split(/\s+/).filter(w=>w.length>2&&!/^(com|www|net|inc|sa|cv|pago|compra|de|del|the)$/.test(w)).slice(0,2).join(" ");
+function subsDetect(){return mm("subs",()=>{const hoy=todayStr(),desde=addD(hoy,-420),G=new Map(),no=new Set((S.cfg.subNo)||[]);
+  S.items.forEach(x=>{if(x.tipo==="ingreso"||x.tipo==="ajuste"||x.fijo||!x.lugar||!(x.fecha>=desde))return;const k=subKey(x.lugar);if(!k||no.has(k))return;(G.get(k)||G.set(k,[]).get(k)).push(x)});
+  const fk=S.fijos.map(f=>subKey(f.nombre)).filter(Boolean),out=[];
+  G.forEach((L,k)=>{if(L.length<2||fk.some(f=>f===k||f.includes(k)||k.includes(f)))return;L.sort((a,b)=>a.fecha.localeCompare(b.fecha));const T=L.slice(-6);
+    const ams=T.map(x=>num(x.monto)).sort((a,b)=>a-b),med=ams[ams.length>>1];if(!(med>0)||T.some(x=>Math.abs(num(x.monto)-med)>Math.max(1.5,med*.1)))return;
+    const iv=T.slice(1).map((x,i)=>dDias(T[i].fecha,x.fecha)),sv=iv.slice().sort((a,b)=>a-b),mi=sv[sv.length>>1],last=T[T.length-1];
+    const mens=mi>=26&&mi<=35&&iv.every(d=>d>=20&&d<=40),anual=mi>=350&&mi<=380;if(!mens&&!anual)return;
+    if(dDias(last.fecha,hoy)>(mens?50:400))return;const kw=SUBK.test(norm(last.lugar));if(T.length<3&&!kw)return;
+    let nx=addM(last.fecha,mens?1:12);while(nx<hoy)nx=addM(nx,mens?1:12);
+    out.push({k,n:last.lugar,m:Math.round(med*100)/100,freq:mens?"mensual":"anual",last:last.fecha,next:nx,cat:last.cat||"Otros",cuenta:last.cuenta||"",cnt:L.length})});
+  return out.sort((a,b)=>b.m-a.m)})}
+function renderSubs(){const z=$("suZ");if(!z)return;const F=S.fijos.filter(f=>f.sus&&f.activo!==false),D=subsDetect();z.hidden=!F.length&&!D.length;if(z.hidden)return;
+  const men=F.reduce((t,f)=>t+gMonthly(f),0);$("suTot").textContent=F.length?fmt(men):"";
+  $("suSub").textContent=F.length?`${F.length===1?"1 suscripción":F.length+" suscripciones"} · ${fmt0(men*12)} al año`:`Encontramos ${D.length===1?"1 posible":D.length+" posibles"}`;
+  $("suList").innerHTML=F.map(f=>{const nx=nextD(f);return `<li><button class="it" data-act="fijo-edit" data-id="${f.id}">${bub(f.cat)}<span class="tx"><b>${esc(f.nombre)}</b><span>${freqL(f)}${nx?" · cobra el "+dShort(nx):""}${f.aviso?" · te avisamos":""}</span></span><span class="am">${fmt(num(f.monto))}</span></button></li>`}).join("")
+    +(D.length?`<li class="suh">${ic("spark")}Parecen suscripciones</li>`+D.map(d=>`<li class="sug"><div class="it">${bub(d.cat)}<span class="tx"><b>${esc(d.n)}</b><span>${fmt(d.m)} ${d.freq==="mensual"?"cada mes":"cada año"} · ${d.cnt} cobros · próximo ${dShort(d.next)}</span></span></div>
+      <div class="sugb"><button class="btn sm" data-act="sub-no" data-id="${esc(d.k)}">No es</button><button class="btn sm solid" data-act="sub-add" data-id="${esc(d.k)}">${ic("plus")}Agregar</button></div></li>`).join(""):"")}
 
 // ---------- me deben / debo y dividir cuentas (los préstamos mueven cuentas con ajustes: no cuentan como gasto ni ingreso)
 const deRest=d=>Math.max(0,Math.round((num(d.m)-(d.ab||[]).reduce((t,a)=>t+num(a.m),0))*100)/100);
@@ -2353,6 +2387,8 @@ function fijoForm(f){f=f||{freq:"mensual",inicio:todayStr(),cat:"Vivienda",activ
   <label class="f">Se paga desde<select id="xCta" data-cx="cta" data-v="${esc(f.cuenta||"")}">${ctaOpts(S.cuentas,f.cuenta,"Sin especificar")}</select></label>
   <label class="f">Nota<input id="xNota" value="${esc(f.nota)}" placeholder="Ej. débito automático, NPE, contrato"></label>
   <label class="ck"><input type="checkbox" id="xAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
+  <label class="ck"><input type="checkbox" id="xSus"${f.sus?" checked":""}> Es una suscripción (Netflix, Spotify, gimnasio…)</label>
+  <label class="ck"><input type="checkbox" id="xAvi"${f.aviso?" checked":""}> Avisarme un día antes del cobro</label>
   
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="fijo-save" data-id="${f.id||""}">Guardar</button></div>
   ${f.id?`<button class="btn danger full" style="margin-top:10px" data-act="fijo-del" data-id="${f.id}">Eliminar gasto fijo</button>`:""}`)}
@@ -2519,6 +2555,9 @@ async function obFinish(){
 
 // ---------- acciones
 const ACT={
+  "sub-add":k=>{const d=subsDetect().find(x=>x.k===k);if(!d)return;const br=norm(d.n).match(SUBK),f={id:nid("x"),nombre:br&&/\.com|\d{3,}|\*/i.test(d.n)?br[0].replace(/\b\w/g,c=>c.toUpperCase()):d.n.trim(),monto:d.m,freq:d.freq,inicio:d.next,fin:"",cat:d.cat,cuenta:S.cuentas.some(c=>c.id===d.cuenta)?d.cuenta:"",activo:true,nota:"Suscripción",sus:true,aviso:true};
+    S.fijos.push(f);saveMeta("fijos");toast(f.nombre+" quedó en tus gastos fijos · te avisamos un día antes")},
+  "sub-no":k=>{S.cfg.subNo=(S.cfg.subNo||[]).concat([k]).slice(-200);saveMeta("cfg");toast("Listo, no lo volveremos a sugerir")},
   "de-new":()=>deForm(),
   "de-t":t=>{const me=t==="me";$("deT").value=t;document.querySelectorAll("#deSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===t));$("deVL").textContent=me?"¿Cuándo te paga?":"¿Cuándo le pagas?";const c=$("deCtaT");if(c)c.textContent=me?"¿Salió de una cuenta?":"¿Entró a una cuenta?"},
   "de-save":id=>{const p=v("deP").trim(),m=Math.round(num($("deM").value)*100)/100,t=v("deT")==="yo"?"yo":"me";if(!p){toast("Escribe el nombre");$("deP").focus();return}if(!(m>0)){toast("Escribe el monto");$("deM").focus();return}
@@ -2610,7 +2649,7 @@ const ACT={
   "fijo-new":()=>fijoForm(),
   "fijo-edit":id=>fijoForm(S.fijos.find(f=>f.id===id)),
   "fijo-save":id=>{const n=v("xNombre"),m=num(v("xMonto"));if(!n){toast("Escribe el nombre del gasto");return}if(!(m>0)){toast("Escribe el monto");return}
-    const f={id:id||nid("x"),nombre:n,monto:Math.round(m*100)/100,...fq("xFreq"),inicio:v("xIni")||todayStr(),fin:v("xFin")||"",cat:v("xCat"),cuenta:v("xCta"),activo:$("xAct").checked,nota:v("xNota")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
+    const f={id:id||nid("x"),nombre:n,monto:Math.round(m*100)/100,...fq("xFreq"),inicio:v("xIni")||todayStr(),fin:v("xFin")||"",cat:v("xCat"),cuenta:v("xCta"),activo:$("xAct").checked,nota:v("xNota")};if($("xSus").checked)f.sus=true;if($("xAvi").checked)f.aviso=true;if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
     const i=S.fijos.findIndex(x=>x.id===f.id);if(i>=0)S.fijos[i]=f;else S.fijos.push(f);closePanel();saveMeta("fijos");toast("Gasto fijo guardado")},
   "fijo-del":(id,b)=>{if(!confirmBtn(b,"Toca otra vez: los pagos hechos se conservan"))return;S.fijos=S.fijos.filter(f=>f.id!==id);if(S===R)R.fijos=S.fijos;closePanel();saveMeta("fijos")},
   "fijo-pay":k=>{const [id,venc]=k.split("|"),f=S.fijos.find(x=>x.id===id);if(!f)return;
@@ -2832,8 +2871,9 @@ function parseAlerta(raw,today){
   if(cands.length)out.monto=cands[0];
   // tarjeta / cuenta (ultimos 4)
   const card=t.match(/(?:tarjeta|tarj\.?|t\.?c\.?|t\.?d\.?|card)[^\d\n]{0,45}?(?:[*xX#•·.\-\s]{1,}\d{0,4}[*xX#•·.\-\s]*)*?(?:terminad[oa] en|finalizad[oa] en|que termina en|con terminaci[oó]n|[*xX#•·]{2,}[\-\s]?|no\.?\s*|n[uú]mero\s*)\s*(\d{4})\b/i);
-  const acct=t.match(/(?:cuenta|cta\.?)[^\d\n]{0,40}?(?:terminad[oa] en|finalizad[oa] en|[*xX#•·]{2,}[\-\s]?|no\.?\s*|n[uú]mero\s*)?\s*(\d{4,})\b/i);
-  if(card){out.ult4=card[1];out.tipoNum="tarjeta"}else if(acct){out.ult4=acct[1].slice(-4);out.tipoNum="cuenta"}
+  const acct=t.match(/(?:cuenta|cta\.?)[^\d\n]{0,40}?(?:terminad[oa] en|finalizad[oa] en|[*xX#•·]{2,}[\-\s]?|no\.?\s*|n[uú]mero\s*)?\s*(\d(?:[\d\-]{2,}\d)?)\b(?![\/.:]\d)/i);
+  const ad=acct?acct[1].replace(/\D/g,""):"";
+  if(card){out.ult4=card[1];out.tipoNum="tarjeta"}else if(ad.length>=4){out.ult4=ad.slice(-4);out.tipoNum="cuenta"}
   else{const g=t.match(/[*xX•]{2,}[\-\s]?(\d{4})\b/)||t.match(/(?:tarjeta|tarj\.?)\D{0,25}?\b(\d{4})\b(?![\/.,\-:]\d)/i);if(g){out.ult4=g[1];out.tipoNum="tarjeta"}}
   if(/credito/.test(low))out.medio="Crédito";else if(/debito/.test(low))out.medio="Débito";
   // comercio
@@ -2846,8 +2886,14 @@ function parseAlerta(raw,today){
   const fm=t.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/)||null;
   if(fm){let d=+fm[1],mo=+fm[2],y=+fm[3];if(y<100)y+=2000;if(mo>=1&&mo<=12&&d>=1&&d<=31){const f=y+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");if(f<=today)out.fecha=f}}
   else{const fi=t.match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);if(fi&&fi[0]<=today)out.fecha=fi[0]}
-  // tipo
-  if(/abono|deposito|acredit|recibiste|recibio|transferencia recibida|pago recibido|reembolso|devolucion/.test(low)&&!/compra|consumo/.test(low))out.tipo="ingreso";
+  // tipo: depósitos, abonos, transferencias y remesas que entran a la cuenta
+  const DEP=/abono|abonamos|deposit|acredit|recibiste|recibio|has recibido|ha recibido|transferencia (recibida|entrante)|te enviaron|envio recibido|remesa|pago recibido|planilla|salario|sueldo|nomina|ingreso a (su|tu) cuenta|credito a (su|tu) cuenta|reembolso|devolucion/;
+  const SAL=/compra|consumo|cargo a (su|tu)|debito a (su|tu)|retiro|pagaste|enviaste|transferiste|transferencia enviada|pago de servicio|pago a (su|tu) tarjeta/;
+  if(DEP.test(low)&&!SAL.test(low)){out.tipo="ingreso";
+    out.catI=/remesa|western union|moneygram|\bria\b|remitly|xoom/.test(low)?"Remesa":/planilla|salario|sueldo|nomina/.test(low)?"Salario":"Otros ingresos";
+    const de=t.match(/(?:de parte de|remitente|ordenante|originador|enviad[oa] por|realizad[oa] por|\bde)\s*:?\s+([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ.&'\- ]{2,40}?)(?=\s+(?:a (?:su|tu)|en (?:su|tu)|por|el|con|usd|us\$|cuenta|fecha|hora|ref)\b|\s*\$|\s*[\n,;]|\.\s|\.?$)/);
+    if(de&&!/^(su|tu|la|el|usd|us|banco|cuenta|transfer|deposito|depósito|abono)\b/i.test(de[1].trim()))out.comercio=de[1].trim().toLowerCase().replace(/(^|\s)\S/g,x=>x.toUpperCase());
+    else if(/\ben\s+(su|tu)\b|cuenta/.test(low)&&out.comercio&&/^(su|tu)\b/i.test(out.comercio))out.comercio=""}
   return out;
 }
 // ---------- alertas del banco
@@ -2859,7 +2905,7 @@ function catFor(com){const k=norm(com);if(!k)return "";const r=(S.reglas||[]).fi
 function makePend(text,source,rowId){
   if(source==="ticket"){const t=parseTicket(String(text||"")),cc=cashAcc();return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:"ticket",monto:t.total||0,saldo:null,ult4:"",tipoNum:"",medio:"Ticket",comercio:t.lugar||"",key:t.key||"",fecha:t.fecha||todayStr(),tipo:"gasto",cuenta:cc?cc.id:"",cat:t.cat||catFor(t.lugar)||"",ts:Date.now()}}
   const p=parseAlerta(text,todayStr()),c=ctaByNum(p.ult4);
-  return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:source||"pegada",monto:p.monto,saldo:p.saldo,ult4:p.ult4,tipoNum:p.tipoNum,medio:p.medio,comercio:p.comercio,fecha:p.fecha||todayStr(),tipo:p.tipo,cuenta:c?c.id:"",cat:p.tipo==="ingreso"?"Otros ingresos":(catFor(p.comercio)||""),ts:Date.now()};
+  return{id:rowId?"p"+rowId:nid("p"),raw:String(text).slice(0,2000),source:source||"pegada",monto:p.monto,saldo:p.saldo,ult4:p.ult4,tipoNum:p.tipoNum,medio:p.medio,comercio:p.comercio,fecha:p.fecha||todayStr(),tipo:p.tipo,cuenta:c?c.id:"",cat:p.tipo==="ingreso"?(p.catI||"Otros ingresos"):(catFor(p.comercio)||""),ts:Date.now()};
 }
 // Gasto dictado a Siri: llega como "MF-SIRI {m,en}" y se guarda directo en la cuenta elegida
 function siriItem(r){let o=null;try{o=JSON.parse(String(r.text||"").replace(/^MF-SIRI /,""))}catch(e){}
@@ -2883,14 +2929,14 @@ async function pullInbox(){
   }catch(e){}pulling=false;
 }
 function pendRow(p){const c=S.cuentas.find(x=>x.id===p.cuenta);const ing=p.tipo==="ingreso";
-  return `<li><div class="it">${bub(p.cat||"Otros")}<span class="tx"><b>${esc(p.comercio||(ing?"Ingreso a tu cuenta":"Comercio sin leer"))}</b><span>${chip("pend",p.source==="sms"?"SMS":p.source==="correo"||p.source==="gmail"?"Correo":"Pegada")} ${p.ult4?"···"+esc(p.ult4):""} · ${dShort(p.fecha)}${c?"":" · sin cuenta"}</span></span><span class="am ${ing?"pos":""}">${p.monto!=null?(ing?"+":"")+fmt(p.monto):"¿monto?"}</span><span class="pacts"><button class="pay" data-act="pend-rev" data-id="${p.id}">${ic("edit")}Revisar</button><button class="pdx" data-act="pend-x" data-id="${p.id}" aria-label="Descartar alerta" title="Descartar">${ic("trash")}</button></span></div></li>`}
+  return `<li><div class="it">${bub(p.cat||"Otros")}<span class="tx"><b>${esc(p.comercio||(ing?"Depósito a tu cuenta":"Comercio sin leer"))}</b><span>${ing?`<span class="chip ok">${ic("down")}Depósito</span>`:""}${chip("pend",p.source==="sms"?"SMS":p.source==="correo"||p.source==="gmail"?"Correo":"Pegada")} ${p.ult4?"···"+esc(p.ult4):""} · ${dShort(p.fecha)}${c?"":" · sin cuenta"}</span></span><span class="am ${ing?"pos":""}">${p.monto!=null?(ing?"+":"")+fmt(p.monto):"¿monto?"}</span><span class="pacts"><button class="pay" data-act="pend-rev" data-id="${p.id}">${ic("edit")}Revisar</button><button class="pdx" data-act="pend-x" data-id="${p.id}" aria-label="Descartar alerta" title="Descartar">${ic("trash")}</button></span></div></li>`}
 function pendDiscard(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
   openPanel(`<h3>¿Descartar esta alerta?</h3>
   <div class="pdxw">${ic("alert")}<span><b>${esc(p.comercio||(p.tipo==="ingreso"?"Ingreso a tu cuenta":"Comercio sin leer"))}</b>${p.monto!=null?fmt(p.monto)+" · ":""}${dShort(p.fecha)}</span></div>
   <p class="note">No se guardará como movimiento y <b>no se puede deshacer</b>.</p>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn danger full" data-act="pend-x-ok" data-id="${esc(id)}">${ic("trash")}Descartar</button></div>`)}
 function openPend(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
-  openSheet({tipo:p.tipo,monto:p.monto,lugar:p.comercio,fecha:p.fecha,cat:p.cat||undefined,cuenta:p.cuenta,nota:""});
+  openSheet({tipo:p.tipo,monto:p.monto,lugar:p.comercio||(p.tipo==="ingreso"?"Depósito":""),fecha:p.fecha,cat:p.cat||undefined,cuenta:p.cuenta,nota:""});
   pendCtx={id:p.id};const c=S.cuentas.find(x=>x.id===p.cuenta);
   $("fTitle").textContent="Revisar alerta del banco";$("fDel").hidden=false;$("fDel").textContent="Descartar alerta";
   $("scanInfo").innerHTML=`<b>${p.source==="sms"?"Llegó por SMS":p.source==="correo"||p.source==="gmail"?"Llegó por correo":"Alerta pegada"}${p.ult4?" · "+(p.tipoNum==="cuenta"?"cuenta":"tarjeta")+" ···"+esc(p.ult4):""}${p.medio?" ("+p.medio+")":""}</b>
@@ -2921,11 +2967,11 @@ const ALB=[["Banco Agrícola","bancoagricola"],["BAC Credomatic","credomatic"],[
 const alLink=src=>ALERT_URL()+"?key="+S.cfg.alertKey+"&source="+src;
 const gasScript=k=>{const sel=(S.cfg.alBancos||[]).map(n=>(ALB.find(b=>b[0]===n)||[])[1]).filter(Boolean),ext=(S.cfg.alCorreo||"").trim(),rem=[...sel,...(ext?[ext]:[])];
 return `// Mis Finanzas · alertas del banco desde Gmail
-// Solo lee correos de tus bancos que hablan de compras o pagos y los manda a tu app.
+// Solo lee correos de tus bancos que hablan de compras, pagos o depósitos y los manda a tu app.
 const CLAVE = "${k}";
 const URL_APP = "${ALERT_URL()}";
 const REMITENTES = ${JSON.stringify(rem.length?rem:ALB.map(b=>b[1]))};
-const PALABRAS = "{compra transaccion transacción consumo cargo retiro debito débito abono pago autorizada aprobada}";
+const PALABRAS = "{compra transaccion transacción consumo cargo retiro debito débito abono pago autorizada aprobada deposito depósito acreditado acreditada acreditamos recibiste recibida recibido transferencia remesa planilla}";
 
 function busqueda_() { return "from:(" + REMITENTES.join(" OR ") + ") " + PALABRAS + " newer_than:3d"; }
 function enviar_(texto, fuente) {
@@ -2964,7 +3010,7 @@ const alHead=(t,n,tot)=>`<button class="lnk" data-act="al-go" data-id="menu" sty
 async function alertPanel(via,paso){
   if(!sb||!uid){openPanel(`<h3>Alertas del banco</h3><p>Para recibirlas solas necesitas entrar con tu cuenta. Mientras tanto puedes <b>pegarlas a mano</b>.</p><button class="btn yel full" data-act="paste-open">${ic("inbox")}Pegar una alerta</button><button class="btn full" data-act="close" style="margin-top:8px">Cerrar</button>`);return}
   if(!S.cfg.alertKey&&!(await newAlertKey(true)))return;
-  if(!via||via==="menu"){openPanel(`<h3>Alertas del banco</h3><p class="note" style="margin-top:-6px">Cada compra que te avise tu banco llega sola a <b>Por revisar</b>; tú solo confirmas el concepto.</p>${alStatus()}
+  if(!via||via==="menu"){openPanel(`<h3>Alertas del banco</h3><p class="note" style="margin-top:-6px">Cada compra o depósito que te avise tu banco llega solo a <b>Por revisar</b>; tú solo confirmas el concepto.</p>${alStatus()}
     <h4 style="margin:14px 0 8px">¿Dónde te llegan las alertas?</h4>
     <div class="alopts">
       <button class="alopt" data-act="al-go" data-id="gmail|1" style="--c:#ea4335">${bubI("inbox","#ea4335")}<span><b>Correo en Gmail</b><em>Un toque con tu cuenta de Google</em></span></button>
@@ -3015,7 +3061,7 @@ async function alertPanel(via,paso){
       <li>Marca <b>Ejecutar inmediatamente</b> › <b>Siguiente</b> › <b>Nueva automatización en blanco</b>.</li>
       <li>Agrega la acción <b>Obtener contenido de URL</b> y en <b>URL</b> pega tu enlace.</li>
       <li>Toca la flechita <b>›</b> de la acción: <b>Método: POST</b> · <b>Cuerpo de la solicitud: Archivo</b> · en <b>Archivo</b> elige <b>Entrada del atajo</b>.</li>
-      <li>Toca <b>Listo</b>.</li></ol>
+      <li>Toca <b>Listo</b>.</li>${sms?`<li>Para tus <b>depósitos</b>, repite con la palabra <b>deposito</b> (y otra con <b>abono</b> si tu banco la usa).</li>`:""}</ol>
     <button class="btn sm" data-act="al-link" data-id="${via}">${ic("copy")}Copiar mi enlace otra vez</button>
     ${(S.cfg.alertOk||{})[via]?`<div class="alok">${ic("check")}<b>¡Conectado!</b><span>Ya recibimos alertas por esta vía.</span></div>`:`<div class="alwait" id="alWait"><i></i><span>Se pondrá en verde con tu próxima alerta del banco.</span></div>`}
     <button class="btn solid full" data-act="close" style="margin-top:10px">Listo</button>`);alWait(via);return}
