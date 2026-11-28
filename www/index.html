@@ -951,6 +951,14 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
 #suList .suh svg{width:16px;height:16px}
 #suList .sug{list-style:none;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
 .sugb{display:flex;justify-content:flex-end;gap:8px;padding:0 2px}.sugb .btn{min-height:36px}
+
+/* ---- Deducibles de renta ---- */
+.dedb{margin:0 0 12px}.dedh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 4px}.dedh b{font-size:15px}.dedh span{font-weight:800;font-variant-numeric:tabular-nums}.dedh small{font-weight:600;color:var(--mut)}
+.dedbar{display:block;height:10px;border-radius:9px;background:var(--pl);overflow:hidden;margin:0 0 3px}.dedbar i{display:block;height:100%;border-radius:9px}
+.dedb>small{font-size:12.5px;color:var(--mut)}
+.dedtot{display:flex;justify-content:space-between;align-items:center;background:var(--pl);border-radius:14px;padding:12px 14px;margin:4px 0 10px}.dedtot b{font-size:20px;font-variant-numeric:tabular-nums}
+.dedx{width:30px;height:30px;flex:none;margin-left:8px;border-radius:50%;border:0;background:var(--pl);color:var(--mut);font-size:17px;line-height:1;cursor:pointer;padding:0}
+label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -998,6 +1006,8 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
     <div id="cats"></div></div>
     <div class="rcard" data-k="incs"><h2 class="h2i" data-ic="down">¿De dónde entra?</h2>
     <div id="incs"></div></div>
+    <div class="rcard" data-k="ded" id="dedCard" hidden><h2 class="h2i" data-ic="book"><span id="dedT">Deducibles de renta</span></h2>
+    <div id="dedBox"></div></div>
     <div class="rcard" data-k="rec"><h2 class="h2i" data-ic="pin">Lugares recurrentes</h2>
     <ul class="list" id="rec"></ul></div>
     <div class="rcard" data-k="daily"><h2 class="h2i" data-ic="cal"><span id="dailyT">Gasto por día</span></h2>
@@ -1095,6 +1105,7 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
     <div class="g2"><label class="f">Fecha<input id="fFecha" data-date required></label>
     <label class="f">Categoría<select id="fCat" data-cx="cat"></select></label></div>
     <label class="f" id="fCtaL"><span id="fCtaT">Se pagó desde</span><select id="fCta" data-cx="cta"></select></label>
+    <label class="ck fded" id="fDedL" hidden><input type="checkbox" id="fDed" checked><span>Deducible de renta <small>· pide la factura a tu nombre</small></span></label>
     <label class="f" id="fNotaL">Concepto<input id="fNota" placeholder="Ej. Despensa de la semana"></label>
     <div class="g2" style="margin-top:6px"><button type="button" class="btn full" id="fCancel">Cancelar</button><button class="btn solid full">Guardar</button></div>
     <button type="button" class="btn danger full" id="fDel" style="margin-top:10px" hidden>Eliminar</button>
@@ -1536,7 +1547,7 @@ function umenuHTML(){
   <button class="mi" role="menuitem" data-act="set-theme">${ic("spark")}<span>Colores de la app · ${THEMES[curTheme][0]}</span>${sw}</button>
   <div class="ms"></div><div class="mv">Banco</div>
   ${mi("cons","check","Consolidar cuentas (arqueo)")+mi("zedit-on","swap","Ordenar secciones")+mi("notif","bell","Notificaciones y alertas"+((S.cfg.rec||{}).push?" · activas":""))}
-  ${mi("m-tab","bank","Mis cuentas","","cuentas")}${mi("zone-me","star","Metas de ahorro")}${mi("zone-de","swap","Me deben y debo")}${mi("split","users","Dividir una cuenta")}${mi("m-tab","cal","Ingresos y gastos fijos","","fijos")}${mi("mon","swap","Cambiar moneda"+(S.cfg.viaje?" · viaje en "+moCode(S.cfg.viaje):""))}${mi("siri","mic","Anotar con Siri"+((S.cfg.alertOk||{}).siri?" · activo":""))}
+  ${mi("m-tab","bank","Mis cuentas","","cuentas")}${mi("zone-me","star","Metas de ahorro")}${mi("ded","book","Deducibles de renta")}${mi("zone-de","swap","Me deben y debo")}${mi("split","users","Dividir una cuenta")}${mi("m-tab","cal","Ingresos y gastos fijos","","fijos")}${mi("mon","swap","Cambiar moneda"+(S.cfg.viaje?" · viaje en "+moCode(S.cfg.viaje):""))}${mi("siri","mic","Anotar con Siri"+((S.cfg.alertOk||{}).siri?" · activo":""))}
   <div class="ms"></div><div class="mv">Seguridad</div>
   ${mi("priv",priv?"eyeoff":"eye",priv?"Modo privacidad · activado (mostrar montos)":"Modo privacidad · ocultar montos")}
   ${mi("set-pin","lock",S.cfg.pinHash?"PIN activado · cambiar o quitar":"Crear PIN de acceso")}
@@ -1769,6 +1780,7 @@ function render0(){ensureCash();
   $("cats").innerHTML=bars(a2.byCat,a2.gas,"Sin gastos "+perTxt+".");
   $("incs").innerHTML=bars(a2.bySrc,a2.ing,"Sin ingresos registrados "+perTxt+".");
   const rec=a2.places.filter(x=>x.n>=2).sort((x,y)=>y.t-x.t).slice(0,8);
+  renderDed();
   $("rec").innerHTML=rec.length?rec.map(r=>`<li class="it" style="cursor:default">${bub(r.cat)}<span class="tx"><b>${esc(r.name)}</b><span>${r.n} veces · promedio ${fmt(r.t/r.n)}</span></span><span class="am">${fmt(r.t)}</span></li>`).join(""):`<li class="empty">Aparecen cuando visitas un lugar 2 veces o más en el periodo.</li>`;
   const mxI=Math.max(...PL.map(o=>Math.max(o.iR,o.iP)),1),mxG=Math.max(...PL.map(o=>Math.max(o.gR,o.gP)),1);
   const cell=(r,p,c,mx)=>`<span class="${c||""}${c==="sd"?(r<0?" neg":r>0?" pos":""):""}">${fmt(r)}${c==="ci"||c==="cg"?`<b class="mb" title="real vs plan"><i style="width:${Math.min(r/(p||mx),1)*100}%"></i></b>`:""}<small>plan ${fmt(p)}</small></span>`;
@@ -1848,7 +1860,7 @@ function setTipo(t){
   fTipo=t;document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t));
   const cur=$("fCat").value,o=listOf(t==="ingreso"?"tipoF":"cat");$("fCat").dataset.cx=t==="ingreso"?"tipoF":"cat";$("fCat").innerHTML=opts(o,cur);cxAll();
   $("fFuenteRow").hidden=t!=="ingreso";$("fCtaT").textContent=t==="ingreso"?"Se depositó en":"Se pagó desde";
-  $("fLugarT").textContent=t==="ingreso"?"¿De quién o de qué?":"Comercio o lugar";$("fLugar").placeholder=t==="ingreso"?"Ej. Pago de cliente, remesa de mamá":"Ej. Super Selectos Escalón";
+  $("fLugarT").textContent=t==="ingreso"?"¿De quién o de qué?":"Comercio o lugar";dedUI();$("fLugar").placeholder=t==="ingreso"?"Ej. Pago de cliente, remesa de mamá":"Ej. Super Selectos Escalón";
   $("fLugar").placeholder=t==="ingreso"?"Ej. Quincena noviembre":"Ej. Super Selectos Escalón";
 }
 function openSheet(x,img){
@@ -1856,11 +1868,12 @@ function openSheet(x,img){
   $("fFuente").innerHTML=`<option value="">Otra / sin registrar</option>`+S.fuentes.map(f=>`<option value="${f.id}">${esc(f.nombre)} · ${esc(f.tipo)}</option>`).join("");
   setTipo(v.tipo||"gasto");
   $("fTitle").textContent=editing?"Editar movimiento":v.tipo==="ingreso"?"Nuevo ingreso":"Nuevo gasto";
+  $("fDed").checked=v.ded!==false;
   moLock=v.mon&&MON[v.mon.c]&&+v.mon.t>0?{c:v.mon.c,t:+v.mon.t}:null;
   const fc=moLock?moLock.c:(!editing&&(v.tipo||"gasto")==="gasto"&&(v.monto==null||v.monto==="")&&MON[S.cfg.viaje]?S.cfg.viaje:"USD");
   moForm(fc,moLock?num(v.mon.m):(v.monto!=null&&v.monto!==""?num(v.monto):null));$("fLugar").value=v.lugar||"";$("fFecha").value=v.fecha||todayStr();
   if(v.cat){if(![...$("fCat").options].some(o=>o.value===v.cat))$("fCat").insertAdjacentHTML("afterbegin",`<option>${esc(v.cat)}</option>`);$("fCat").value=v.cat}$("fNota").value=v.nota||"";cxAll();if(v.cuenta&&!S.cuentas.some(c=>c.id===v.cuenta)){$("fCta").value="__c";$("fCta_x").value=v.cuenta}else $("fCta").value=v.cuenta||(cashAcc()||S.cuentas[0]||{}).id||"";cxAll();$("fFuente").value=v.fuente||"";
-  $("fDel").hidden=!editing;$("pv").hidden=!img;if(img)$("pv").src=img;
+  $("fDel").hidden=!editing;$("pv").hidden=!img;if(img)$("pv").src=img;dedUI();
   $("sheet").hidden=false;if(!img)setTimeout(()=>$("fMonto").focus(),60);
 }
 function closeSheet(){const pv=$("pv");if(pv.src&&pv.src.startsWith("blob:"))URL.revokeObjectURL(pv.src);pv.removeAttribute("src");$("sheet").hidden=true;$("busy").hidden=true;scanTok++;ocrProg=null;calChk()}
@@ -1879,7 +1892,7 @@ $("form").onsubmit=e=>{
   const it={id:editing||nid("g"),cuenta:v("fCta"),tipo:fTipo,monto:Math.round(m*100)/100,lugar:$("fLugar").value.trim(),fecha:$("fFecha").value||todayStr(),cat:v("fCat")||"Otros",nota:$("fNota").value.trim(),fuente:fTipo==="ingreso"?$("fFuente").value:"",ts:old&&old.ts||Date.now(),fijo:pendFijo?(pendFijo.fijo||""):(old&&old.fijo)||"",venc:pendFijo?pendFijo.venc:(old&&old.venc)||"",dte:scanCtx?scanCtx.dte:(old&&old.dte)||""};
   if(scanCtx&&scanCtx.key&&fTipo==="gasto"&&(it.lugar!==scanCtx.lugar||it.cat!==scanCtx.cat)&&!isDemo()){const rl=S.reglas||(S.reglas=[]),r=rl.find(x=>x.k===scanCtx.key);if(r){r.lugar=it.lugar;r.cat=it.cat}else rl.push({k:scanCtx.key,lugar:it.lugar,cat:it.cat});if(rl.length>300)rl.shift();saveMeta("reglas")}
   if(!it.lugar&&it.fuente)it.lugar=srcName(it);
-  if(old&&old.origen)it.origen=old.origen;if(mon)it.mon=mon;
+  if(old&&old.origen)it.origen=old.origen;if(mon)it.mon=mon;if(it.tipo==="gasto"&&dedCat(it.cat)&&!$("fDed").checked)it.ded=false;
   if(pendCtx){it.origen="alerta";finishPend(it)}else if(scanCtx&&!old)it.origen="ticket";
   const wasEdit=!!editing;closeSheet();putItem(it);
   if(it.fecha.slice(0,7)!==month){month=it.fecha.slice(0,7);render()}
@@ -2079,6 +2092,30 @@ function metaMov(id,sg){const m=(S.metas||[]).find(x=>x.id===id);if(!m)return;co
   <label class="f">Nota (opcional)<input id="mmN" maxlength="60" placeholder="${sg>0?"Ej. Quincena":"Ej. Lo necesité"}"></label>
   <div class="g2"><button class="btn full" data-act="meta-view" data-id="${esc(id)}">Cancelar</button><button class="btn solid full" data-act="meta-mov-ok" data-id="${esc(id)}|${sg}">${ic("check")}Guardar</button></div>`);
   setTimeout(()=>{const e=$("mmM");if(e)e.focus()},80)}
+
+// ---------- deducibles de renta (Art. 33 LISR): gastos médicos y de educación, hasta $800 cada uno por año
+const DEDMAX=800;
+function dedCat(c){const k=norm(c);return /salud|medic|farmac|hospital|clinic|dent|optic|laborator/.test(k)?"med":/educa|coleg|escuel|universid|estudio|matricul|escolar/.test(k)?"edu":null}
+const dedTipo=x=>x&&(x.tipo==="gasto"||!x.tipo)&&x.ded!==false?dedCat(x.cat):null;
+function dedYear(y){const L=S.items.filter(x=>x.fecha&&x.fecha.slice(0,4)===y&&dedTipo(x)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const med=L.filter(x=>dedTipo(x)==="med"),edu=L.filter(x=>dedTipo(x)==="edu"),sm=a=>Math.round(a.reduce((t,x)=>t+num(x.monto),0)*100)/100;
+  return {L,med,edu,tm:sm(med),te:sm(edu),fac:L.filter(x=>x.dte||x.fac).length}}
+function dedUI(){const l=$("fDedL");if(!l)return;l.hidden=!(fTipo==="gasto"&&dedCat($("fCat").value))}
+$("fCat").addEventListener("change",dedUI);
+const dedBar=(t,lbl,col)=>{const p=Math.min(100,t/DEDMAX*100);return `<div class="dedb"><div class="dedh"><b>${lbl}</b><span>${fmt(Math.min(t,DEDMAX))} <small>de ${fmt0(DEDMAX)}</small></span></div><span class="dedbar"><i style="width:${p.toFixed(1)}%;background:${col}"></i></span><small>${t>=DEDMAX?"¡Completo! Ya llegaste al máximo":t>0?"Te faltan "+fmt(DEDMAX-t)+" para el máximo":"Aún no tienes gastos de este tipo"}</small></div>`};
+function renderDed(){const c=$("dedCard");if(!c)return;const y=month.slice(0,4),D=dedYear(y);c.hidden=!D.L.length&&!S.items.some(x=>dedCat(x.cat));if(c.hidden)return;
+  $("dedT").textContent="Deducibles de renta "+y;
+  $("dedBox").innerHTML=dedBar(D.tm,"Gastos médicos","#e11d48")+dedBar(D.te,"Educación","#2563eb")+
+    `<button class="btn full" data-act="ded" data-id="${y}" style="margin-top:8px">${ic("book")}Ver detalle y facturas</button>`}
+function dedPanel(y){y=y||month.slice(0,4);const D=dedYear(y),row=x=>`<li><div class="it">${bub(x.cat)}<span class="tx"><b>${esc(x.lugar||"Sin nombre")}</b><span>${dShort(x.fecha)}${x.dte?" · "+`<span class="chip ok">${ic("check")}Factura electrónica</span>`:""}</span></span><span class="am">${fmt(num(x.monto))}</span><button class="dedx" data-act="ded-x" data-id="${esc(x.id)}" title="No es deducible" aria-label="Quitar de deducibles">×</button></div></li>`;
+  const sec=(t,L,tot)=>L.length?`<h4 style="margin:14px 0 6px">${t} · ${fmt(tot)}${tot>DEDMAX?` <small class="note">(cuentan ${fmt0(DEDMAX)})</small>`:""}</h4><ul class="list">${L.map(row).join("")}</ul>`:"";
+  openPanel(`<h3>Deducibles de renta ${esc(y)}</h3>
+  ${dedBar(D.tm,"Gastos médicos","#e11d48")}${dedBar(D.te,"Educación","#2563eb")}
+  <div class="dedtot"><span>Puedes deducir</span><b>${fmt(Math.min(D.tm,DEDMAX)+Math.min(D.te,DEDMAX))}</b></div>
+  <ul class="alsafe"><li>Pide la factura <b>a tu nombre</b> (con tu DUI o NIT) y guárdala <b>6 años</b>.</li><li>Educación: colegiaturas tuyas o de tus hijos. Médicos: consultas, hospital y medicinas.</li><li>Si ganas <b>$9,100 o menos</b> al año, ya tienes $1,600 fijos sin facturas.</li></ul>
+  ${sec("Gastos médicos",D.med,D.tm)}${sec("Educación",D.edu,D.te)}
+  ${D.L.length?`<button class="btn full" data-act="ded-csv" data-id="${esc(y)}" style="margin-top:12px">${ic("copy")}Copiar lista para la declaración</button>`:`<p class="note">Los gastos en <b>Salud y farmacia</b> y <b>Educación</b> aparecen aquí solos.</p>`}
+  <button class="btn solid full" data-act="close" style="margin-top:8px">Listo</button>`)}
 
 // ---------- suscripciones: las que ya son gastos fijos y las que detectamos en tus gastos
 const SUBK=/netflix|spotify|disney|hbo|\bmax\b|prime video|amazon prime|youtube|apple|icloud|google one|chatgpt|openai|claude|anthropic|microsoft|office 365|xbox|playstation|psn|nintendo|adobe|canva|crunchyroll|paramount|deezer|tidal|dropbox|notion|duolingo|gym|gimnasio|smart fit|claro|tigo|movistar|digicel|internet|cable|patreon|twitch|audible|kindle|uber one|rappi pro|pedidosya plus/;
@@ -2555,6 +2592,11 @@ async function obFinish(){
 
 // ---------- acciones
 const ACT={
+  ded:y=>{closeUmenu();dedPanel(y)},
+  "ded-x":id=>{const x=S.items.find(i=>i.id===id);if(!x)return;x.ded=false;putItem(x);dedPanel(x.fecha.slice(0,4));toast("Quitado de deducibles","Deshacer",()=>{delete x.ded;putItem(x);dedPanel(x.fecha.slice(0,4))})},
+  "ded-csv":async y=>{const D=dedYear(y),q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+    const t=["Tipo,Fecha,Lugar,Monto,Factura electrónica"].concat(D.L.map(x=>[dedTipo(x)==="med"?"Gastos médicos":"Educación",x.fecha,q(x.lugar),num(x.monto).toFixed(2),x.dte?q(x.dte):""].join(","))).join("\n");
+    try{await navigator.clipboard.writeText(t);toast("Lista copiada ("+D.L.length+" gastos)")}catch(e){toast("No se pudo copiar")}},
   "sub-add":k=>{const d=subsDetect().find(x=>x.k===k);if(!d)return;const br=norm(d.n).match(SUBK),f={id:nid("x"),nombre:br&&/\.com|\d{3,}|\*/i.test(d.n)?br[0].replace(/\b\w/g,c=>c.toUpperCase()):d.n.trim(),monto:d.m,freq:d.freq,inicio:d.next,fin:"",cat:d.cat,cuenta:S.cuentas.some(c=>c.id===d.cuenta)?d.cuenta:"",activo:true,nota:"Suscripción",sus:true,aviso:true};
     S.fijos.push(f);saveMeta("fijos");toast(f.nombre+" quedó en tus gastos fijos · te avisamos un día antes")},
   "sub-no":k=>{S.cfg.subNo=(S.cfg.subNo||[]).concat([k]).slice(-200);saveMeta("cfg");toast("Listo, no lo volveremos a sugerir")},
