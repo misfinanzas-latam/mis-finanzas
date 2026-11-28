@@ -27,6 +27,25 @@ const saldo = (c: Any, items: Any[]) => num(c.saldo) + items.filter((x) => x.cue
 const esGasto = (x: Any) => x.tipo !== "ingreso" && x.tipo !== "ajuste";
 const shiftDay = (d: string, n: number) => { const t = new Date(d + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 
+// Tarjetas de crédito: mismas cuentas que la app (corte, pago y lo que falta del corte)
+const esTC = (c: Any) => /cr[eé]dito/i.test(c.tipo || "");
+const p2 = (n: number) => String(n).padStart(2, "0");
+const tcDia = (y: number, m: number, d: number) => `${y}-${p2(m)}-${p2(Math.min(d, new Date(Date.UTC(y, m, 0)).getUTCDate()))}`;
+const tcMes = (y: number, m: number, k: number) => { const t = y * 12 + m - 1 + k; return [Math.floor(t / 12), t % 12 + 1]; };
+export function tcPendiente(c: Any, items: Any[], hoy: string) {
+  const co = +c.corte, pa = +c.pago;
+  if (!(co >= 1 && co <= 31 && pa >= 1 && pa <= 31)) return null;
+  const [Y, M] = hoy.split("-").map(Number);
+  let [cy, cm] = [Y, M], cut = tcDia(Y, M, co);
+  if (cut >= hoy) { [cy, cm] = tcMes(Y, M, -1); cut = tcDia(cy, cm, co); }
+  const [py, pm] = pa > co ? [cy, cm] : tcMes(cy, cm, 1), due = tcDia(py, pm, pa);
+  if (due < hoy) return null;
+  const sa = saldo(c, items), af = items.filter((x) => x.cuenta === c.id && x.fecha > cut);
+  const dc = Math.max(0, -(sa - af.reduce((t, x) => t + sgn(x) * num(x.monto), 0)));
+  const pg = af.filter((x) => sgn(x) > 0).reduce((t, x) => t + num(x.monto), 0);
+  return { due, pend: Math.max(0, Math.round((dc - pg) * 100) / 100), dias: Math.round((Date.parse(due) - Date.parse(hoy)) / 864e5) };
+}
+
 export function bolsaDe(cfg: Any, cuentas: Any[]) {
   const r = cfg.rec || {};
   return cuentas.find((c) => c.id === r.bolsa) || cuentas.find((c) => c.sys) || cuentas.find((c) => /cartera|bolsa|billetera/i.test((c.nombre || "") + " " + (c.banco || ""))) || cuentas.find((c) => /efectivo/i.test((c.tipo || "") + (c.banco || "")));
@@ -63,6 +82,17 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
         url: SITE + "?trf=" + encodeURIComponent((src ? src.c.id : "") + "|" + b.id + "|" + sug) });
     }
   }
+  // Tarjetas de crédito: 3 días antes, un día antes y el día del pago (con la revisión de la mañana)
+  if (forzar === "tc" || (!forzar && due(r.am))) {
+    for (const c of d.cuentas.filter((c: Any) => esTC(c) && c.aviso !== false)) {
+      const t = tcPendiente(c, d.items, L.day);
+      if (!t || !(t.pend > 0.005) || ![0, 1, 3].includes(t.dias)) { if (forzar !== "tc" || !t) continue; }
+      const nom = (c.nombre || c.banco || "tu tarjeta") + (c.num ? " ···" + c.num : ""), cuando = t.dias === 0 ? "hoy" : t.dias === 1 ? "mañana" : `en ${t.dias} días`;
+      const [, mm, dd] = t.due.split("-");
+      out.push({ kind: "tc" + c.id, title: `Pago de ${nom} ${cuando}`, body: M ? `Paga ${fmt(t.pend)} antes del ${+dd}/${+mm} para no pagar intereses.` : `Vence el ${+dd}/${+mm}. Toca para registrar el pago.`,
+        url: SITE + "?trf=" + encodeURIComponent("|" + c.id + "|" + t.pend.toFixed(2)) });
+    }
+  }
   // Arqueo semanal
   const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   if ((forzar === "arq") || (!forzar && r.arq && DOW[+r.arqDia] === L.dow && due(r.arqHora))) {
@@ -78,7 +108,7 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
   }
   // Noche: diario / semana / mes (uno solo por noche)
   if (forzar === "pm" || forzar === "sem" || forzar === "mes" || (!forzar && due(r.pm))) {
-    const neg = d.cuentas.filter((c: Any) => saldo(c, d.items) < -0.004).length, pend = d.pend.length;
+    const neg = d.cuentas.filter((c: Any) => !esTC(c) && saldo(c, d.items) < -0.004).length, pend = d.pend.length;
     const extra = [pend ? `${pend} alerta(s) por revisar` : "", neg ? `${neg} cuenta(s) en negativo` : ""].filter(Boolean).join(" · ");
     const sum = (a: string, z: string) => { const xs = d.items.filter((x) => x.fecha >= a && x.fecha <= z); return { g: xs.filter(esGasto).reduce((t, x) => t + num(x.monto), 0), i: xs.filter((x) => x.tipo === "ingreso").reduce((t, x) => t + num(x.monto), 0), n: xs.filter((x) => x.tipo !== "ajuste").length }; };
     if ((L.last && r.mes) || forzar === "mes") {
