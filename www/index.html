@@ -379,6 +379,12 @@ button.av[aria-expanded=true]{outline:3px solid color-mix(in srgb,var(--g2) 45%,
 .ajr.neg,.ajr.neg .ajt{color:var(--red)}
 .ajsw{width:26px;height:14px;border-radius:7px;flex:none}
 .ajf{text-align:center;margin:18px 6px 2px;line-height:1.45}
+.plab{border-radius:14px;background:color-mix(in srgb,var(--ink) 4%,var(--card));padding:2px 14px;margin:2px 0 8px}
+.plab>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;font-size:14.5px}.plab>div+div{border-top:1px solid var(--line)}
+.plab span{color:var(--mut);min-width:0}.plab b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.plab .plan span,.plab .plt span{color:var(--ink);font-weight:700}.plab .plan b{font-size:17px;font-weight:800;color:var(--grn)}.plab .plt b{font-weight:800}
+.pln{font-size:12.5px;color:var(--mut);margin:0 2px 10px}
+#scanInfo .plab{margin:0;background:none;padding:0}
 @media(prefers-reduced-motion:reduce){#umenu{animation:none}}
 .top h1 small{white-space:nowrap}
 @media(max-width:400px){.mnav b{font-size:14px;min-width:6.4em}.mnav .ib{width:32px}.top h1{gap:8px}}
@@ -1982,7 +1988,7 @@ function setTipo(t){
   $("fLugar").placeholder=t==="ingreso"?"Ej. Quincena noviembre":"Ej. Super Selectos Escalón";
 }
 function openSheet(x,img){
-  editing=x&&x.id?x.id:null;const v=x||{};pendCtx=null;$("fDel").textContent="Eliminar";$("fCta").innerHTML=ctaOpts(S.cuentas,"",S.cuentas.length?null:"Sin cuenta");$("fCtaL").hidden=!S.cuentas.length;scanCtx=null;pendFijo=null;$("scanInfo").hidden=true;
+  editing=x&&x.id?x.id:null;const v=x||{};pendCtx=null;$("fDel").textContent="Eliminar";$("fCta").innerHTML=ctaOpts(S.cuentas,"",S.cuentas.length?null:"Sin cuenta");$("fCtaL").hidden=!S.cuentas.length;scanCtx=null;pendFijo=null;pendPla=null;$("scanInfo").hidden=true;
   $("fFuente").innerHTML=`<option value="">Otra / sin registrar</option>`+S.fuentes.map(f=>`<option value="${f.id}">${esc(f.nombre)} · ${esc(f.tipo)}</option>`).join("");
   setTipo(v.tipo||"gasto");
   $("fTitle").textContent=editing?"Editar movimiento":v.tipo==="ingreso"?"Nuevo ingreso":"Nuevo gasto";
@@ -2010,7 +2016,8 @@ $("form").onsubmit=e=>{
   const it={id:editing||nid("g"),cuenta:v("fCta"),tipo:fTipo,monto:Math.round(m*100)/100,lugar:$("fLugar").value.trim(),fecha:$("fFecha").value||todayStr(),cat:v("fCat")||"Otros",nota:$("fNota").value.trim(),fuente:fTipo==="ingreso"?$("fFuente").value:"",ts:old&&old.ts||Date.now(),fijo:pendFijo?(pendFijo.fijo||""):(old&&old.fijo)||"",venc:pendFijo?pendFijo.venc:(old&&old.venc)||"",dte:scanCtx?scanCtx.dte:(old&&old.dte)||""};
   if(scanCtx&&scanCtx.key&&fTipo==="gasto"&&(it.lugar!==scanCtx.lugar||it.cat!==scanCtx.cat)&&!isDemo()){const rl=S.reglas||(S.reglas=[]),r=rl.find(x=>x.k===scanCtx.key);if(r){r.lugar=it.lugar;r.cat=it.cat}else rl.push({k:scanCtx.key,lugar:it.lugar,cat:it.cat});if(rl.length>300)rl.shift();saveMeta("reglas")}
   if(!it.lugar&&it.fuente)it.lugar=srcName(it);
-  if(old&&old.origen)it.origen=old.origen;if(mon)it.mon=mon;if(it.tipo==="gasto"&&dedCat(it.cat)&&!$("fDed").checked)it.ded=false;
+  if(old&&old.origen)it.origen=old.origen;if(mon)it.mon=mon;
+  {const pl=pendPla&&it.tipo==="ingreso"&&it.fuente===pendPla.f?pendPla.p:old&&old.tipo==="ingreso"&&it.tipo==="ingreso"?old.pla:null;if(pl)it.pla=pl}if(it.tipo==="gasto"&&dedCat(it.cat)&&!$("fDed").checked)it.ded=false;
   if(pendCtx){it.origen="alerta";finishPend(it)}else if(scanCtx&&!old)it.origen="ticket";
   const wasEdit=!!editing;closeSheet();putItem(it);
   if(it.fecha.slice(0,7)!==month){month=it.fecha.slice(0,7);render()}
@@ -2019,7 +2026,7 @@ $("form").onsubmit=e=>{
 };
 
 // ---------- escaneo de ticket (lectura local en el teléfono)
-let ocrWorker=null,ocrProg=null,scanTok=0,scanCtx=null,pendFijo=null;
+let ocrWorker=null,ocrProg=null,scanTok=0,scanCtx=null,pendFijo=null,pendPla=null;
 const abs=p=>new URL(p,location.href).href;
 function loadScript(src){return new Promise((ok,ko)=>{const t=document.createElement("script");t.src=src;t.onload=ok;t.onerror=()=>ko(new Error("No se pudo cargar el lector"));document.head.appendChild(t)})}
 async function getWorker(){
@@ -2268,13 +2275,16 @@ function dedYear(y){const L=S.items.filter(x=>x.fecha&&x.fecha.slice(0,4)===y&&d
 function dedUI(){const l=$("fDedL");if(!l)return;l.hidden=!(fTipo==="gasto"&&dedCat($("fCat").value))}
 $("fCat").addEventListener("change",dedUI);
 const dedBar=(t,lbl,col)=>{const p=Math.min(100,t/DEDMAX*100);return `<div class="dedb"><div class="dedh"><b>${lbl}</b><span>${fmt(Math.min(t,DEDMAX))} <small>de ${fmt0(DEDMAX)}</small></span></div><span class="dedbar"><i style="width:${p.toFixed(1)}%;background:${col}"></i></span><small>${t>=DEDMAX?"¡Completo! Ya llegaste al máximo":t>0?"Te faltan "+fmt(DEDMAX-t)+" para el máximo":"Aún no tienes gastos de este tipo"}</small></div>`};
-function renderDed(){const c=$("dedCard");if(!c)return;const y=month.slice(0,4),D=dedYear(y);c.hidden=!D.L.length&&!S.items.some(x=>dedCat(x.cat));if(c.hidden)return;
+function salY(y){const L=S.items.filter(x=>x.pla&&x.tipo==="ingreso"&&(x.fecha||"").slice(0,4)===y),t=k=>c2(L.reduce((a,x)=>a+num(x.pla[k]),0));return {n:L.length,g:t("g"),isss:t("isss"),afp:t("afp"),isr:t("isr")}}
+function renderDed(){const c=$("dedCard");if(!c)return;const y=month.slice(0,4),D=dedYear(y),Y=salY(y);c.hidden=!D.L.length&&!S.items.some(x=>dedCat(x.cat))&&!Y.n;if(c.hidden)return;
   $("dedT").textContent="Deducibles de renta "+y;
-  $("dedBox").innerHTML=dedBar(D.tm,"Gastos médicos","#e11d48")+dedBar(D.te,"Educación","#2563eb")+
+  $("dedBox").innerHTML=(Y.n?`<div class="dedtot" style="margin:0 0 10px"><span>Renta que te retuvieron</span><b>${fmt(Y.isr)}</b></div>`:"")+dedBar(D.tm,"Gastos médicos","#e11d48")+dedBar(D.te,"Educación","#2563eb")+
     `<button class="btn full" data-act="ded" data-id="${y}" style="margin-top:8px">${ic("book")}Ver detalle y facturas</button>`}
 function dedPanel(y){y=y||month.slice(0,4);const D=dedYear(y),row=x=>`<li><div class="it">${bub(x.cat)}<span class="tx"><b>${esc(x.lugar||"Sin nombre")}</b><span>${dShort(x.fecha)}${x.dte?" · "+`<span class="chip ok">${ic("check")}Factura electrónica</span>`:""}</span></span><span class="am">${fmt(num(x.monto))}</span><button class="dedx" data-act="ded-x" data-id="${esc(x.id)}" title="No es deducible" aria-label="Quitar de deducibles">×</button></div></li>`;
   const sec=(t,L,tot)=>L.length?`<h4 style="margin:14px 0 6px">${t} · ${fmt(tot)}${tot>DEDMAX?` <small class="note">(cuentan ${fmt0(DEDMAX)})</small>`:""}</h4><ul class="list">${L.map(row).join("")}</ul>`:"";
+  const Y=salY(y),L=(t,n,c)=>`<div${c?` class="${c}"`:""}><span>${t}</span><b>${n}</b></div>`;
   openPanel(`<h3>Deducibles de renta ${esc(y)}</h3>
+  ${Y.n?`<h4 class="ah" style="margin:0 0 6px">Tu sueldo en ${esc(y)} · ${Y.n} pago${Y.n>1?"s":""}</h4><div class="plab">${L("Sueldo bruto",fmt(Y.g))}${L("ISSS",fmt(Y.isss))}${L("AFP · va a tu pensión",fmt(Y.afp))}${L("Renta retenida",fmt(Y.isr),"plt")}</div>`:""}
   ${dedBar(D.tm,"Gastos médicos","#e11d48")}${dedBar(D.te,"Educación","#2563eb")}
   <div class="dedtot"><span>Puedes deducir</span><b>${fmt(Math.min(D.tm,DEDMAX)+Math.min(D.te,DEDMAX))}</b></div>
   <ul class="alsafe"><li>Pide la factura <b>a tu nombre</b> (con tu DUI o NIT) y guárdala <b>6 años</b>.</li><li>Educación: colegiaturas tuyas o de tus hijos. Médicos: consultas, hospital y medicinas.</li><li>Si ganas <b>$9,100 o menos</b> al año, ya tienes $1,600 fijos sin facturas.</li></ul>
@@ -2635,17 +2645,45 @@ function accForm(c){c=c||{incluir:true,tipo:"Ahorro"};accCards=clone(c.tarjetas|
   <p class="note">Por seguridad guarda solo los últimos 4 dígitos, nunca el número completo.</p>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="acc-save" data-id="${c.id||""}">Guardar</button></div>
   ${c.id&&!c.sys?`<button class="btn danger full" style="margin-top:10px" data-act="acc-del" data-id="${c.id}">Eliminar cuenta</button>`:c.sys?`<p class="note">Cuenta principal de efectivo: no se puede eliminar.</p>`:""}`)}
-function srcForm(f){f=f||{tipo:"Salario",freq:"mensual"};openPanel(`<h3>${f.id?"Editar ingreso fijo":"Nuevo ingreso fijo"}</h3>
+// ---------- sueldo: descuentos de ley de El Salvador
+// ISSS 3% (base máxima $1,000 al mes) · AFP 7.25% (salario cotizable máximo 2026: $7,045.06)
+// Renta: tablas de retención del Decreto Ejecutivo No. 10 de Hacienda (vigentes desde mayo de 2025), sobre sueldo − ISSS − AFP.
+const PLA={isss:.03,isssMax:1000,afp:.0725,afpMax:7045.06,
+  T:{m:[[550,.1,17.67],[895.24,.2,60],[2038.1,.3,288.57]],q:[[275,.1,8.83],[447.62,.2,30],[1019.05,.3,144.28]],s:[[137.5,.1,4.42],[223.81,.2,15],[509.52,.3,72.14]]}};
+const c2=n=>Math.round(+(+n*100).toFixed(4))/100;
+function isrT(x,T){let r=0;for(const [b,p,c] of T)if(x>b)r=(x-b)*p+c;return c2(r)}
+const esSueldo=t=>/salari|sueldo/i.test(t||"");
+function planilla(bruto,freq,o){o=o||{};const k=freq==="quincenal"?"q":freq==="semanal"?"s":"m",per=k==="q"?2:k==="s"?52/12:1;
+  const g=c2(num(bruto)/per),isss=o.isss===false?0:c2(Math.min(g,PLA.isssMax/per)*PLA.isss),afp=o.afp===false?0:c2(Math.min(g,PLA.afpMax/per)*PLA.afp),
+    isr=isrT(Math.max(0,g-isss-afp),PLA.T[k]),otros=c2(num(o.otros)/per);
+  return {g,isss,afp,isr,otros,neto:c2(g-isss-afp-isr-otros),per,k,isrA:c2(isr*(k==="q"?24:k==="s"?52:12))}}
+const plaHtml=(p,raw)=>{const F=raw?fmtR:fmt,L=(t,n,c)=>`<div${c?` class="${c}"`:""}><span>${t}</span><b>${n}</b></div>`;
+  return `<div class="plab">${L("Sueldo bruto"+(p.k==="q"?" por quincena":p.k==="s"?" por semana":""),F(p.g))}${p.isss?L("ISSS","−"+F(p.isss)):""}${p.afp?L("AFP","−"+F(p.afp)):""}${L("Renta",p.isr?"−"+F(p.isr):F(0))}${p.otros?L("Otros descuentos","−"+F(p.otros)):""}${L("Te depositan",F(p.neto),"plan")}</div>`};
+function plaDraw(){const b=$("sPlaV");if(!b)return;const sal=esSueldo(v("sTipo")),on=sal&&$("sPla").checked;
+  $("sPlaL").hidden=!sal;$("sPlaBox").hidden=!on;$("sMontoL").hidden=on;$("sBrutoL").hidden=!on;if(!on)return;
+  const fr=v("sFreq"),ok=["mensual","quincenal","semanal"].includes(fr),p=planilla(v("sBruto"),fr,{isss:$("sIsss").checked,afp:$("sAfp").checked,otros:v("sOtros")});
+  b.innerHTML=num(v("sBruto"))>0?plaHtml(p,1)+`<p class="pln">${ok?"":"Con esta frecuencia se usa la tabla mensual. "}${p.per>1?"Al mes te depositan "+fmtR(c2(p.neto*p.per))+" · ":""}Renta en el año ≈ ${fmtR(p.isrA)}</p>`
+    :`<p class="note" style="margin:0 0 10px">Escribe tu sueldo antes de descuentos y te calculo cuánto te depositan.</p>`;
+  $("sMonto").value=p.neto>0?p.neto.toFixed(2):""}
+document.addEventListener("input",e=>{if($("sPlaV")&&/^(sBruto|sOtros)$/.test(e.target.id||""))plaDraw()});
+document.addEventListener("change",e=>{if($("sPlaV")&&/^(sPla|sIsss|sAfp|sFreq|sTipo|sBruto|sOtros)$/.test(e.target.id||""))plaDraw()});
+function srcForm(f){f=f||{tipo:"Salario",freq:"mensual",pla:{}};const P=f.pla;openPanel(`<h3>${f.id?"Editar ingreso fijo":"Nuevo ingreso fijo"}</h3>
   <label class="f">¿Quién te da el dinero?<input id="sNombre" value="${esc(f.nombre)}" placeholder="Ej. Empresa, cliente, familiar"></label>
   <div class="g2"><label class="f">Tipo<select id="sTipo" data-cx="tipoF" data-v="${esc(f.tipo||"")}">${opts(listOf("tipoF"),f.tipo)}</select></label><label class="f">Frecuencia<select id="sFreq" data-cx="freq" data-v="${esc(f.freq||"mensual")}" data-cn="${f.cn||""}" data-cu="${f.cu||""}">${opts(Object.entries(FREQI).map(([k,x])=>[k,x[0]]),f.freq)}</select></label></div>
-  <div class="g2"><label class="f">Monto por pago<input id="sMonto" class="amt" data-money value="${f.monto!=null?num(f.monto).toFixed(2):""}"></label><label class="f">Desde (primer pago)<input id="sIni" data-date value="${esc(f.inicio||todayStr())}"></label></div>
+  <label class="ck" id="sPlaL"${esSueldo(f.tipo)?"":" hidden"}><input type="checkbox" id="sPla"${P?" checked":""}> Calcular descuentos de ley <small>· ISSS, AFP y renta</small></label>
+  <div class="g2"><div><label class="f" id="sMontoL"${P?" hidden":""}>Monto por pago<input id="sMonto" class="amt" data-money value="${f.monto!=null?num(f.monto).toFixed(2):""}"></label><label class="f" id="sBrutoL"${P?"":" hidden"}>Sueldo bruto al mes<input id="sBruto" class="amt" data-money value="${P&&P.bruto?num(P.bruto).toFixed(2):""}"></label></div><label class="f">Desde (primer pago)<input id="sIni" data-date value="${esc(f.inicio||todayStr())}"></label></div>
+  <div id="sPlaBox"${P?"":" hidden"}><div id="sPlaV"></div>
+    <details class="aladv"><summary>Ajustar descuentos</summary>
+      <label class="ck"><input type="checkbox" id="sIsss"${P&&P.isss===false?"":" checked"}> ISSS 3% <small>· máximo $30 al mes</small></label>
+      <label class="ck"><input type="checkbox" id="sAfp"${P&&P.afp===false?"":" checked"}> AFP 7.25%</label>
+      <label class="f">Otros descuentos al mes<input id="sOtros" data-money value="${P&&P.otros?num(P.otros).toFixed(2):""}" placeholder="Ej. préstamo, seguro, cuota"></label></details></div>
   <label class="f">Hasta (opcional, vacío = sin fin)<input id="sFin" data-date value="${esc(f.fin||"")}"></label><div class="durs"><span>Durante:</span>${[["3","3 meses"],["6","6 meses"],["12","1 año"],["24","2 años"],["0","Sin fin"]].map(([n,l])=>`<button type="button" data-act="dur" data-id="sIni|sFin|${n}">${l}</button>`).join("")}</div>
   <label class="f">Se deposita en<select id="sCta" data-cx="cta">${ctaOpts(S.cuentas,f.cuenta!=null?f.cuenta:((S.cuentas.find(c=>!isCash(c))||S.cuentas[0]||{}).id||""),"Sin cuenta / en efectivo")}</select></label>
   
   <label class="ck"><input type="checkbox" id="sAct"${f.activo!==false?" checked":""}> Activo (desmárcalo para pausarlo)</label>
   <label class="f">Contacto o nota<input id="sNota" value="${esc(f.nota)}" placeholder="Ej. llega por Western Union, paga el 15 y 30"></label>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn solid full" data-act="src-save" data-id="${f.id||""}">Guardar</button></div>
-  ${f.id?`<button class="btn danger full" style="margin-top:10px" data-act="src-del" data-id="${f.id}">Eliminar fuente</button>`:""}`)}
+  ${f.id?`<button class="btn danger full" style="margin-top:10px" data-act="src-del" data-id="${f.id}">Eliminar fuente</button>`:""}`);plaDraw()}
 
 function fijoForm(f){f=f||{freq:"mensual",inicio:todayStr(),cat:"Vivienda",activo:true};openPanel(`<h3>${f.id?"Editar gasto fijo":"Nuevo gasto fijo"}</h3>
   <label class="f">¿Qué pagas?<input id="xNombre" value="${esc(f.nombre)}" placeholder="Ej. Alquiler, colegiatura, préstamo carro"></label>
@@ -2954,7 +2992,9 @@ const ACT={
   "src-new":()=>srcForm(),
   "src-edit":id=>srcForm(S.fuentes.find(f=>f.id===id)),
   "src-save":id=>{const n=v("sNombre");if(!n){toast("Escribe quién te da el dinero");return}
+    const pl=$("sPla")&&$("sPla").checked&&esSueldo(v("sTipo"));if(pl&&!(num(v("sBruto"))>0)){toast("Escribe tu sueldo bruto");$("sBruto").focus();return}
     const f={id:id||nid("f"),nombre:n,tipo:v("sTipo"),...fq("sFreq"),monto:Math.round(num(v("sMonto"))*100)/100,inicio:v("sIni")||todayStr(),fin:v("sFin")||"",cuenta:v("sCta"),activo:$("sAct").checked,nota:v("sNota")};if(f.fin&&f.fin<f.inicio){toast("“Hasta” no puede ser antes de “Desde”");return}
+    if(pl){f.pla={bruto:c2(num(v("sBruto")))};if(num(v("sOtros"))>0)f.pla.otros=c2(num(v("sOtros")));if(!$("sIsss").checked)f.pla.isss=false;if(!$("sAfp").checked)f.pla.afp=false;f.monto=planilla(f.pla.bruto,f.freq,f.pla).neto}
     const i=S.fuentes.findIndex(x=>x.id===f.id);if(i>=0)S.fuentes[i]=f;else S.fuentes.push(f);closePanel();saveMeta("fuentes");toast("Fuente guardada")},
   "fijo-new":()=>fijoForm(),
   "fijo-edit":id=>fijoForm(S.fijos.find(f=>f.id===id)),
@@ -3007,7 +3047,8 @@ const ACT={
   "go-proy":()=>show("proyeccion"),
   "hoja-copy":async id=>{const [a,b]=(id||month+"|"+month).split("|"),ms=[];for(let m=a;m<=(b||a);m=shift(m,1))ms.push(m);try{await navigator.clipboard.writeText(hojaTexto(ms));toast("Hoja copiada: pégala en Notas o WhatsApp")}catch(e){toast("No se pudo copiar")}},
   "inc-rec":k=>{const [id,venc]=k.split("|"),f=S.fuentes.find(x=>x.id===id);if(!f)return;const td=todayStr();
-    openSheet({tipo:"ingreso",cuenta:f.cuenta||"",monto:f.monto,lugar:f.nombre,cat:f.tipo,fuente:f.id,fecha:venc<=td?venc:td,nota:freqL(f)+" · "+dShort(venc)});pendFijo={venc};$("fTitle").textContent="Recibir: "+f.nombre},
+    openSheet({tipo:"ingreso",cuenta:f.cuenta||"",monto:f.monto,lugar:f.nombre,cat:f.tipo,fuente:f.id,fecha:venc<=td?venc:td,nota:freqL(f)+" · "+dShort(venc)});pendFijo={venc};
+    if(f.pla&&num(f.pla.bruto)>0){const p=planilla(f.pla.bruto,f.freq,f.pla);pendPla={f:f.id,p:{g:p.g,isss:p.isss,afp:p.afp,isr:p.isr,otros:p.otros}};$("scanInfo").innerHTML=plaHtml(p);$("scanInfo").hidden=false}$("fTitle").textContent="Recibir: "+f.nombre},
   "ln-add":t=>{draft.lines.push({id:nid("l"),t,n:"",m:0,f:1});const y=$("panelBody").scrollTop;escEditor();$("panelBody").scrollTop=y;const ins=$("panelBody").querySelectorAll(`.ln input[data-k=n]`);const last=[...ins].filter(x=>draft.lines[+x.dataset.i].t===t).pop();if(last)last.focus()},
   "ln-del":i=>{draft.lines.splice(+i,1);const y=$("panelBody").scrollTop;escEditor();$("panelBody").scrollTop=y},
   "esc-save":()=>{draft.nombre=v("eNombre")||"Escenario";draft.ahorros=$("eAh").checked;draft.lines=draft.lines.filter(l=>l.n||num(l.m));const isNew=draft._new;delete draft._new;
