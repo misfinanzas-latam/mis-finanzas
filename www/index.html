@@ -959,6 +959,28 @@ label.f .fmonw select,.fmonw select{position:absolute!important;inset:0!importan
 .dedtot{display:flex;justify-content:space-between;align-items:center;background:var(--pl);border-radius:14px;padding:12px 14px;margin:4px 0 10px}.dedtot b{font-size:20px;font-variant-numeric:tabular-nums}
 .dedx{width:30px;height:30px;flex:none;margin-left:8px;border-radius:50%;border:0;background:var(--pl);color:var(--mut);font-size:17px;line-height:1;cursor:pointer;padding:0}
 label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
+
+/* ---- Búsqueda y exportar ---- */
+.qrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+.qseg{display:inline-grid;grid-template-columns:auto auto;background:var(--pl);border-radius:11px;padding:3px;gap:2px}
+.qseg button{min-height:32px;padding:0 12px;border:0;border-radius:9px;background:none;color:var(--mut);font:700 13px "Hanken Grotesk",sans-serif;cursor:pointer}
+.qseg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgb(0 0 0/.12)}
+.qrow .btn.sm .dic svg{width:16px;height:16px}
+.qsum{font-size:13.5px;color:var(--mut);margin:-2px 2px 10px}.qsum b{color:var(--ink)}
+.expb{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 8px}.expb .btn{flex-direction:column;gap:4px;min-height:64px;font-size:14px}.expb svg{width:22px;height:22px}
+#printArea{display:none}
+@media print{
+  @page{margin:14mm}
+  html.printing body>*:not(#printArea){display:none!important}
+  html.printing,html.printing body{background:#fff!important;padding:0!important;margin:0!important;min-height:0!important}
+  html.printing #printArea{display:block!important;color:#111;font:10.5pt/1.35 "Hanken Grotesk",Arial,sans-serif}
+  #printArea h1{font-size:18pt;margin:0}#printArea .ps{margin:2px 0 10px;color:#555}
+  #printArea .pt{display:flex;gap:10px;margin:0 0 12px}#printArea .pt div{flex:1;border:1px solid #ddd;border-radius:8px;padding:6px 10px}#printArea .pt span{display:block;font-size:9pt;color:#666}#printArea .pt b{font-size:13pt}
+  #printArea table{width:100%;border-collapse:collapse}#printArea th{text-align:left;font-size:9pt;color:#555;border-bottom:1.5px solid #333;padding:4px 6px}
+  #printArea td{border-bottom:1px solid #e4e4e4;padding:4px 6px;vertical-align:top}#printArea td small{display:block;color:#777;font-size:8.5pt}
+  #printArea .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}#printArea .neg{color:#b91c1c}#printArea .pos{color:#15803d}
+  #printArea tr{break-inside:avoid}#printArea .prf{margin-top:10px;color:#777;font-size:8.5pt}
+}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
@@ -1044,8 +1066,9 @@ label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
     <details class="zone" data-z="hist" id="histZ" style="--zc:#2563eb">
     <summary><span class="zic" data-ic="clock"></span><span class="zt"><b>Historial</b><em id="histSub">Todos tus movimientos</em></span><span class="zchev" aria-hidden="true"></span></summary>
     <div class="zb"><div id="perNote2"></div>
-    <input class="search" id="q" type="search" placeholder="Buscar lugar, categoría, fuente o nota">
-    <div class="row2"><button class="btn sm" data-act="csv">Copiar CSV del mes</button></div>
+    <input class="search" id="q" type="search" placeholder="Buscar lugar, categoría, nota o monto (ej. >50)" enterkeyhint="search">
+    <div class="qrow"><div class="qseg" id="qSeg"><button type="button" data-act="q-all" data-id="0" aria-pressed="true">Este periodo</button><button type="button" data-act="q-all" data-id="1" aria-pressed="false">Todo</button></div><button class="btn sm" data-act="exp"><span class="dic" data-ic="down"></span>Exportar</button></div>
+    <div class="qsum" id="qSum" hidden></div>
     <div id="movList"></div></div>
     </details>
   </section>
@@ -1156,6 +1179,7 @@ label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
 <div class="upd" id="upd" hidden><div><b>Hay una versión nueva</b><span id="updV"></span></div><button class="btn sm" data-act="upd-go">Actualizar</button><button class="ib" data-act="upd-x" aria-label="Después">×</button></div>
 <div class="toast" id="toast" hidden><span id="toastTx"></span><button id="toastBtn" hidden></button></div>
 
+<div id="printArea" aria-hidden="true"></div>
 <div class="calc" id="calc" hidden role="dialog" aria-label="Calculadora" tabindex="-1">
   <div class="calh" id="calh"><span class="calg" aria-hidden="true"></span><b id="calT">Calculadora</b><button type="button" class="calx" data-cal="min" aria-label="Minimizar">–</button><button type="button" class="calx" data-cal="close" aria-label="Cerrar">×</button></div>
   <div class="cald"><div class="cale" id="calE"></div><div class="calr" id="calR">0</div></div>
@@ -1733,8 +1757,23 @@ const ro3=new ResizeObserver(drawSpark);ro3.observe($("lgSpark"));
 
 // ---------- render
 let histN=60;
-function renderMov(aR){aR=aR||(isRange()?agg(RG()):agg(month));const q=norm($("q").value);
-  const xs=aR.xs.filter(x=>!q||norm(x.lugar+" "+x.cat+" "+x.nota+" "+srcName(x)).includes(q)).sort((x,y)=>y.fecha.localeCompare(x.fecha)||(y.ts||0)-(x.ts||0));
+let qAll=false,LASTXS=[];
+function qParse(s){const o={w:[],min:null,max:null,eq:null,tipo:null};
+  String(s||"").split(/\s+/).filter(Boolean).forEach(t0=>{const t=t0.replace(/[$,]/g,"");let m;
+    if(m=t.match(/^(>=|<=|>|<|=)(\d+(?:\.\d+)?)$/)){const v=+m[2];if(m[1][0]===">")o.min=m[1]===">"?v+.001:v;else if(m[1][0]==="<")o.max=m[1]==="<"?v-.001:v;else o.eq=v}
+    else if(m=t.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/)){o.min=+m[1];o.max=+m[2]}
+    else if(/^\d+\.\d{1,2}$/.test(t)||(/^\$/.test(t0)&&/^\d+$/.test(t)))o.eq=+t;
+    else{const n=norm(t0);if(/^gastos?$/.test(n))o.tipo="gasto";else if(/^ingresos?$/.test(n))o.tipo="ingreso";else if(n)o.w.push(n)}});
+  return o}
+function qMatch(x,o){const m=num(x.monto);if(o.eq!=null&&Math.abs(m-o.eq)>.005)return false;if(o.min!=null&&m<o.min)return false;if(o.max!=null&&m>o.max)return false;
+  if(o.tipo==="gasto"&&(x.tipo==="ingreso"||x.tipo==="ajuste"))return false;if(o.tipo==="ingreso"&&x.tipo!=="ingreso")return false;
+  if(o.w.length){const h=norm([x.lugar,x.cat,x.nota,x.tipo==="ingreso"?srcName(x):"",x.cuenta?ctaShort(x.cuenta):"",x.mon?x.mon.c:""].join(" "));if(!o.w.every(w=>h.includes(w)))return false}return true}
+function renderMov(aR){const qs=$("q").value.trim(),o=qParse(qs);
+  const base=qAll?S.items.filter(x=>x.fecha):(aR||(isRange()?agg(RG()):agg(month))).xs;
+  const xs=base.filter(x=>!qs||qMatch(x,o)).sort((x,y)=>y.fecha.localeCompare(x.fecha)||(y.ts||0)-(x.ts||0));LASTXS=xs;
+  const sm=$("qSum");if(sm){if(qs||qAll){const g=xs.filter(x=>x.tipo!=="ingreso"&&x.tipo!=="ajuste").reduce((t,x)=>t+num(x.monto),0),i=xs.filter(x=>x.tipo==="ingreso").reduce((t,x)=>t+num(x.monto),0);
+    sm.hidden=false;sm.innerHTML=`<b>${xs.length}</b> ${xs.length===1?"movimiento":"movimientos"}${g?" · gastos <b>"+fmt(g)+"</b>":""}${i?" · ingresos <b>"+fmt(i)+"</b>":""}`}else sm.hidden=true}
+  const q=qs;
   let h="",last="";const DT={};xs.forEach(x=>{if(x.tipo!=="ingreso"&&x.tipo!=="ajuste")DT[x.fecha]=(DT[x.fecha]||0)+num(x.monto)});
   xs.slice(0,histN).forEach(x=>{if(x.fecha!==last){h+=(last?"</ul>":"")+`<p class="day"><span><b>${+x.fecha.slice(8)}</b>${MES[+x.fecha.slice(5,7)-1]}${x.fecha.slice(0,4)!==todayStr().slice(0,4)?" "+x.fecha.slice(0,4):""}</span>${DT[x.fecha]?`<em>−${fmt(DT[x.fecha])}</em>`:""}</p><ul class="list">`;last=x.fecha}h+=row(x)});
   $("movList").innerHTML=xs.length?h+"</ul>"+(xs.length>histN?`<button class="btn full" data-act="hist-more" style="margin-top:10px">Ver ${Math.min(100,xs.length-histN)} más (${xs.length-histN} restantes)</button>`:""):`<p class="empty">${q?"Nada coincide con la búsqueda.":"Sin movimientos en "+RGtext(RG())+"."}</p>`}
@@ -2092,6 +2131,53 @@ function metaMov(id,sg){const m=(S.metas||[]).find(x=>x.id===id);if(!m)return;co
   <label class="f">Nota (opcional)<input id="mmN" maxlength="60" placeholder="${sg>0?"Ej. Quincena":"Ej. Lo necesité"}"></label>
   <div class="g2"><button class="btn full" data-act="meta-view" data-id="${esc(id)}">Cancelar</button><button class="btn solid full" data-act="meta-mov-ok" data-id="${esc(id)}|${sg}">${ic("check")}Guardar</button></div>`);
   setTimeout(()=>{const e=$("mmM");if(e)e.focus()},80)}
+
+// ---------- exportar: Excel (.xlsx hecho aquí mismo, sin librerías), PDF (imprimir) y CSV
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRCT[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files,type){const te=new TextEncoder(),P=[],C=[];let off=0;const u16=n=>[n&255,(n>>8)&255],u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>>24)&255];
+  for(const f of files){const nm=te.encode(f.n),d=typeof f.d==="string"?te.encode(f.d):f.d,crc=crc32(d),sz=d.length;
+    const lh=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(sz),...u32(sz),...u16(nm.length),...u16(0)]);
+    P.push(lh,nm,d);C.push(new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(sz),...u32(sz),...u16(nm.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nm);off+=lh.length+nm.length+sz}
+  const cs=C.reduce((t,x)=>t+x.length,0);return new Blob([...P,...C,new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cs),...u32(off),...u16(0)])],{type})}
+const expRowT=x=>x.tipo==="ajuste"?"Ajuste":x.tipo==="ingreso"?"Ingreso":"Gasto",expLug=x=>x.tipo==="ingreso"?srcName(x):(x.lugar||"");
+function xlsxBlob(xs){const X=s=>String(s??"").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const col=i=>String.fromCharCode(65+i),ser=d=>{const [y,m,dd]=d.split("-").map(Number);return (Date.UTC(y,m-1,dd)-Date.UTC(1899,11,30))/864e5};
+  const cs=(r,c,v)=>`<c r="${col(c)}${r}" t="inlineStr"><is><t xml:space="preserve">${X(v)}</t></is></c>`,cn=(r,c,v,st)=>`<c r="${col(c)}${r}"${st?` s="${st}"`:""}><v>${v}</v></c>`;
+  const H=["Fecha","Tipo","Lugar o de quién","Categoría","Cuenta","Gasto","Ingreso","Ajuste","Moneda original","Nota"];
+  let rows=`<row r="1">${H.map((h,i)=>`<c r="${col(i)}1" t="inlineStr" s="1"><is><t>${X(h)}</t></is></c>`).join("")}</row>`;
+  xs.forEach((x,k)=>{const r=k+2,t=expRowT(x),m=Math.round(num(x.monto)*100)/100;
+    rows+=`<row r="${r}">`+(/^\d{4}-\d{2}-\d{2}$/.test(x.fecha||"")?cn(r,0,ser(x.fecha),2):"")+cs(r,1,t)+cs(r,2,expLug(x))+cs(r,3,x.cat||"")+cs(r,4,x.cuenta?ctaShort(x.cuenta):"")
+      +(t==="Gasto"?cn(r,5,m,3):"")+(t==="Ingreso"?cn(r,6,m,3):"")+(t==="Ajuste"?cn(r,7,(x.aj<0?-1:1)*m,3):"")+(x.mon&&MON[x.mon.c]?cs(r,8,moFmt(x.mon.c,num(x.mon.m),1)):"")+(x.nota?cs(r,9,x.nota):"")+`</row>`});
+  const n=xs.length+1,t=n+1;rows+=`<row r="${t}">${cs(t,2,"Total")}<c r="F${t}" s="4"><f>SUM(F2:F${n})</f></c><c r="G${t}" s="4"><f>SUM(G2:G${n})</f></c><c r="H${t}" s="4"><f>SUM(H2:H${n})</f></c></row>`;
+  const W=[12,10,30,22,22,13,13,13,16,32],x0='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',NS='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"',RL="http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  return zipStore([
+    {n:"[Content_Types].xml",d:x0+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`},
+    {n:"_rels/.rels",d:x0+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${RL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {n:"xl/workbook.xml",d:x0+`<workbook ${NS} xmlns:r="${RL}"><sheets><sheet name="Movimientos" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">Movimientos!$A$1:$J$${n}</definedName></definedNames><calcPr fullCalcOnLoad="1"/></workbook>`},
+    {n:"xl/_rels/workbook.xml.rels",d:x0+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${RL}/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${RL}/styles" Target="styles.xml"/></Relationships>`},
+    {n:"xl/styles.xml",d:x0+`<styleSheet ${NS}><numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="&quot;$&quot;#,##0.00"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF4B3"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs></styleSheet>`},
+    {n:"xl/worksheets/sheet1.xml",d:x0+`<worksheet ${NS}><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${W.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${rows}</sheetData><autoFilter ref="A1:J${n}"/></worksheet>`}
+  ],"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+async function fileOut(b,name){const f=new File([b],name,{type:b.type});
+  try{if(/iPhone|iPad|Android/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==="AbortError")return}
+  const u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast("Descargado: "+name)}
+const dmy=d=>/^\d{4}-\d{2}-\d{2}$/.test(d||"")?d.slice(8)+"/"+d.slice(5,7)+"/"+d.slice(0,4):(d||"");
+function expPrint(xs,titulo){const g=xs.filter(x=>expRowT(x)==="Gasto").reduce((t,x)=>t+num(x.monto),0),i=xs.filter(x=>x.tipo==="ingreso").reduce((t,x)=>t+num(x.monto),0);
+  $("printArea").innerHTML=`<h1>Mis Finanzas</h1><p class="ps">${esc(titulo)}${S.cfg.nombre?" · "+esc(S.cfg.nombre):""}</p>
+  <div class="pt"><div><span>Gastos</span><b>${fmtR(g)}</b></div><div><span>Ingresos</span><b>${fmtR(i)}</b></div><div><span>Neto</span><b>${fmtR(i-g)}</b></div></div>
+  <table><thead><tr><th>Fecha</th><th>Detalle</th><th>Categoría</th><th>Cuenta</th><th class="n">Monto</th></tr></thead><tbody>${xs.map(x=>{const v=sgn(x)*num(x.monto);
+    return `<tr><td>${dmy(x.fecha)}</td><td>${esc(expLug(x))}${x.nota?`<small>${esc(x.nota)}</small>`:""}</td><td>${esc(x.tipo==="ajuste"?"Ajuste":x.cat||"")}</td><td>${esc(x.cuenta?ctaShort(x.cuenta):"")}</td><td class="n ${v<0?"neg":"pos"}">${v<0?"−":"+"}${fmtR(Math.abs(v))}</td></tr>`}).join("")}</tbody></table>
+  <p class="prf">${xs.length} movimientos · generado el ${dmy(todayStr())}</p>`;
+  document.documentElement.classList.add("printing");setTimeout(()=>{try{window.print()}catch(e){}},60)}
+addEventListener("afterprint",()=>{document.documentElement.classList.remove("printing");const p=$("printArea");if(p)p.innerHTML=""});
+function expPanel(){const n=LASTXS.length,y=month.slice(0,4);
+  openPanel(`<h3>Exportar movimientos</h3>
+  <div class="rchk"><label><input type="radio" name="exR" value="vis" checked><span>Lo que estás viendo · ${n} ${n===1?"movimiento":"movimientos"}</span></label>
+  <label><input type="radio" name="exR" value="y"><span>Todo ${esc(y)}</span></label><label><input type="radio" name="exR" value="all"><span>Todo mi historial</span></label></div>
+  <div class="expb"><button class="btn solid" data-act="exp-go" data-id="xlsx">${ic("table")}Excel</button><button class="btn" data-act="exp-go" data-id="pdf">${ic("book")}PDF</button><button class="btn" data-act="exp-go" data-id="csv">${ic("copy")}CSV</button></div>
+  <p class="note">El PDF se abre para imprimir: elige <b>Guardar como PDF</b>.</p>
+  <button class="btn full" data-act="close" style="margin-top:6px">Cerrar</button>`)}
 
 // ---------- deducibles de renta (Art. 33 LISR): gastos médicos y de educación, hasta $800 cada uno por año
 const DEDMAX=800;
@@ -2592,6 +2678,17 @@ async function obFinish(){
 
 // ---------- acciones
 const ACT={
+  "q-all":k=>{qAll=k==="1";document.querySelectorAll("#qSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===k));histN=60;MEMO=new Map();try{renderMov()}finally{MEMO=null}},
+  exp:()=>expPanel(),
+  "exp-go":async k=>{const r=(document.querySelector('input[name="exR"]:checked')||{}).value||"vis",y=month.slice(0,4);
+    let xs=r==="vis"?LASTXS.slice():r==="y"?S.items.filter(x=>(x.fecha||"").slice(0,4)===y):S.items.filter(x=>x.fecha);
+    xs.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")||(a.ts||0)-(b.ts||0));if(!xs.length){toast("No hay movimientos para exportar");return}
+    const qs=$("q").value.trim(),tit=r==="y"?"Movimientos de "+y:r==="all"?"Todo el historial":(qAll?"Todo el historial":RGtext(RG()))+(qs?" · búsqueda “"+qs+"”":""),
+      tag=r==="y"?y:r==="all"||qAll?"historial":(RG().a===RG().b?RG().a:RG().a+"_"+RG().b)+(qs?"-busqueda":"");
+    if(k==="pdf"){closePanel();expPrint(xs,tit);return}
+    if(k==="csv"){const q=v=>`"${String(v??"").replace(/"/g,'""')}"`,t="﻿"+["Fecha,Tipo,Lugar o de quién,Categoría,Cuenta,Monto,Moneda original,Nota"].concat(xs.map(x=>[x.fecha,expRowT(x),q(expLug(x)),q(x.cat),q(x.cuenta?ctaShort(x.cuenta):""),(sgn(x)*num(x.monto)).toFixed(2),q(x.mon&&MON[x.mon.c]?moFmt(x.mon.c,num(x.mon.m),1):""),q(x.nota)].join(","))).join("\r\n");
+      closePanel();await fileOut(new Blob([t],{type:"text/csv;charset=utf-8"}),"Mis-Finanzas-"+tag+".csv");return}
+    closePanel();await fileOut(xlsxBlob(xs),"Mis-Finanzas-"+tag+".xlsx")},
   ded:y=>{closeUmenu();dedPanel(y)},
   "ded-x":id=>{const x=S.items.find(i=>i.id===id);if(!x)return;x.ded=false;putItem(x);dedPanel(x.fecha.slice(0,4));toast("Quitado de deducibles","Deshacer",()=>{delete x.ded;putItem(x);dedPanel(x.fecha.slice(0,4))})},
   "ded-csv":async y=>{const D=dedYear(y),q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
