@@ -66,11 +66,28 @@ export function bolsaDe(cfg: Any, cuentas: Any[]) {
   return cuentas.find((c) => c.id === r.bolsa) || cuentas.find((c) => c.sys) || cuentas.find((c) => /cartera|bolsa|billetera/i.test((c.nombre || "") + " " + (c.banco || ""))) || cuentas.find((c) => /efectivo/i.test((c.tipo || "") + (c.banco || "")));
 }
 
+// Espacios compartidos (pareja o familia): solo tarjetas y pagos fijos con aviso; lo demás es personal.
+async function espacios(uid: string) {
+  const out: Any[] = [];
+  try {
+    const { data: mem } = await admin.from("espacio_miembros").select("espacio_id,espacios(nombre,borrado)").eq("user_id", uid).is("salio", null);
+    for (const m of (mem || []) as Any[]) {
+      const e = Array.isArray(m.espacios) ? m.espacios[0] : m.espacios;
+      if (!e || e.borrado) continue;
+      const { data } = await admin.from("espacio_docs").select("id,body").eq("espacio_id", m.espacio_id);
+      const D: Record<string, Any> = {}; const items: Any[] = [];
+      for (const r of data || []) { if (r.id === "cuentas" || r.id === "fijos") D[r.id] = r.body; else if (r.body && r.body.fecha) items.push(r.body); }
+      out.push({ id: m.espacio_id, nombre: e.nombre || "Espacio compartido", cuentas: (D.cuentas && D.cuentas.list) || [], fijos: (D.fijos && D.fijos.list) || [], items });
+    }
+  } catch (_e) { /* sin espacios */ }
+  return out;
+}
+
 async function datos(uid: string) {
   const { data } = await admin.from("docs").select("id,body").eq("user_id", uid);
   const D: Record<string, Any> = {}; const items: Any[] = [];
   for (const r of data || []) { if (["cfg", "cuentas", "fuentes", "fijos", "escs", "reglas", "pend"].includes(r.id)) D[r.id] = r.body; else if (r.body && r.body.fecha) items.push(r.body); }
-  return { cfg: D.cfg || {}, cuentas: (D.cuentas && D.cuentas.list) || [], fijos: (D.fijos && D.fijos.list) || [], pend: (D.pend && D.pend.list) || [], items };
+  return { cfg: D.cfg || {}, cuentas: (D.cuentas && D.cuentas.list) || [], fijos: (D.fijos && D.fijos.list) || [], pend: (D.pend && D.pend.list) || [], items, esp: await espacios(uid) };
 }
 
 function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnType<typeof local>, forzar = "") {
@@ -94,42 +111,48 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
       const src = otras.find((o: Any) => o.s >= sug) || otras[0];
       out.push({ kind: "am", title: M ? `Tu ${b.nombre || "efectivo"} tiene ${fmt(s)}` : `Revisa tu ${b.nombre || "efectivo"}`,
         body: !M ? (src ? `Está por debajo de tu mínimo. Toca para pasar dinero desde ${src.c.nombre || src.c.banco}.` : "Está por debajo de tu mínimo. Toca para revisarlo.") : src ? `¿Pasar ${fmt0(sug)} de ${src.c.nombre || src.c.banco}? Gastas ~${fmt(prom)} al día en efectivo.` : `Gastas ~${fmt(prom)} al día en efectivo. Te sugerimos tener ${fmt0(sug)}.`,
-        url: SITE + "?trf=" + encodeURIComponent((src ? src.c.id : "") + "|" + b.id + "|" + sug) });
+        url: SITE + "?esp=&trf=" + encodeURIComponent((src ? src.c.id : "") + "|" + b.id + "|" + sug) });
     }
   }
-  // Tarjetas de crédito: 3 días antes, un día antes y el día del pago (con la revisión de la mañana)
-  if (forzar === "tc" || (!forzar && due(r.am))) {
-    for (const c of d.cuentas.filter((c: Any) => esTC(c) && c.aviso !== false)) {
-      const t = tcPendiente(c, d.items, L.day);
-      if (!t || !(t.pend > 0.005) || ![0, 1, 3].includes(t.dias)) { if (forzar !== "tc" || !t) continue; }
-      const nom = (c.nombre || c.banco || "tu tarjeta") + (c.num ? " ···" + c.num : ""), cuando = t.dias === 0 ? "hoy" : t.dias === 1 ? "mañana" : `en ${t.dias} días`;
-      const [, mm, dd] = t.due.split("-");
-      out.push({ kind: "tc" + c.id, title: `Pago de ${nom} ${cuando}`, body: M ? `Paga ${fmt(t.pend)} antes del ${+dd}/${+mm} para no pagar intereses.` : `Vence el ${+dd}/${+mm}. Toca para registrar el pago.`,
-        url: SITE + "?trf=" + encodeURIComponent("|" + c.id + "|" + t.pend.toFixed(2)) });
+  // Tarjetas de crédito y pagos fijos con aviso: de lo personal y de cada espacio compartido
+  const avisos = (x: Any, e?: Any) => {
+    const ek = e ? "e" + String(e.id).slice(0, 8) + ":" : "", en = e ? `«${e.nombre}» · ` : "", q = e ? "?esp=" + encodeURIComponent(e.id) + "&" : "?esp=&";
+    // 3 días antes, un día antes y el día del pago (con la revisión de la mañana)
+    if (forzar === "tc" || (!forzar && due(r.am))) {
+      for (const c of x.cuentas.filter((c: Any) => esTC(c) && c.aviso !== false)) {
+        const t = tcPendiente(c, x.items, L.day);
+        if (!t || !(t.pend > 0.005) || ![0, 1, 3].includes(t.dias)) { if (forzar !== "tc" || !t) continue; }
+        const nom = (c.nombre || c.banco || "tu tarjeta") + (c.num ? " ···" + c.num : ""), cuando = t.dias === 0 ? "hoy" : t.dias === 1 ? "mañana" : `en ${t.dias} días`;
+        const [, mm, dd] = t.due.split("-");
+        out.push({ kind: ek + "tc" + c.id, title: `Pago de ${nom} ${cuando}`, body: en + (M ? `Paga ${fmt(t.pend)} antes del ${+dd}/${+mm} para no pagar intereses.` : `Vence el ${+dd}/${+mm}. Toca para registrar el pago.`),
+          url: SITE + q + "trf=" + encodeURIComponent("|" + c.id + "|" + t.pend.toFixed(2)) });
+      }
     }
-  }
-  // Gastos fijos y suscripciones con aviso: un día antes del cobro
-  if (forzar === "fx" || (!forzar && due(r.am))) {
-    const man = shiftDay(L.day, 1);
-    for (const f of d.fijos.filter((f: Any) => f.aviso && f.activo !== false)) {
-      if (!occS(f, man.slice(0, 7)).includes(man) && forzar !== "fx") continue;
-      if (d.items.some((x) => x.fijo === f.id && x.venc === man)) continue;
-      const c = f.cuenta && d.cuentas.find((x: Any) => x.id === f.cuenta);
-      out.push({ kind: "fx" + f.id, title: `Mañana: ${f.nombre || "un pago fijo"}`, body: M ? `Te cobran ${fmt(num(f.monto))}.${c ? ` Revisa que tengas saldo en ${c.nombre || c.banco}.` : ""}` : `Mañana te cobran ${f.sus ? "esta suscripción" : "este pago"}. Toca para verlo.`, url: SITE + "?tab=fijos" });
+    // Gastos fijos y suscripciones con aviso: un día antes del cobro
+    if (forzar === "fx" || (!forzar && due(r.am))) {
+      const man = shiftDay(L.day, 1);
+      for (const f of x.fijos.filter((f: Any) => f.aviso && f.activo !== false)) {
+        if (!occS(f, man.slice(0, 7)).includes(man) && forzar !== "fx") continue;
+        if (x.items.some((y: Any) => y.fijo === f.id && y.venc === man)) continue;
+        const c = f.cuenta && x.cuentas.find((y: Any) => y.id === f.cuenta);
+        out.push({ kind: ek + "fx" + f.id, title: `Mañana: ${f.nombre || "un pago fijo"}`, body: en + (M ? `${e ? "Les" : "Te"} cobran ${fmt(num(f.monto))}.${c ? ` Revisa que haya saldo en ${c.nombre || c.banco}.` : ""}` : `Mañana ${e ? "les" : "te"} cobran ${f.sus ? "esta suscripción" : "este pago"}. Toca para verlo.`), url: SITE + q + "tab=fijos" });
+      }
     }
-  }
+  };
+  avisos(d);
+  for (const e of d.esp || []) avisos(e, e);
   // Arqueo semanal
   const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   if ((forzar === "arq") || (!forzar && r.arq && DOW[+r.arqDia] === L.dow && due(r.arqHora))) {
     const tot = d.cuentas.reduce((t: number, c: Any) => t + saldo(c, d.items), 0);
-    out.push({ kind: "arq", title: "Arqueo semanal", body: M ? `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.` : "Cuenta tu efectivo y revisa tus bancos. Toca para consolidar.", url: SITE + "?act=cons" });
+    out.push({ kind: "arq", title: "Arqueo semanal", body: M ? `Cuenta tu efectivo y revisa tus bancos. Según la app tienes ${fmt(tot)} en total${b ? `, ${fmt(saldo(b, d.items))} en ${b.nombre || "efectivo"}` : ""}. Toca para consolidar.` : "Cuenta tu efectivo y revisa tus bancos. Toca para consolidar.", url: SITE + "?esp=&act=cons" });
   }
   // Día 30 (o último día si el mes es más corto): armar presupuesto del mes siguiente
   const dd = +L.day.slice(8);
   if (forzar === "presu" || (!forzar && r.presu && (dd === 30 || (L.last && dd < 30)) && due(r.presuHora))) {
     const [yy, mm] = L.day.split("-").map(Number), nx = mm === 12 ? `${yy + 1}-01` : `${yy}-${String(mm + 1).padStart(2, "0")}`;
     const P = (d.cfg.presup || {})[nx], nom = MES[+nx.slice(5) - 1];
-    out.push({ kind: "presu", title: `Presupuesto de ${nom}`, body: P ? `Ya tienes “${P.nombre}”. Revisa tus fijos y escenarios antes del cierre y confirma o cámbialo.` : `Revisa tus fijos, arma tus escenarios y elige el presupuesto de ${nom} antes del cierre de mes.`, url: SITE + "?tab=proyeccion" });
+    out.push({ kind: "presu", title: `Presupuesto de ${nom}`, body: P ? `Ya tienes “${P.nombre}”. Revisa tus fijos y escenarios antes del cierre y confirma o cámbialo.` : `Revisa tus fijos, arma tus escenarios y elige el presupuesto de ${nom} antes del cierre de mes.`, url: SITE + "?esp=&tab=proyeccion" });
   }
   // Noche: diario / semana / mes (uno solo por noche)
   if (forzar === "pm" || forzar === "sem" || forzar === "mes" || (!forzar && due(r.pm))) {
@@ -138,13 +161,13 @@ function mensajes(uid: string, d: Awaited<ReturnType<typeof datos>>, L: ReturnTy
     const sum = (a: string, z: string) => { const xs = d.items.filter((x) => x.fecha >= a && x.fecha <= z); return { g: xs.filter(esGasto).reduce((t, x) => t + num(x.monto), 0), i: xs.filter((x) => x.tipo === "ingreso").reduce((t, x) => t + num(x.monto), 0), n: xs.filter((x) => x.tipo !== "ajuste").length }; };
     if ((L.last && r.mes) || forzar === "mes") {
       const m = sum(L.day.slice(0, 8) + "01", L.day);
-      out.push({ kind: "mes", title: `Cierre de ${MES[L.month - 1]}`, body: `${M ? `Gastaste ${fmt0(m.g)} · entró ${fmt0(m.i)}. ` : ""}Revisa tus cuentas antes de empezar el mes.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
+      out.push({ kind: "mes", title: `Cierre de ${MES[L.month - 1]}`, body: `${M ? `Gastaste ${fmt0(m.g)} · entró ${fmt0(m.i)}. ` : ""}Revisa tus cuentas antes de empezar el mes.${extra ? " " + extra + "." : ""}`, url: SITE + "?esp=&tab=resumen" });
     } else if ((L.dow === "Sun" && r.sem) || forzar === "sem") {
       const w = sum(shiftDay(L.day, -6), L.day);
-      out.push({ kind: "sem", title: "Cierre de la semana", body: `${M ? `Gastaste ${fmt0(w.g)} en ${w.n} movimiento(s).` : `${w.n} movimiento(s) esta semana.`} Toca para ordenar tus cuentas.${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=resumen" });
+      out.push({ kind: "sem", title: "Cierre de la semana", body: `${M ? `Gastaste ${fmt0(w.g)} en ${w.n} movimiento(s).` : `${w.n} movimiento(s) esta semana.`} Toca para ordenar tus cuentas.${extra ? " " + extra + "." : ""}`, url: SITE + "?esp=&tab=resumen" });
     } else if (r.dia || forzar === "pm") {
       const t = sum(L.day, L.day);
-      out.push({ kind: "pm", title: "Ordena tus cuentas de hoy", body: `${t.n ? `Hoy: ${t.n} movimiento(s)${M ? `, gastaste ${fmt0(t.g)}` : ""}.` : "Hoy no registraste movimientos."} ¿Falta algo?${extra ? " " + extra + "." : ""}`, url: SITE + "?tab=movimientos" });
+      out.push({ kind: "pm", title: "Ordena tus cuentas de hoy", body: `${t.n ? `Hoy: ${t.n} movimiento(s)${M ? `, gastaste ${fmt0(t.g)}` : ""}.` : "Hoy no registraste movimientos."} ¿Falta algo?${extra ? " " + extra + "." : ""}`, url: SITE + "?esp=&tab=movimientos" });
     }
   }
   return out;

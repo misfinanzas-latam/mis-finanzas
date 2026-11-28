@@ -613,6 +613,7 @@ a.btn{text-decoration:none}
 .afr i{height:8px;border-radius:99px;background:var(--pl);overflow:hidden}.afr u{display:block;height:100%;border-radius:99px;background:var(--g2,#f5b400)}
 .afr b{font-size:13px;font-weight:600;color:var(--mut);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .rchk{display:grid;gap:8px;margin:4px 0 14px}.rchk label{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}.rchk input{width:22px;height:22px;accent-color:var(--g2);flex:none}
+.espab{border-color:color-mix(in srgb,#6366f1 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#6366f1 12%,var(--card)),var(--card) 70%)!important}.espab>.i{color:#6366f1!important}
 .bolsab{border-color:color-mix(in srgb,#059669 40%,var(--line))!important;background:linear-gradient(120deg,color-mix(in srgb,#10b981 12%,var(--card)),var(--card) 70%)!important}.bolsab .clipi .i{color:#fff}
 .scango{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--tint) 96%,transparent);display:grid;align-content:center;gap:16px;padding:24px}
 .scanbig{display:grid;justify-items:center;gap:16px;padding:48px 20px;border-radius:28px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--gk);cursor:pointer;box-shadow:0 20px 40px color-mix(in srgb,var(--g2) 40%,transparent)}
@@ -981,10 +982,20 @@ label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
   #printArea .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}#printArea .neg{color:#b91c1c}#printArea .pos{color:#15803d}
   #printArea tr{break-inside:avoid}#printArea .prf{margin-top:10px;color:#777;font-size:8.5pt}
 }
+
+/* ---- Espacio compartido ---- */
+.eyeb.espb{width:auto;max-width:min(190px,46vw);min-width:0;flex:0 1 auto;padding:0 13px 0 11px;border-radius:999px;gap:6px;display:inline-flex;align-items:center;font:800 13px "Hanken Grotesk",sans-serif;background:linear-gradient(135deg,#0ea5e9,#6366f1)!important;color:#fff;box-shadow:0 8px 20px rgb(79 70 229/.32),0 1px 3px rgb(0 0 0/.1)}
+.tright:has(#tripb:not([hidden])) .espb{max-width:min(120px,30vw)}
+html.enesp .top h1{padding:4px;gap:0!important}html.enesp .top h1 .nm{opacity:0;max-width:0;overflow:hidden}
+.eyeb.espb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.eyeb.espb svg{width:18px;height:18px;flex:none}
+.espnote{display:none}html.enesp .espnote{display:block}html.enesp #tab-proyeccion>*:not(.espnote),html.enesp #presuZ{display:none!important}
+.esinv{margin-top:12px;background:var(--pl);border-radius:16px;padding:12px;text-align:center}.esinv>span{display:block;font-size:12.5px;color:var(--mut)}
+.esinv>b{display:block;font:800 28px/1.3 ui-monospace,monospace;letter-spacing:.08em;margin:6px 0 10px}
+.esor{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:13px;margin:12px 0}.esor::before,.esor::after{content:"";flex:1;height:1px;background:var(--line)}
 </style></head><body>
 <div class="app">
   <div class="top"><h1 id="hello">Mis finanzas</h1>
-    <div class="tright"><button class="eyeb trip" id="tripb" data-act="mon" hidden aria-label="Modo viaje: cambiar moneda"></button><button class="eyeb" id="calcb" data-act="calc" aria-pressed="false" aria-label="Calculadora"></button><button class="eyeb" id="eyeb" data-act="priv" aria-pressed="false" aria-label="Modo privacidad: ocultar montos"></button></div>
+    <div class="tright"><button class="eyeb espb" id="espb" data-act="esp" hidden aria-label="Espacio compartido"></button><button class="eyeb trip" id="tripb" data-act="mon" hidden aria-label="Modo viaje: cambiar moneda"></button><button class="eyeb" id="calcb" data-act="calc" aria-pressed="false" aria-label="Calculadora"></button><button class="eyeb" id="eyeb" data-act="priv" aria-pressed="false" aria-label="Modo privacidad: ocultar montos"></button></div>
   </div>
   <div class="status" id="status">Cargando…</div>
   <div class="demo" id="demobar" hidden><span>Datos de ejemplo: no se guardan.</span><button data-act="demo-off">Salir del ejemplo</button></div>
@@ -1042,6 +1053,7 @@ label.ck.fded{margin:-2px 2px 10px}.fded small{color:var(--mut);font-weight:500}
   </section>
 
   <section id="tab-proyeccion" hidden>
+    <div class="rcard espnote"><h2 class="h2i" data-ic="users">Presupuesto personal</h2><p class="note">Los escenarios y el presupuesto todavía no se comparten. Cambia a tu cuenta personal para verlos.</p><button class="btn full" data-act="esp-use">Ir a Personal</button></div>
     <div class="rcard pyh"><h2 class="h2i" data-ic="trend" id="pyT">Presupuesto</h2>
     <div id="pyHead"></div>
     <div class="row2"><button class="btn solid" data-act="esc-new"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo escenario</button><button class="btn" data-act="esc-fromdata">Crear desde mis datos</button><button class="btn" data-act="esc-archv" id="archB">Archivo</button></div>
@@ -1256,13 +1268,19 @@ function loadLocal(){
 }
 function saveLocal(){if(col)return;try{localStorage.setItem(KEY,JSON.stringify(R))}catch(e){}}
 const wq={},wb={};
-function writeDoc(id,body){
-  if(!col){saveLocal();return}
-  wq[id]=clone(body);if(wb[id])return;wb[id]=true;
-  (async()=>{while(wq[id]){const b=wq[id];wq[id]=null;try{await col.doc(id).set(b)}catch(e){toast("No se pudo guardar: "+(e.message||e.code||""))}}wb[id]=false})();
+// Espacio compartido (pareja/familia): ESP es el espacio activo; E su libro. Lo personal (cfg, escenarios, reglas, alertas) nunca se sube al espacio.
+let ESP=null,ESPN="",ESPS=[],E=null,colE=null,unsubE=null,espP=null;
+const SPK=["cuentas","fuentes","fijos","metas","deudas"],PERK=new Set(["cfg","escs","reglas","pend"]);
+function writeDoc(id,body,pers){
+  const sp=!!(ESP&&colE&&!pers&&!PERK.has(id)),c=sp?colE:col;
+  if(!c){saveLocal();return}
+  const k=(sp?"e:"+ESP+":":"")+id;
+  wq[k]=clone(body);if(wb[k])return;wb[k]=true;
+  (async()=>{while(wq[k]){const b=wq[k];wq[k]=null;try{await c.doc(id).set(b)}catch(e){toast("No se pudo guardar: "+(e.message||e.code||""))}}wb[k]=false})();
 }
-function saveMeta(name){render();if(isDemo())return;writeDoc(name,name==="cfg"?R.cfg:{list:R[name]})}
+function saveMeta(name){render();if(isDemo())return;writeDoc(name,name==="cfg"?R.cfg:{list:(ESP&&E&&SPK.includes(name)?E:R)[name]||[]})}
 function putItem(it){
+  if(ESP&&!it.por&&!isDemo())it.por=String(R.cfg.nombre||(userMail||"").split("@")[0]||"").slice(0,24);
   const arr=S.items,i=arr.findIndex(x=>x.id===it.id);if(i>=0)arr[i]=it;else arr.push(it);render();
   if(!isDemo())writeDoc(it.id,it);
 }
@@ -1270,7 +1288,7 @@ async function delItem(id){
   const arr=S.items,i=arr.findIndex(x=>x.id===id);if(i<0)return;const old=arr.splice(i,1)[0];render();
   toast("Movimiento eliminado","Deshacer",()=>putItem(old));
   if(isDemo())return;
-  if(col){try{await col.doc(id).delete()}catch(e){toast("No se pudo eliminar")}}else saveLocal();
+  const dc=ESP&&colE?colE:col;if(dc){try{await dc.doc(id).delete()}catch(e){toast("No se pudo eliminar")}}else saveLocal();
 }
 function setStatus(t){$("status").textContent=t}
 
@@ -1503,7 +1521,7 @@ const horizon=()=>+(S.cfg.horizon||6);
 function row(x){
   if(x.tipo==="ajuste")return `<li><button class="it" data-act="aj-item" data-id="${esc(x.id)}">${bubI("swap","#64748b")}<span class="tx"><b>${esc(x.lugar||"Ajuste de saldo")}</b><span>Ajuste · ${dShort(x.fecha)}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am aj">${x.aj<0?"−":"+"}${fmt(num(x.monto))}</span></button></li>`;
   const ing=x.tipo==="ingreso";
-  return `<li><button class="it" data-act="edit-item" data-id="${esc(x.id)}">${bub(x.cat)}<span class="tx"><b>${esc(ing?srcName(x):(x.lugar||"Sin nombre"))}</b><span>${esc(x.cat)} · ${dShort(x.fecha)}${x.mon&&MON[x.mon.c]?" · "+esc(moFmt(x.mon.c,num(x.mon.m))):""}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am ${ing?"pos":""}">${ing?"+":""}${fmt(num(x.monto))}</span></button></li>`;
+  return `<li><button class="it" data-act="edit-item" data-id="${esc(x.id)}">${bub(x.cat)}<span class="tx"><b>${esc(ing?srcName(x):(x.lugar||"Sin nombre"))}</b><span>${esc(x.cat)} · ${dShort(x.fecha)}${x.mon&&MON[x.mon.c]?" · "+esc(moFmt(x.mon.c,num(x.mon.m))):""}${ESP&&x.por?" · "+esc(x.por):""}${x.cuenta?" · "+esc(ctaShort(x.cuenta)):""}${x.nota?" · "+esc(x.nota):""}</span></span><span class="am ${ing?"pos":""}">${ing?"+":""}${fmt(num(x.monto))}</span></button></li>`;
 }
 
 function insights(r){
@@ -1564,6 +1582,7 @@ function umenuHTML(){
   const mi=(act,icon,txt,cls,id)=>`<button class="mi ${cls||""}" role="menuitem" data-act="${act}"${id?` data-id="${id}"`:""}>${ic(icon)}<span>${txt}</span></button>`;
   const sw=`<span style="width:34px;height:18px;border-radius:9px;margin-left:auto;background:${swatch(curTheme)};flex:none"></span>`;
   return `<div class="mh"><button class="av${S.cfg.foto?" ph":""}" data-act="foto"${S.cfg.foto?` style="background-image:url('${S.cfg.foto}')"`:""} aria-label="Cambiar foto">${S.cfg.foto?"":esc(iniciales(S.cfg.nombre))}<span class="gear">${ic("cam")}</span></button><div style="min-width:0"><b>${esc(S.cfg.nombre||"Mis finanzas")}</b><span>${esc(userMail||(isDemo()?"Datos de ejemplo":sb?"":"Modo local: datos solo en este teléfono"))}</span></div></div>
+  ${sb&&uid&&!isDemo()?`<div class="mv">Espacio</div>${mi("esp-use","user","Personal"+(ESP?"":" · aquí estás"))}${ESPS.map(e=>mi("esp-use","users",esc(e.nombre)+(ESP===e.id?" · aquí estás":""),"",e.id)).join("")}${mi("esp","plus",ESPS.length?"Compartir y administrar":"Compartir con mi pareja o familia")}<div class="ms"></div>`:""}
   <div class="mv">Tu perfil</div>
   ${mi("foto","cam",S.cfg.foto?"Cambiar foto":"Poner mi foto")}
   ${S.cfg.foto?mi("foto-x","minus","Quitar foto"):""}
@@ -1583,7 +1602,7 @@ function umenuHTML(){
   ${esAdmin&&!isDemo()?`<div class="ms"></div><div class="mv">Administración</div>${mi("admin","chart","Panel de la app")}`:""}
   <div class="ms"></div>
   ${userMail?mi("sign-out","up","Cerrar sesión")+mi("sign-out-all","devices","Cerrar sesión en todos los equipos"):""}
-  ${mi("wipe","alert","Borrar todos mis datos","neg")}
+  ${ESP?"":mi("wipe","alert","Borrar todos mis datos","neg")}
   ${userMail?mi("del-account","alert","Eliminar mi cuenta","neg"):""}
   <p class="mv" style="line-height:1.4;margin:6px 0 0">${sb?"Tus datos se guardan en tu cuenta privada: solo tu sesión puede leerlos o cambiarlos.":"Modo local: tus datos se guardan solo en este teléfono."} El PIN protege la pantalla si alguien toma tu teléfono.</p>
   <div class="mv">Versión ${esc(APP_VERSION.startsWith("__")?"de desarrollo":verFmt(APP_VERSION))}</div>`}
@@ -1845,7 +1864,7 @@ function render0(){ensureCash();
   const fm=fijosMes(month),pend=fm.filter(o=>!o.pago),pendT=pend.reduce((s,o)=>s+num(o.f.monto),0),fmT=fm.reduce((s,o)=>s+(o.pago?num(o.pago.monto):num(o.f.monto)),0),paidT=fmT-pendT,td=todayStr();
   if(!S.pend)S.pend=[];const PP=S.pend.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
   const NG=negCtas();$("negBox").innerHTML=difBanner()+bolsaBanner()+tcBanner()+NG.map(c=>`<button class="negb" data-act="just" data-id="${c.id}">${ic("alert")}<span><b>${esc(c.nombre||c.banco)} está en −${fmt(-ctaSaldo(c))}</b><em>Toca para justificar de dónde salió ese dinero</em></span><i>›</i></button>`).join("");
-  $("pendBox").innerHTML=PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${[PP.some(p=>p.tipo!=="ingreso")?fmt(PP.reduce((t,p)=>t+(p.tipo!=="ingreso"?num(p.monto):0),0))+" en gastos":"",PP.some(p=>p.tipo==="ingreso")?"+"+fmt(PP.reduce((t,p)=>t+(p.tipo==="ingreso"?num(p.monto):0),0))+" en depósitos":""].filter(Boolean).join(" · ")}</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
+  $("pendBox").innerHTML=PP.length&&ESP?`<button class="negb espab" data-act="esp-use">${ic("bell")}<span><b>${PP.length} alerta${PP.length>1?"s":""} por revisar en Personal</b><em>Son de tus cuentas personales · toca para ir</em></span><i>›</i></button>`:PP.length?`<div class="fx pendc"><div class="fxh"><h2 class="h2i">${ic("bell")}Por revisar (${PP.length})</h2><span class="note">${[PP.some(p=>p.tipo!=="ingreso")?fmt(PP.reduce((t,p)=>t+(p.tipo!=="ingreso"?num(p.monto):0),0))+" en gastos":"",PP.some(p=>p.tipo==="ingreso")?"+"+fmt(PP.reduce((t,p)=>t+(p.tipo==="ingreso"?num(p.monto):0),0))+" en depósitos":""].filter(Boolean).join(" · ")}</span></div><p class="note" style="margin:2px 0 4px">Ponles concepto para que cuenten.</p><ul class="list">${PP.map(pendRow).join("")}</ul></div>`:"";
   const im=ingMes(month);
   $("lgFree").hidden=!fm.length&&!im.length;
   $("incBox").innerHTML=S.fuentes.length?`<details class="zone" data-z="inc" data-def="1" style="--zc:#16a34a">${zsum("down","Ingresos","Recibido "+fmt0(H.rI),fmt(H.tI))}<div class="zb"><ul class="list">${im.length?im.map(o=>{const late=!o.rec&&o.venc<td;return `<li><div class="it">${bub(o.f.tipo)}<span class="tx"><b>${esc(o.f.nombre)}</b><span>${o.rec?chip("ok","Recibido"):late?chip("late","Atrasado"):chip("pend","Pendiente")} ${dShort(o.venc)}</span></span><span class="am">${fmt(o.rec?num(o.rec.monto):num(o.f.monto))}</span>${o.rec?`<button class="paid" data-act="edit-item" data-id="${esc(o.rec.id)}" aria-label="Ver ingreso">${ic("check")}</button>`:`<button class="pay" data-act="inc-rec" data-id="${o.f.id}|${o.venc}" aria-label="Recibir">${ic("down")}Recibir</button>`}</div></li>`}).join(""):`<li class="note" style="padding:12px 0">Ningún ingreso fijo con fecha este mes.</li>`}</ul></div></details>`:"";
@@ -2292,6 +2311,61 @@ function spDraw(){const box=$("spP");if(!box)return;const pay=spPayer();
   $("spRes").innerHTML=!T?"Escribe el total.":!SPL.p.length?"Agrega al menos a otra persona.":eq?`Cada uno: <b>${fmt(Math.floor(T/S2.length)/100)}</b>${pay?` · le debes <b>${fmt(mine/100)}</b> a ${esc(pay)}`:` · te deben <b>${fmt((T-mine)/100)}</b>`}`
     :sum!==T?`Faltan <b>${fmt((T-sum)/100)}</b> por repartir`:`Tu parte: <b>${fmt(mine/100)}</b>${pay?` · le debes a ${esc(pay)}`:` · te deben <b>${fmt((T-mine)/100)}</b>`}`}
 
+// ---------- espacios compartidos (pareja o familia)
+const espCK=id=>"mf.c.e."+uid+"."+(id||ESP),espQK=id=>"mf.q.e."+uid+"."+(id||ESP);
+function espBlank(){const e={items:[],cuentas:[],fuentes:[],fijos:[],metas:[],deudas:[]};
+  ["cfg","escs","reglas","pend"].forEach(k=>Object.defineProperty(e,k,{get:()=>R[k],set:v=>{R[k]=v},enumerable:true}));return e}
+function applyDocsE(docs){const nx={items:[],cuentas:[],fuentes:[],fijos:[],metas:[],deudas:[]};
+  docs.forEach(x=>{const b=x.data();if(!b)return;if(SPK.includes(x.id))nx[x.id]=clone(b.list||[]);else if(b.fecha&&b.id)nx.items.push(clone(b))});
+  Object.assign(E,nx);if(!isDemo())S=E}
+function cacheSaveE(){if(uid&&ESP&&E)lsSet(espCK(),{items:E.items,cuentas:E.cuentas,fuentes:E.fuentes,fijos:E.fijos,metas:E.metas,deudas:E.deudas})}
+let espK="";
+function espUI(){const b=$("espb");document.documentElement.classList.toggle("enesp",!!ESP);if(uid&&!isDemo()&&espK!==(ESP||"")){espK=ESP||"";setStatus(ESP?"Estás en «"+ESPN+"» · compartido":"Guardado en tu cuenta · privado")}if(!b)return;b.hidden=!ESP;if(ESP&&b.dataset.n!==ESPN){b.dataset.n=ESPN;b.innerHTML=ic("users")+"<span>"+esc(ESPN)+"</span>"}}
+function espUse(id){
+  if(unsubE){try{unsubE()}catch(e){}unsubE=null}colE=null;
+  if(!id){ESP=null;ESPN="";E=null;if(!isDemo())S=R;try{localStorage.removeItem("mf.esp."+uid)}catch(e){}espUI();render();return}
+  const e=ESPS.find(x=>x.id===id);if(!e)return;
+  ESP=id;ESPN=e.nombre;E=espBlank();const c=lsGet(espCK(id),{});SPK.concat(["items"]).forEach(k=>{if(Array.isArray(c[k]))E[k]=c[k]});if(!isDemo())S=E;lsSet("mf.esp."+uid,id);espUI();render();
+  colE=makeCol({t:"espacio_docs",k:"espacio_id",v:()=>id,qk:()=>espQK(id),ok:"Guardado en "+e.nombre+" · compartido",ch:()=>"esp-"+id,save:cacheSaveE,denied:()=>espLoad()});
+  unsubE=colE.onSnapshot(snap=>{if(ESP!==id)return;applyDocsE(snap.docs);cacheSaveE();render()},()=>{if(ESP===id)setStatus("Sin conexión: usando lo guardado del espacio")})}
+async function espLoad(){if(!sb||!uid)return;try{
+  const {data,error}=await sb.from("espacio_miembros").select("espacio_id,rol,espacios(nombre,owner,borrado)").eq("user_id",uid).is("salio",null);if(error)return;
+  ESPS=(data||[]).filter(r=>r.espacios&&!r.espacios.borrado).map(r=>({id:r.espacio_id,nombre:r.espacios.nombre,dueno:r.espacios.owner===uid}));
+  try{const pre="mf.c.e."+uid+".";for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.startsWith(pre)&&!ESPS.some(x=>x.id===k.slice(pre.length)))localStorage.removeItem(k)}}catch(e){}
+  const want=lsGet("mf.esp."+uid,null);
+  if(ESP&&!ESPS.some(x=>x.id===ESP)){try{localStorage.removeItem(espQK())}catch(e){}espUse(null);toast("Ya no estás en ese espacio compartido")}
+  else if(ESP){const e=ESPS.find(x=>x.id===ESP);if(e&&e.nombre!==ESPN){ESPN=e.nombre;espUI()}}
+  else if(want&&ESPS.some(x=>x.id===want))espUse(want);
+  espUI()}catch(e){}}
+const rpcErr=e=>!e?"":e.code==="42501"?"No tienes permiso para eso":(e.message||"No se pudo, intenta de nuevo");
+const espLink=c=>(CFG.siteUrl||location.origin+location.pathname)+"?unirse="+c;
+const espFmt=c=>String(c||"").replace(/(.{4})(.{4})(.*)/,"$1 $2 $3").trim();
+async function espPanel(code){
+  if(!sb||!uid||isDemo()){openPanel(`<h3>Compartir con tu pareja o familia</h3><p>Para compartir necesitas entrar con tu cuenta.</p><button class="btn full" data-act="close">Cerrar</button>`);return}
+  const J=!!code,IN=ESP&&!J;let mem=[];if(IN){try{const {data}=await sb.from("espacio_miembros").select("user_id,nombre,rol").eq("espacio_id",ESP).is("salio",null).order("created_at");mem=data||[]}catch(e){}}
+  const cur=ESPS.find(x=>x.id===ESP),nm=(R.cfg.nombre||"").trim(),ap=nm.split(/\s+/).slice(-1)[0]||"";
+  openPanel(`<h3>${IN?esc(ESPN):J?"Unirte a un espacio compartido":"Compartir con tu pareja o familia"}</h3>
+  ${IN?`<p class="note" style="margin-top:-6px">Espacio compartido: lo que anoten aquí lo ven ${mem.length>1?"todos":"quienes invites"}. Tu PIN, tus alertas y tu presupuesto siguen siendo solo tuyos.</p>
+    <h4 style="margin:12px 0 6px">Quiénes están</h4><ul class="list">${mem.map(m=>`<li><div class="it">${bubI(m.rol==="dueno"?"star":"user",m.rol==="dueno"?"#f59e0b":"#0ea5e9","sm")}<span class="tx"><b>${esc(m.nombre||"Sin nombre")}${m.user_id===uid?" (tú)":""}</b><span>${m.rol==="dueno"?"Creó el espacio":"Miembro"}</span></span>${cur&&cur.dueno&&m.user_id!==uid?`<button class="dedx" data-act="esp-quitar" data-id="${esc(m.user_id)}" aria-label="Quitar a ${esc(m.nombre||"esta persona")}" title="Quitar">×</button>`:""}</div></li>`).join("")}</ul>
+    <div id="esInv">${`<button class="btn yel full" data-act="esp-inv" style="margin-top:10px">${ic("plus")}Invitar a alguien</button>`}</div>
+    <div class="g2" style="margin-top:10px"><button class="btn full" data-act="esp-use">${ic("user")}Personal</button>${cur&&cur.dueno?`<button class="btn full" data-act="esp-ren">${ic("edit")}Renombrar</button>`:`<button class="btn full danger" data-act="esp-salir">Salir</button>`}</div>
+    ${cur&&cur.dueno?`<button class="btn danger full" style="margin-top:8px" data-act="esp-cerrar">${ic("trash")}Cerrar espacio</button>`:""}
+    ${ESPS.length>1?`<h4 style="margin:14px 0 6px">Tus otros espacios</h4>${ESPS.filter(x=>x.id!==ESP).map(x=>`<button class="btn full" style="margin-bottom:6px" data-act="esp-use" data-id="${esc(x.id)}">${ic("users")}${esc(x.nombre)}</button>`).join("")}`:""}`
+  :J?`<p class="note" style="margin-top:-6px">Te invitaron a un espacio compartido: ahí anotan juntos gastos, cuentas y metas. Tus finanzas personales siguen siendo solo tuyas.</p>
+    <label class="f">Código de invitación<input id="esC" maxlength="16" autocapitalize="characters" autocomplete="off" spellcheck="false" value="${esc(espFmt(code))}"></label>
+    <button class="btn solid full" data-act="esp-unir">${ic("users")}Unirme</button>`
+  :`<p class="note" style="margin-top:-6px">Un espacio aparte donde los dos anotan gastos, cuentas y metas de la casa. Tus finanzas personales siguen siendo solo tuyas.</p>
+    ${ESPS.length?`<h4 style="margin:10px 0 6px">Tus espacios</h4>${ESPS.map(x=>`<button class="btn full" style="margin-bottom:6px" data-act="esp-use" data-id="${esc(x.id)}">${ic("users")}Entrar a ${esc(x.nombre)}</button>`).join("")}`:""}
+    <details class="aladv"${ESPS.length?"":" open"}><summary>${ESPS.length?"Crear otro o unirme":"Empezar"}</summary>
+    <label class="f">Nombre del espacio<input id="esN" maxlength="60" value="${esc(ap&&nm.includes(" ")?"Hogar "+ap:"Hogar")}"></label>
+    <button class="btn solid full" data-act="esp-crear">${ic("plus")}Crear espacio compartido</button>
+    <p class="esor"><span>o</span></p>
+    <label class="f">¿Te invitaron? Escribe el código<input id="esC" maxlength="16" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ej. 5UJ9 3JK3 QG"></label>
+    <button class="btn full" data-act="esp-unir">Unirme</button></details>`}
+  <button class="btn full" data-act="close" style="margin-top:10px">Cerrar</button>`);
+  if(J)setTimeout(()=>{const b=document.querySelector('[data-act="esp-unir"]');if(b)b.focus()},100)}
+const espInvHtml=c=>`<div class="esinv"><span>Código para unirse · vale 7 días y una sola vez</span><b>${esc(espFmt(c))}</b><div class="g2"><button class="btn yel full" data-act="esp-share" data-id="${esc(c)}">${ic("send")}Enviar</button><button class="btn full" data-act="esp-copy" data-id="${esc(c)}">${ic("copy")}Copiar</button></div></div>`;
+
 // ---------- monedas: tasas del día (función "tasas"), convertidor y modo viaje. Todo se guarda en dólares.
 const MON={USD:["Dólar","$",2],GTQ:["Quetzal · Guatemala","Q",2],HNL:["Lempira · Honduras","L",2],NIO:["Córdoba · Nicaragua","C$",2],CRC:["Colón · Costa Rica","₡",2],
   MXN:["Peso mexicano","MX$",2],EUR:["Euro","€",2],BTC:["Bitcoin","₿",8],SAT:["Satoshis","sats",0,1],COP:["Peso colombiano","COL$",2],DOP:["Peso dominicano","RD$",2],
@@ -2678,6 +2752,25 @@ async function obFinish(){
 
 // ---------- acciones
 const ACT={
+  esp:k=>{closeUmenu();espPanel(k)},
+  "esp-use":id=>{closeUmenu();closePanel();espUse(id||null);toast(id?"Estás en "+((ESPS.find(x=>x.id===id)||{}).nombre||"el espacio compartido"):"Estás en tu cuenta personal")},
+  "esp-crear":async()=>{const n=v("esN").trim()||"Hogar";const {data,error}=await sb.rpc("crear_espacio",{p_nombre:n,p_mio:(R.cfg.nombre||userMail.split("@")[0]||"").slice(0,40)});
+    if(error){toast(rpcErr(error));return}await espLoad();espUse(data);toast("Espacio «"+n+"» creado");espPanel()},
+  "esp-unir":async()=>{const c=v("esC").replace(/[^A-Za-z0-9]/g,"");if(c.length<6){toast("Escribe el código que te mandaron");$("esC").focus();return}
+    const {data,error}=await sb.rpc("unirse_espacio",{p_code:c,p_mio:(R.cfg.nombre||userMail.split("@")[0]||"").slice(0,40)});if(error){toast(rpcErr(error));return}
+    await espLoad();espUse(data.id);closePanel();toast("¡Listo! Entraste a «"+data.nombre+"»");confetti(40)},
+  "esp-inv":async()=>{const {data,error}=await sb.rpc("invitar_espacio",{p_espacio:ESP});if(error){toast(rpcErr(error));return}const b=$("esInv");if(b)b.innerHTML=espInvHtml(data)},
+  "esp-share":async c=>{const t=`Te invito a nuestro espacio «${ESPN}» en Mis Finanzas para llevar juntos los gastos de la casa. Entra aquí: ${espLink(c)} (código ${espFmt(c)}).`;
+    try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==="AbortError")return}try{await navigator.clipboard.writeText(t);toast("Invitación copiada: pégala en WhatsApp")}catch(e){toast(t)}},
+  "esp-copy":async c=>{try{await navigator.clipboard.writeText(espFmt(c));toast("Código copiado")}catch(e){toast(espFmt(c))}},
+  "esp-quitar":async(id,b)=>{if(!confirmBtn(b,"¿Seguro?"))return;const {error}=await sb.rpc("quitar_miembro",{p_espacio:ESP,p_user:id});if(error){toast(rpcErr(error));return}toast("Ya no tiene acceso");espPanel()},
+  "esp-salir":async(_,b)=>{if(!confirmBtn(b,"Toca otra vez para salir"))return;const id=ESP;const {error}=await sb.rpc("salir_espacio",{p_espacio:id});if(error){toast(rpcErr(error));return}
+    try{localStorage.removeItem(espCK(id));localStorage.removeItem(espQK(id))}catch(e){}closePanel();espUse(null);await espLoad();toast("Saliste del espacio")},
+  "esp-cerrar":async(_,b)=>{if(!confirmBtn(b,"Se borra todo lo compartido. Toca otra vez"))return;const id=ESP;
+    const r=await sb.from("espacio_docs").delete().eq("espacio_id",id);if(r.error){toast(rpcErr(r.error));return}
+    const {error}=await sb.rpc("cerrar_espacio",{p_espacio:id});if(error){toast(rpcErr(error));return}
+    try{localStorage.removeItem(espCK(id));localStorage.removeItem(espQK(id))}catch(e){}closePanel();espUse(null);await espLoad();toast("Espacio cerrado")},
+  "esp-ren":async()=>{const n=prompt("Nuevo nombre del espacio",ESPN);if(n==null||!n.trim())return;const {error}=await sb.rpc("renombrar_espacio",{p_espacio:ESP,p_nombre:n.trim().slice(0,60)});if(error){toast(rpcErr(error));return}await espLoad();espPanel()},
   "q-all":k=>{qAll=k==="1";document.querySelectorAll("#qSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===k));histN=60;MEMO=new Map();try{renderMov()}finally{MEMO=null}},
   exp:()=>expPanel(),
   "exp-go":async k=>{const r=(document.querySelector('input[name="exR"]:checked')||{}).value||"vis",y=month.slice(0,4);
@@ -2762,7 +2855,7 @@ const ACT={
   "add-i":()=>{const f=S.fuentes[0];openSheet({tipo:"ingreso",cat:f?f.tipo:"Salario",fuente:f?f.id:"",lugar:f?f.nombre:"",monto:f?f.monto:""})},
   close:closePanel,
   "demo-on":()=>{D=makeDemo();S=D;month=todayStr().slice(0,7);render();show("inicio")},
-  "demo-off":()=>{S=R;D=null;render();if(!ready)return;if(!R.cfg.onboarded)showOnboarding()},
+  "demo-off":()=>{S=ESP&&E?E:R;D=null;render();if(!ready)return;if(!R.cfg.onboarded)showOnboarding()},
   csv:async()=>{const xs=agg(RG()).xs.sort((x,y)=>x.fecha.localeCompare(y.fecha));
     const csv="fecha,tipo,lugar,fuente,categoria,monto,nota\n"+xs.map(x=>[x.fecha,x.tipo,x.lugar,x.tipo==="ingreso"?srcName(x):"",x.cat,num(x.monto).toFixed(2),x.nota].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
     try{await navigator.clipboard.writeText(csv);toast("CSV copiado: pégalo en Excel o Notas")}catch(e){toast("No se pudo copiar")}},
@@ -2964,35 +3057,36 @@ function lsGet(k,d){try{const x=localStorage.getItem(k);return x==null?d:JSON.pa
 function lsSet(k,x){try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}}
 function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 function cacheSave(){if(uid)lsSet(CK(),{items:R.items,cfg:R.cfg,cuentas:R.cuentas,fuentes:R.fuentes,escs:R.escs,fijos:R.fijos,reglas:R.reglas,pend:R.pend,metas:R.metas,deudas:R.deudas})}
-function makeCol(){
-  let queue=lsGet(QK(),{}),flushing=false,again=false,tm=null;
+function makeCol(sc){sc=sc||{t:"docs",k:"user_id",v:()=>uid,qk:QK,ok:"Guardado en tu cuenta · privado",ch:()=>"docs-"+uid,save:()=>cacheSave()};
+  let queue=lsGet(sc.qk(),{}),flushing=false,again=false,tm=null,dead=false;
   async function flush(){
-    if(flushing){again=true;return}flushing=true;
+    if(dead)return;if(flushing){again=true;return}flushing=true;
     try{
       for(const id of Object.keys(queue)){const b=queue[id];
-        const r=b===null?await sb.from("docs").delete().eq("user_id",uid).eq("id",id):await sb.from("docs").upsert({user_id:uid,id,body:b,updated_at:new Date().toISOString()});
-        if(r.error)throw r.error;if(queue[id]===b){delete queue[id];lsSet(QK(),queue)}}
-      setStatus("Guardado en tu cuenta · privado");
-    }catch(e){setStatus("Sin conexión: se guardará cuando vuelva el internet");if(e&&e.code==="42501")mfaCheck()}
-    flushing=false;if(again){again=false;flush()}
+        const r=b===null?await sb.from(sc.t).delete().eq(sc.k,sc.v()).eq("id",id):await sb.from(sc.t).upsert({[sc.k]:sc.v(),id,body:b,updated_at:new Date().toISOString()});
+        if(r.error)throw r.error;if(queue[id]===b){delete queue[id];lsSet(sc.qk(),queue)}}
+      if(!dead)setStatus(sc.ok);
+    }catch(e){if(!dead){setStatus("Sin conexión: se guardará cuando vuelva el internet");if(e&&e.code==="42501"){if(sc.denied)sc.denied();else mfaCheck()}}}
+    flushing=false;if(again&&!dead){again=false;flush()}
   }
   window.addEventListener("online",flush);
-  const put=(id,b)=>{queue[id]=b;lsSet(QK(),queue);cacheSave();return flush()};
-  return{flush,doc:id=>({set:b=>put(id,clone(b)),delete:()=>put(id,null)}),
+  const put=(id,b)=>{queue[id]=b;lsSet(sc.qk(),queue);sc.save();return flush()};
+  let vis=null,ch=null;
+  return{flush,pending:()=>Object.keys(queue).length,doc:id=>({set:b=>put(id,clone(b)),delete:()=>put(id,null)}),
     onSnapshot(next,err){
-      const load=async()=>{const rows=[];for(let f=0;;f+=1000){const {data,error}=await sb.from("docs").select("id,body").eq("user_id",uid).range(f,f+999);if(error){err&&err(error);return}rows.push(...data);if(data.length<1000)break}
-        if(!rows.length&&await mfaCheck())return;
+      const load=async()=>{if(dead)return;const rows=[];for(let f=0;;f+=1000){const {data,error}=await sb.from(sc.t).select("id,body").eq(sc.k,sc.v()).range(f,f+999);if(error){err&&err(error);return}rows.push(...data);if(data.length<1000)break}
+        if(dead)return;if(!rows.length&&!sc.denied&&await mfaCheck())return;
         const m=new Map(rows.map(r=>[r.id,r.body]));Object.entries(queue).forEach(([k,b])=>b===null?m.delete(k):m.set(k,b));
         next({docs:[...m].map(([id,b])=>({id,data:()=>b})),metadata:{fromCache:false,hasPendingWrites:false}})};
       load();
-      const ch=sb.channel("docs-"+uid).on("postgres_changes",{event:"*",schema:"public",table:"docs",filter:"user_id=eq."+uid},()=>{if(Object.keys(queue).length)return;clearTimeout(tm);tm=setTimeout(load,700)}).subscribe();
-      document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!Object.keys(queue).length)load()});
-      return()=>sb.removeChannel(ch)}};
+      ch=sb.channel(sc.ch()).on("postgres_changes",{event:"*",schema:"public",table:sc.t,filter:sc.k+"=eq."+sc.v()},()=>{if(dead||Object.keys(queue).length)return;clearTimeout(tm);tm=setTimeout(load,700)}).subscribe();
+      vis=()=>{if(!document.hidden&&!Object.keys(queue).length)load()};document.addEventListener("visibilitychange",vis);
+      return()=>{dead=true;clearTimeout(tm);window.removeEventListener("online",flush);if(vis)document.removeEventListener("visibilitychange",vis);if(ch)try{sb.removeChannel(ch)}catch(e){}}}};
 }
 function applyDocs(docs){
   const it=[],nx=blank();
   docs.forEach(x=>{const b=x.data();if(!b)return;if(x.id==="cfg")nx.cfg=clone(b);else if(METAS.includes(x.id))nx[x.id]=clone(b.list||[]);else if(b.fecha&&b.id)it.push(clone(b))});
-  nx.items=it;Object.assign(R,nx);if(!isDemo())S=R;
+  nx.items=it;Object.assign(R,nx);if(!isDemo())S=ESP&&E?E:R;
 }
 
 function parseAlerta(raw,today){
@@ -3062,8 +3156,8 @@ async function pullInbox(){
       const src=["gmail","sms","correo"].includes(r.source)?r.source:null;if(src&&!R.cfg.alertOk[src]){R.cfg.alertOk[src]=todayStr();ok++}if(/^MF-CONEXION/.test(r.text||""))return;if(!R.pend.some(x=>x.id==="p"+r.id)){R.pend.push(makePend(r.text,r.source,r.id));add++}});
       if(ok){saveMeta("cfg");if(!add&&!sv.length)toast("¡Alertas conectadas!")}
       if(add){saveMeta("pend");toast(add===1?"Llegó 1 alerta de tu banco":"Llegaron "+add+" alertas de tu banco")}
-      if(sv.length){sv.forEach(it=>{R.items.push(it);writeDoc(it.id,it)});render();const t=sv[sv.length-1];
-        toast((sv.length===1?"Siri anotó "+fmt(t.monto)+" · "+t.lugar:"Siri anotó "+sv.length+" gastos")+(add?" · y "+add+" por revisar":""),"Ver",()=>{if(sv.length===1)ACT["edit-item"](t.id);else show("cuentas")})}
+      if(sv.length){sv.forEach(it=>{R.items.push(it);writeDoc(it.id,it,1)});render();const t=sv[sv.length-1];
+        toast((sv.length===1?"Siri anotó "+fmt(t.monto)+" · "+t.lugar:"Siri anotó "+sv.length+" gastos")+(add?" · y "+add+" por revisar":"")+(ESP?" (en Personal)":""),ESP?"":"Ver",()=>{if(sv.length===1)ACT["edit-item"](t.id);else show("cuentas")})}
       await sb.from("inbox").delete().eq("user_id",uid).in("id",data.map(r=>r.id));}
   }catch(e){}pulling=false;
 }
@@ -3075,6 +3169,7 @@ function pendDiscard(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
   <p class="note">No se guardará como movimiento y <b>no se puede deshacer</b>.</p>
   <div class="g2"><button class="btn full" data-act="close">Cancelar</button><button class="btn danger full" data-act="pend-x-ok" data-id="${esc(id)}">${ic("trash")}Descartar</button></div>`)}
 function openPend(id){const p=S.pend.find(x=>x.id===id);if(!p)return;
+  if(ESP){espUse(null);toast("Te pasé a Personal: las alertas son de tus cuentas")}
   openSheet({tipo:p.tipo,monto:p.monto,lugar:p.comercio||(p.tipo==="ingreso"?"Depósito":""),fecha:p.fecha,cat:p.cat||undefined,cuenta:p.cuenta,nota:""});
   pendCtx={id:p.id};const c=S.cuentas.find(x=>x.id===p.cuenta);
   $("fTitle").textContent="Revisar alerta del banco";$("fDel").hidden=false;$("fDel").textContent="Descartar alerta";
@@ -3340,8 +3435,8 @@ async function enterSession(user){
   try{gate=await needMfa()}finally{entering=0}
   if(gate){showMfa(user);return}
   if(uid===user.id&&col)return;
-  uid=user.id;userMail=user.email||"";$("auth").hidden=true;$("boot").hidden=false;ready=false;setStatus("Sincronizando…");
-  Object.assign(R,blank(),lsGet(CK(),{}));if(!isDemo())S=R;render();
+  uid=user.id;userMail=user.email||"";if(QESP!==null){if(QESP)lsSet("mf.esp."+uid,QESP);else lsDel("mf.esp."+uid);QESP=null}$("auth").hidden=true;$("boot").hidden=false;ready=false;setStatus("Sincronizando…");
+  Object.assign(R,blank(),lsGet(CK(),{}));if(!isDemo())S=ESP&&E?E:R;render();
   const local=lsGet(KEY,null);
   col=makeCol();let first=true;
   const t=setTimeout(()=>{if(!$("mfa").hidden)return;setStatus("Sin conexión: usando los datos guardados en el teléfono");start();render()},8000);
@@ -3355,7 +3450,7 @@ async function enterSession(user){
       lsDel(KEY);lsDel("fin.items");
       if(lsGet("mf.pinreset."+uid,0)){lsDel("mf.pinreset."+uid);lsDel(PFK());if(R.cfg.pinHash){pinDel();writeDoc("cfg",R.cfg)}setTimeout(()=>{pinForm();toast("Crea tu PIN nuevo")},900)}
       if(!Object.keys(lsGet(QK(),{})).length)setStatus("Guardado en tu cuenta · privado");else col.flush();
-      sb.rpc("es_admin").then(({data})=>{esAdmin=data===true}).catch(()=>{});if(R.cfg.viaje)moGet();
+      sb.rpc("es_admin").then(({data})=>{esAdmin=data===true}).catch(()=>{});if(R.cfg.viaje)moGet();espP=espLoad();
       cashOK=true;
     }
     cacheSave();start();render();
@@ -3363,11 +3458,11 @@ async function enterSession(user){
   },e=>{clearTimeout(t);setStatus("Sin conexión: usando los datos guardados en el teléfono");start();render()});
 }
 async function signOut(all){
-  const q=Object.keys(lsGet(QK(),{})).length;
+  const q=Object.keys(lsGet(QK(),{})).length+(colE?colE.pending():0);
   if(q&&!confirm("Hay "+q+" cambio(s) sin subir por falta de internet. Si sales ahora se pierden. ¿Salir de todos modos?"))return;
   try{await sb.auth.signOut({scope:all?"global":"local"})}catch(e){}
   if(all)try{sessionStorage.setItem("mf.out","all")}catch(e){}
-  lsDel(CK());lsDel(QK());location.reload();
+  lsDel(CK());lsDel(QK());try{Object.keys(localStorage).filter(k=>k.startsWith("mf.c.e."+uid)||k.startsWith("mf.q.e."+uid)||k==="mf.esp."+uid).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload();
 }
 function newPassPanel(){openPanel(`<h3>Crea tu contraseña nueva</h3><label class="f">Contraseña nueva<input id="np1" type="password" minlength="8" autocomplete="new-password"></label><p class="neg note" id="npErr"></p><div class="g2"><button class="btn full" data-act="close">Después</button><button class="btn solid full" data-act="np-save">Guardar</button></div>`)}
 Object.assign(ACT,{
@@ -3472,7 +3567,8 @@ Object.assign(ACT,{
     if(error){b.disabled=false;$("mfaErr").textContent=/code|invalid|expired/i.test(error.message||"")?"Código incorrecto o vencido.":"No se pudo desactivar. Intenta de nuevo.";return}
     mfaOn=false;closePanel();toast("Verificación en dos pasos desactivada")},
   "np-save":async()=>{const p=v("np1");if(p.length<8){$("npErr").textContent="Mínimo 8 caracteres";return}const {error}=await sb.auth.updateUser({password:p});if(error){$("npErr").textContent=auErr(error);return}closePanel();toast("Contraseña actualizada")},
-  "del-account":(_,b)=>{if(!confirmBtn(b,"Toca otra vez: se borra tu cuenta y todo"))return;(async()=>{const {error}=await sb.rpc("delete_my_account");if(error){if(/mfa_required/.test(error.message||"")){mfaCheck();return}toast("No se pudo eliminar: "+error.message);return}lsDel(CK());lsDel(QK());try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()})()}
+  "del-account":(_,b)=>{if(!confirmBtn(b,"Toca otra vez: se borra tu cuenta y todo"))return;(async()=>{try{const {data}=await sb.from("espacio_miembros").select("espacio_id").eq("user_id",uid).is("salio",null);for(const m of data||[])await sb.rpc("salir_espacio",{p_espacio:m.espacio_id})}catch(e){}
+    const {error}=await sb.rpc("delete_my_account");if(error){if(/mfa_required/.test(error.message||"")){mfaCheck();return}toast("No se pudo eliminar: "+error.message);return}lsDel(CK());lsDel(QK());try{await sb.auth.signOut({scope:"local"})}catch(e){}location.reload()})()}
 });
 const _demoOff=ACT["demo-off"];ACT["demo-off"]=()=>{if(sb&&!uid){S=R;D=null;render();showAuth();return}_demoOff()};
 
@@ -3494,8 +3590,8 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdat
 
 // ---------- arranque
 const GRET=new URLSearchParams(location.search).get("gmail");
-const QS=new URLSearchParams(location.search),QTRF=QS.get("trf"),QTAB=QS.get("tab"),QSCAN=QS.get("scan"),QADD=QS.get("add"),QACT=QS.get("act"),QM=QS.get("m"),QEN=QS.get("en");
-if(GRET||QTRF!==null||QTAB||QSCAN||QADD||QACT)history.replaceState(null,"",location.pathname+location.hash);
+const QS=new URLSearchParams(location.search),QTRF=QS.get("trf"),QTAB=QS.get("tab"),QSCAN=QS.get("scan"),QADD=QS.get("add"),QACT=QS.get("act"),QM=QS.get("m"),QEN=QS.get("en"),QUN=QS.get("unirse");let QESP=QS.has("esp")?QS.get("esp").replace(/[^A-Za-z0-9-]/g,"").slice(0,40):null;
+if(GRET||QTRF!==null||QTAB||QSCAN||QADD||QACT||QUN||QESP!==null)history.replaceState(null,"",location.pathname+location.hash);
 function start(){
   if(ready)return;ready=true;$("boot").hidden=true;render();
   if(QTAB)setTimeout(()=>show(QTAB),300);
@@ -3505,8 +3601,9 @@ function start(){
   if(QADD==="g")setTimeout(()=>{const m=monParse(QM),en=String(QEN||"").replace(/\s+/g," ").trim().slice(0,80);
     if((m!=null&&m>0)||en)openSheet({tipo:"gasto",monto:m>0&&m<1e7?Math.round(m*100)/100:"",lugar:en,cat:(en&&catFor(en))||undefined});else ACT["add-g"]()},400);
   if(QADD==="i")setTimeout(()=>ACT["add-i"](),400);
+  if(QUN)setTimeout(()=>{const c=QUN.replace(/[^A-Za-z0-9]/g,"").slice(0,16).toUpperCase();if(!sb||!uid){toast("Entra con tu cuenta para unirte al espacio");return}espPanel(c)},900);
   if(QTRF==="")setTimeout(()=>trfPanel(""),400);
-  if(QTRF)setTimeout(()=>{const [a,b,m]=QTRF.split("|");trfPanel(a||"");setTimeout(()=>{if(b&&$("tA"))$("tA").value=b;if(m&&$("tM"))$("tM").value=m},60)},900);
+  if(QTRF)setTimeout(async()=>{if(espP)await Promise.race([espP,new Promise(r=>setTimeout(r,4000))]);const [a,b,m]=QTRF.split("|");trfPanel(a||"");setTimeout(()=>{if(b&&$("tA"))$("tA").value=b;if(m&&$("tM"))$("tM").value=m},60)},900);
   if(GRET)setTimeout(()=>{const M={ok:"¡Gmail conectado! Tus alertas llegarán solas.",cancelado:"Conexión con Gmail cancelada","sin-permiso":"Falta marcar el permiso de leer correos. Intenta de nuevo y acepta todo.",vencido:"Se tardó mucho. Toca Conectar otra vez.","sin-configurar":"La conexión con Google aún no está activada"};toast(M[GRET]||"No se pudo conectar Gmail");if(GRET==="ok"){pullInbox();confetti&&confetti()}},1200);
   if(isDemo())return;
   if(!R.cfg.onboarded)showOnboarding();else showLock();
